@@ -1,0 +1,87 @@
+stages:
+  - docker
+  - cleanup
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: "/certs"
+  CI_REGISTRY: registry.nguyenanh-est.com
+  CI_REGISTRY_URL: https://registry.nguyenanh-est.com
+  IMAGE_NAME: "$CI_REGISTRY/$CI_PROJECT_PATH"
+  IMAGE_TAG: "$IMAGE_NAME:$CI_COMMIT_SHORT_SHA"
+  GIT_DEPTH: 0
+  GIT_STRATEGY: clone     
+  GIT_SUBMODULE_STRATEGY: none
+
+docker-build-and-push:
+  stage: docker
+  image: docker:latest
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: never
+    - if: '$CI_COMMIT_BRANCH == "deploy" && $CI_MERGE_REQUEST_STATE == "merged"'
+      when: on_success
+    - if: '$CI_COMMIT_BRANCH == "deploy" && $CI_PIPELINE_SOURCE == "push"'
+      when: on_success
+  before_script:
+    - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
+  script:
+    - |
+      export DOCKER_BUILDKIT=1
+      export BUILDKIT_INLINE_CACHE=1
+
+      TAG_LATEST="latest"
+      TAG_SHA="$CI_COMMIT_SHA"
+      TAG_BRANCH="$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID"
+      TAG_CACHE="cache"
+
+      echo "Building and tagging Docker image..."
+      docker build \
+        --build-arg BUILDKIT_INLINE_CACHE=1 \
+        --cache-from=type=registry,ref=$IMAGE_NAME:$TAG_CACHE \
+        -t $IMAGE_NAME:$TAG_LATEST \
+        -t $IMAGE_NAME:$TAG_SHA \
+        -t $IMAGE_NAME:$TAG_BRANCH \
+        -t $IMAGE_NAME:$TAG_CACHE \
+        .
+
+      echo "Pushing Docker image..."
+      docker push $IMAGE_NAME:$TAG_LATEST
+      docker push $IMAGE_NAME:$TAG_BRANCH
+      docker push $IMAGE_NAME:$TAG_CACHE
+
+docker-cleanup:
+  stage: cleanup
+  image: docker:latest
+  needs: ["docker-build-and-push"]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "deploy"'
+      when: on_success
+  script:
+    - |
+      TAG_LATEST="latest"
+      TAG_BRANCH="$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID"
+      TAG_CACHE="cache"
+
+      echo "Cleaning up local Docker images..."
+      docker rmi $IMAGE_NAME:$TAG_LATEST $IMAGE_NAME:$TAG_BRANCH $IMAGE_NAME:$TAG_CACHE || true
+
+      echo "Pruning dangling images..."
+      docker image prune -f
+
+      echo "Pruning build cache (intermediate layers)..."
+      docker builder prune -f
+
+docker-deploy:
+  stage: deploy
+  image: docker:latest
+  needs: ["docker-build-and-push"]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "deploy"'
+      when: on_success
+  before_script:
+    - sudo docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - echo "Deploying frontend service using Docker Compose as root..."
+    - sudo bash -c "cd /root/docker/fe_timetable && docker compose pull frontend && docker compose up -d frontend"

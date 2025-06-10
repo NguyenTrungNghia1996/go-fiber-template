@@ -1,0 +1,12 @@
+# .env file
+.env
+# Thư mục Go build
+/bin/
+/obj/
+# File go binary
+/main
+# Thư mục chứa file tạm thời của Go
+vendor/
+*.log
+.DS_Store
+Thumbs.db
