@@ -8,7 +8,7 @@
   ];
 
   env = {
-    MONGO_URL = "mongodb+srv://admin:cr969bp6x6@test.nlwvliy.mongodb.net/?retryWrites=true&w=majority&appName=test";
+    MONGO_URL = "";
     MONGO_NAME = "test2";
     JWT_SECRET = "test";
     PORT = "4000";
