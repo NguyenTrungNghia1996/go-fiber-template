@@ -4,60 +4,37 @@ on:
   pull_request:
     types: [closed]
     branches:
-      - deploy  # Chạy khi PR merge vào nhánh deploy
+      - deploy
 
 jobs:
   build-and-publish:
-    if: github.event.pull_request.merged == true  # Chỉ chạy khi PR được merge
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Thiết lập Docker Buildx
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      # 3. Cache Docker build layers
-      - name: Cache Docker layers
-        uses: actions/cache@v3
         with:
-          path: ~/.docker/buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+          driver: docker-container
 
-      # 4. Đăng nhập Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      # 5. Lấy tên repo GitHub làm tên image (không hardcode)
       - name: Set image name
         run: |
           echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
 
-      # 6. Build Docker image
-      - name: Build Docker image
-        run: |
-          docker build \
-            --cache-from=type=local,src=~/.docker/buildx-cache \
-            --cache-to=type=local,dest=~/.docker/buildx-cache-new \
-            -t ${{ secrets.DOCKER_HUB_USERNAME }}/$REPO_NAME:latest \
-            .
-
-      # 7. Push Docker image lên Docker Hub
-      - name: Push Docker image
-        run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/$REPO_NAME:latest
-
-      # 8. Di chuyển cache mới vào đúng chỗ
-      - name: Move Docker cache
-        run: |
-          rm -rf ~/.docker/buildx-cache
-          mv ~/.docker/buildx-cache-new ~/.docker/buildx-cache
-
+      - name: Build and Push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ env.REPO_NAME }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
