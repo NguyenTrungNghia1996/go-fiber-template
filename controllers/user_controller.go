@@ -6,7 +6,7 @@ import (
 	"go-fiber-api/utils"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 // CreateUser handles the creation of a new user
