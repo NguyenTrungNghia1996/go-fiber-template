@@ -6,6 +6,7 @@ import (
 	"go-fiber-api/utils"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
 )
 
 // CreateUser handles the creation of a new user
@@ -134,23 +135,21 @@ func UpdateUserPersonID(c *fiber.Ctx) error {
 	})
 }
 
-// ChangeUserPassword updates a user's password after verifying the old one
+// ChangeUserPassword updates the current user's password using JWT info
 // PUT /api/users/password
 // Body:
 //
 //	{
-//	  "id": "665e1b3fa6ef0c2d7e3e594f",
 //	  "old_password": "admin123",
 //	  "new_password": "123456"
 //	}
 func ChangeUserPassword(c *fiber.Ctx) error {
 	var body struct {
-		ID          string `json:"id"`
 		OldPassword string `json:"old_password"`
 		NewPassword string `json:"new_password"`
 	}
 
-	if err := c.BodyParser(&body); err != nil || body.ID == "" || body.OldPassword == "" || body.NewPassword == "" {
+	if err := c.BodyParser(&body); err != nil || body.OldPassword == "" || body.NewPassword == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
 			Message: "Invalid data",
@@ -158,7 +157,11 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := repositories.FindUserByID(body.ID)
+	userToken := c.Locals("user").(*jwt.Token)
+	claims := userToken.Claims.(jwt.MapClaims)
+	id, _ := claims["id"].(string)
+
+	user, err := repositories.FindUserByID(id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
 			Status:  "error",
@@ -184,7 +187,7 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 		})
 	}
 
-	err = repositories.UpdateUserPassword(body.ID, hashed)
+	err = repositories.UpdateUserPassword(id, hashed)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
@@ -197,5 +200,28 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 		Status:  "success",
 		Message: "Password changed successfully",
 		Data:    nil,
+	})
+}
+
+// GetCurrentUser returns the authenticated user's information from JWT
+// GET /api/me
+func GetCurrentUser(c *fiber.Ctx) error {
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	id, _ := claims["id"].(string)
+
+	user, err := repositories.FindUserByID(id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "User not found",
+			Data:    nil,
+		})
+	}
+	user.Password = ""
+	return c.JSON(models.APIResponse{
+		Status:  "success",
+		Message: "Get profile successfully",
+		Data:    user,
 	})
 }

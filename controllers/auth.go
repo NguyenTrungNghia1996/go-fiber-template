@@ -30,12 +30,12 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	token, _ := utils.GenerateJWT(user.ID, user.Role, user.PersonID)
+	token, _ := utils.GenerateJWT(user.ID.Hex(), user.Role, user.PersonID)
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Login successful",
 		Data: fiber.Map{
-			"id":       user.ID,
+			"id":       user.ID.Hex(),
 			"role":     user.Role,
 			"personID": user.PersonID,
 			"token":    token,

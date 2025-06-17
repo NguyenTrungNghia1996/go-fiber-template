@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"os"
 	"time"
 
@@ -29,4 +30,19 @@ func GenerateJWT(id, role, personID string) (string, error) {
 
 	secret := os.Getenv("JWT_SECRET")
 	return token.SignedString([]byte(secret))
+}
+
+// ParseJWT validates the token string and returns its claims
+func ParseJWT(tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(t *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil || !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, fmt.Errorf("invalid token claims")
+	}
+	return claims, nil
 }
