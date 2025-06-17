@@ -13,13 +13,11 @@ import (
 // POST /api/users
 // Body:
 //
-//	{
-//	  "username": "teacher1",
-//	  "password": "123456",
-//	  "email": "teacher@example.com",
-//	  "role": "member",
-//	  "person_id": "665abc..."
-//	}
+//	     {
+//	       "username": "teacher1",
+//	       "password": "123456",
+//	       "role": "member"
+//		}
 func CreateUser(c *fiber.Ctx) error {
 	var user models.User
 	if err := c.BodyParser(&user); err != nil {
@@ -98,44 +96,6 @@ func GetUsersByRole(c *fiber.Ctx) error {
 	})
 }
 
-// UpdateUserPersonID updates a user's associated person_id
-// PUT /api/users/person
-// Body:
-//
-//	{
-//	  "id": "665e1b3fa6ef0c2d7e3e594f",
-//	  "person_id": "665e1cdbabc123..."
-//	}
-func UpdateUserPersonID(c *fiber.Ctx) error {
-	var body struct {
-		ID       string `json:"id"`
-		PersonID string `json:"person_id"`
-	}
-	if err := c.BodyParser(&body); err != nil || body.ID == "" || body.PersonID == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Status:  "error",
-			Message: "Invalid data",
-			Data:    nil,
-		})
-	}
-
-	err := repositories.UpdateUserPersonID(body.ID, body.PersonID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
-			Status:  "error",
-			Message: "Unable to update PersonID",
-			Data:    nil,
-		})
-	}
-
-	return c.JSON(models.APIResponse{
-		Status:  "success",
-		Message: "PersonID has been updated successfully.g",
-		Data:    nil,
-	})
-}
-
-// ChangeUserPassword updates the current user's password using JWT info
 // PUT /api/users/password
 // Body:
 //

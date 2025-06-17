@@ -25,5 +25,4 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	admin := api.Group("/users", middleware.AdminOnly())
 	admin.Post("/", controllers.CreateUser)
 	admin.Get("/", controllers.GetUsersByRole)
-	admin.Put("/person", controllers.UpdateUserPersonID)
 }

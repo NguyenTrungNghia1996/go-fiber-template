@@ -18,11 +18,10 @@ func CheckPasswordHash(password, hash string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
 	return err == nil
 }
-func GenerateJWT(id, role, personID string) (string, error) {
+func GenerateJWT(id, role string) (string, error) {
 	claims := jwt.MapClaims{
 		"id":   id,
 		"role": role,
-		"pid":  personID,
 		"exp":  time.Now().Add(12 * time.Hour).Unix(), // Hết hạn sau 12 giờ
 	}
 
