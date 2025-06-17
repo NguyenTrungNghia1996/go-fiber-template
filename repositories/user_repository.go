@@ -21,9 +21,8 @@ func FindUserByUsername(username string) (*models.User, error) {
 	return &user, nil
 }
 
-// Tạo user mới và gắn với giáo viên (PersonID)
 func CreateUser(user *models.User) error {
-	user.ID = primitive.NewObjectID().Hex()
+	user.ID = primitive.NewObjectID()
 	_, err := config.DB.Collection("users").InsertOne(context.TODO(), user)
 	return err
 }
@@ -68,25 +67,26 @@ func GetUsersByRole(role string) ([]models.User, error) {
 
 	return users, nil
 }
-func UpdateUserPersonID(id string, personID string) error {
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"person_id": personID}}
-	_, err := config.DB.Collection("users").UpdateOne(context.TODO(), filter, update)
-	return err
-}
 
 func UpdateUserPassword(id string, hashedPassword string) error {
-	filter := bson.M{"_id": id}
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objID}
 	update := bson.M{"$set": bson.M{"password": hashedPassword}}
-	_, err := config.DB.Collection("users").UpdateOne(context.TODO(), filter, update)
+	_, err = config.DB.Collection("users").UpdateOne(context.TODO(), filter, update)
 	return err
 }
 
 // Lấy user theo ID
 func FindUserByID(id string) (*models.User, error) {
 	var user models.User
-	objID := id
-	err := config.DB.Collection("users").FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	err = config.DB.Collection("users").FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
