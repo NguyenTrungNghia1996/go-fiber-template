@@ -9,16 +9,16 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// CreateUser handles the creation of a new user
+type UserController struct {
+	Repo *repositories.UserRepository
+}
+
+func NewUserController(repo *repositories.UserRepository) *UserController {
+	return &UserController{Repo: repo}
+}
+
 // POST /api/users
-// Body:
-//
-//	     {
-//	       "username": "teacher1",
-//	       "password": "123456",
-//	       "role": "member"
-//		}
-func CreateUser(c *fiber.Ctx) error {
+func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 	var user models.User
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
@@ -28,8 +28,8 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Kiểm tra username đã tồn tại chưa
-	exists, err := repositories.IsUsernameExists(user.Username)
+	// Check username exists
+	exists, err := ctrl.Repo.IsUsernameExists(c.Context(), user.Username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
@@ -56,8 +56,8 @@ func CreateUser(c *fiber.Ctx) error {
 	}
 	user.Password = hashedPassword
 
-	// Tạo user
-	if err := repositories.CreateUser(&user); err != nil {
+	// Create user
+	if err := ctrl.Repo.Create(c.Context(), &user); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
 			Message: "Unable to create user",
@@ -65,9 +65,7 @@ func CreateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	// Xoá password trước khi trả về frontend
 	user.Password = ""
-
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Created user successfully",
@@ -75,12 +73,11 @@ func CreateUser(c *fiber.Ctx) error {
 	})
 }
 
-// GetUsersByRole retrieves users by their role
 // GET /api/users?role=member
-func GetUsersByRole(c *fiber.Ctx) error {
+func (ctrl *UserController) GetUsersByRole(c *fiber.Ctx) error {
 	role := c.Query("role")
 
-	users, err := repositories.GetUsersByRole(role)
+	users, err := ctrl.Repo.GetByRole(c.Context(), role)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
@@ -97,13 +94,7 @@ func GetUsersByRole(c *fiber.Ctx) error {
 }
 
 // PUT /api/users/password
-// Body:
-//
-//	{
-//	  "old_password": "admin123",
-//	  "new_password": "123456"
-//	}
-func ChangeUserPassword(c *fiber.Ctx) error {
+func (ctrl *UserController) ChangeUserPassword(c *fiber.Ctx) error {
 	var body struct {
 		OldPassword string `json:"old_password"`
 		NewPassword string `json:"new_password"`
@@ -121,7 +112,7 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	claims := userToken.Claims.(jwt.MapClaims)
 	id, _ := claims["id"].(string)
 
-	user, err := repositories.FindUserByID(id)
+	user, err := ctrl.Repo.FindByID(c.Context(), id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
 			Status:  "error",
@@ -142,12 +133,12 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Unable to encrypt passwordu",
+			Message: "Unable to encrypt password",
 			Data:    nil,
 		})
 	}
 
-	err = repositories.UpdateUserPassword(id, hashed)
+	err = ctrl.Repo.UpdatePassword(c.Context(), id, hashed)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
@@ -163,14 +154,13 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	})
 }
 
-// GetCurrentUser returns the authenticated user's information from JWT
 // GET /api/me
-func GetCurrentUser(c *fiber.Ctx) error {
+func (ctrl *UserController) GetCurrentUser(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
 	id, _ := claims["id"].(string)
 
-	user, err := repositories.FindUserByID(id)
+	user, err := ctrl.Repo.FindByID(c.Context(), id)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
 			Status:  "error",
@@ -179,6 +169,7 @@ func GetCurrentUser(c *fiber.Ctx) error {
 		})
 	}
 	user.Password = ""
+
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Get profile successfully",
