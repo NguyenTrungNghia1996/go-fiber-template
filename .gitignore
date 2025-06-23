@@ -1,12 +1,53 @@
-# .env file
-.env
-# Thư mục Go build
-/bin/
-/obj/
-# File go binary
-/main
-# Thư mục chứa file tạm thời của Go
-vendor/
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build output
+*.test
+*.out
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.coverprofile
+
+# Temporary files
 *.log
+*.tmp
+
+# Object files
+*.o
+*.a
+
+# Go workspace file
+go.work
+
+# Dependency directories (Go modules)
+vendor/
+
+# IDE / Editor files
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Build directories
+bin/
+build/
+dist/
+
+# Go build cache
+**/pkg/
+
+# Coverage reports
+coverage.*
+
+# Example: ignore environment files
+.env
+.env.*
+

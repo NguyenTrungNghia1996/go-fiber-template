@@ -1,5 +1,7 @@
 package controllers
 
+// This file contains authentication handlers used by the API.
+
 import (
 	"go-fiber-api/models"
 	"go-fiber-api/repositories"
@@ -8,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// Login authenticates a user and returns a signed JWT on success.
 func Login(c *fiber.Ctx) error {
 	var input struct {
 		Username string `json:"username"`
