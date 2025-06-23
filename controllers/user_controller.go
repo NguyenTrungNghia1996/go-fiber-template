@@ -1,5 +1,7 @@
 package controllers
 
+// This file defines handlers for user-related endpoints.
+
 import (
 	"go-fiber-api/models"
 	"go-fiber-api/repositories"
@@ -10,14 +12,15 @@ import (
 )
 
 type UserController struct {
-	Repo *repositories.UserRepository
+	Repo *repositories.UserRepository // provides DB operations
 }
 
+// NewUserController creates a controller with the given repository.
 func NewUserController(repo *repositories.UserRepository) *UserController {
 	return &UserController{Repo: repo}
 }
 
-// POST /api/users
+// CreateUser handles POST /api/users and registers a new account.
 func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 	var user models.User
 	if err := c.BodyParser(&user); err != nil {
@@ -73,7 +76,7 @@ func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 	})
 }
 
-// GET /api/users?role=member
+// GetUsersByRole returns a list of users optionally filtered by role.
 func (ctrl *UserController) GetUsersByRole(c *fiber.Ctx) error {
 	role := c.Query("role")
 
@@ -94,6 +97,7 @@ func (ctrl *UserController) GetUsersByRole(c *fiber.Ctx) error {
 }
 
 // PUT /api/users/password
+// ChangeUserPassword allows an authenticated user to update their password.
 func (ctrl *UserController) ChangeUserPassword(c *fiber.Ctx) error {
 	var body struct {
 		OldPassword string `json:"old_password"`
@@ -154,7 +158,7 @@ func (ctrl *UserController) ChangeUserPassword(c *fiber.Ctx) error {
 	})
 }
 
-// GET /api/me
+// GetCurrentUser returns profile information for the authenticated user.
 func (ctrl *UserController) GetCurrentUser(c *fiber.Ctx) error {
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)

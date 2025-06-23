@@ -2,31 +2,33 @@ package routes
 
 import (
 	"go-fiber-api/controllers"
-	"go-fiber-api/repositories"
 	"go-fiber-api/middleware"
+	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func Setup(app *fiber.App, db *mongo.Database) {
-	// Public routes
+	// Initialize repositories and controllers once so they can be reused
+	userRepo := repositories.NewUserRepository(db)
+	userCtrl := controllers.NewUserController(userRepo)
+
+	// Public routes do not require authentication
 	app.Post("/login", controllers.Login)
 	app.Get("/test", controllers.Hello)
 
-	// Protected API group
+	// Protected API group requires JWT authentication
 	api := app.Group("/api", middleware.Protected())
 	api.Get("/test2", controllers.Hello)
 
+	// Endpoints accessible to any authenticated user
 	api.Get("/me", userCtrl.GetCurrentUser)
 	api.Put("/users/password", userCtrl.ChangeUserPassword)
 	api.Put("/presigned_url", controllers.GetUploadUrl)
 
-	// Admin-only routes
-	userRepo := repositories.NewUserRepository(db)
-	userCtrl := controllers.NewUserController(userRepo)	
+	// Admin-only routes are nested under /api/users
 	admin := api.Group("/users", middleware.AdminOnly())
 	admin.Post("/", userCtrl.CreateUser)
 	admin.Get("/", userCtrl.GetUsersByRole)
 }
-

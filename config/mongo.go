@@ -1,5 +1,7 @@
 package config
 
+// Package config provides helpers for connecting to MongoDB.
+
 import (
 	"context"
 	"fmt"
@@ -15,6 +17,7 @@ import (
 
 var DB *mongo.Database
 
+// LoadDotEnv searches for a .env file in parent directories and loads it.
 func LoadDotEnv() error {
 	dir, err := os.Getwd()
 	if err != nil {
@@ -34,6 +37,8 @@ func LoadDotEnv() error {
 	return fmt.Errorf(".env not found in any parent directory")
 }
 
+// ConnectDB initializes the global MongoDB connection using environment
+// variables. It should be called once at application startup.
 func ConnectDB() {
 	start := time.Now()
 
