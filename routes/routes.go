@@ -2,8 +2,8 @@ package routes
 
 import (
 	"go-fiber-api/controllers"
-	"go-fiber-api/repositories"
 	"go-fiber-api/middleware"
+	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,6 +14,10 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	app.Post("/login", controllers.Login)
 	app.Get("/test", controllers.Hello)
 
+	// Setup repositories and controllers
+	userRepo := repositories.NewUserRepository(db)
+	userCtrl := controllers.NewUserController(userRepo)
+
 	// Protected API group
 	api := app.Group("/api", middleware.Protected())
 	api.Get("/test2", controllers.Hello)
@@ -23,10 +27,7 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	api.Put("/presigned_url", controllers.GetUploadUrl)
 
 	// Admin-only routes
-	userRepo := repositories.NewUserRepository(db)
-	userCtrl := controllers.NewUserController(userRepo)	
 	admin := api.Group("/users", middleware.AdminOnly())
 	admin.Post("/", userCtrl.CreateUser)
 	admin.Get("/", userCtrl.GetUsersByRole)
 }
-

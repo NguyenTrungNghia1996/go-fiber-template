@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"go-fiber-api/config"
 	"go-fiber-api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,6 +14,25 @@ import (
 
 type UserRepository struct {
 	collection *mongo.Collection
+}
+
+// UserRepo defines the behaviors required by the controller.
+type UserRepo interface {
+	FindByUsername(ctx context.Context, username string) (*models.User, error)
+	Create(ctx context.Context, user *models.User) error
+	IsUsernameExists(ctx context.Context, username string) (bool, error)
+	GetByRole(ctx context.Context, role string) ([]models.User, error)
+	UpdatePassword(ctx context.Context, id string, hashedPassword string) error
+	FindByID(ctx context.Context, id string) (*models.User, error)
+}
+
+// FindUserByUsername is a helper for controllers that don't have a repository instance
+func FindUserByUsername(username string) (*models.User, error) {
+	if config.DB == nil {
+		return nil, errors.New("database not initialized")
+	}
+	repo := NewUserRepository(config.DB)
+	return repo.FindByUsername(context.Background(), username)
 }
 
 func NewUserRepository(db *mongo.Database) *UserRepository {
@@ -108,4 +128,3 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User,
 	}
 	return &user, nil
 }
-

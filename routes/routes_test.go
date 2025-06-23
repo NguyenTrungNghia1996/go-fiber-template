@@ -4,91 +4,118 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"go-fiber-api/models"
-	"go-fiber-api/repositories"
-	"go-fiber-api/routes"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/mongo/inmemory"
+	"go-fiber-api/controllers"
+	"go-fiber-api/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func setupTestApp(t *testing.T) (*fiber.App, context.Context) {
-	ctx := context.TODO()
-
-	// Tạo MongoDB in-memory
-	memSrv, err := inmemory.New(ctx)
-	assert.NoError(t, err)
-
-	db := memSrv.Database("testdb")
-
-	app := fiber.New()
-	routes.Setup(app, db)
-
-	return app, ctx
+type mockUserRepo struct {
+	users map[string]models.User
 }
 
-func TestIntegration_CreateUser_Success(t *testing.T) {
-	app, _ := setupTestApp(t)
+func newMockUserRepo() *mockUserRepo {
+	return &mockUserRepo{users: make(map[string]models.User)}
+}
 
-	payload := map[string]interface{}{
-		"username": "testuser",
-		"password": "123456",
-		"role":     "admin",
+func (m *mockUserRepo) FindByUsername(ctx context.Context, username string) (*models.User, error) {
+	if u, ok := m.users[username]; ok {
+		return &u, nil
 	}
-	body, _ := json.Marshal(payload)
+	return nil, mongo.ErrNoDocuments
+}
 
+func (m *mockUserRepo) Create(ctx context.Context, user *models.User) error {
+	if _, exists := m.users[user.Username]; exists {
+		return errors.New("exists")
+	}
+	if user.ID.IsZero() {
+		user.ID = primitive.NewObjectID()
+	}
+	m.users[user.Username] = *user
+	return nil
+}
+
+func (m *mockUserRepo) IsUsernameExists(ctx context.Context, username string) (bool, error) {
+	_, ok := m.users[username]
+	return ok, nil
+}
+
+func (m *mockUserRepo) GetByRole(ctx context.Context, role string) ([]models.User, error) {
+	var res []models.User
+	for _, u := range m.users {
+		if role == "" || u.Role == role {
+			u.Password = ""
+			res = append(res, u)
+		}
+	}
+	return res, nil
+}
+
+func (m *mockUserRepo) UpdatePassword(ctx context.Context, id string, hashed string) error {
+	for k, u := range m.users {
+		if u.ID.Hex() == id {
+			u.Password = hashed
+			m.users[k] = u
+			return nil
+		}
+	}
+	return errors.New("not found")
+}
+
+func (m *mockUserRepo) FindByID(ctx context.Context, id string) (*models.User, error) {
+	for _, u := range m.users {
+		if u.ID.Hex() == id {
+			return &u, nil
+		}
+	}
+	return nil, mongo.ErrNoDocuments
+}
+
+func setupApp() (*fiber.App, *mockUserRepo) {
+	repo := newMockUserRepo()
+	ctrl := controllers.NewUserController(repo)
+	app := fiber.New()
+	app.Post("/api/users", ctrl.CreateUser)
+	app.Get("/api/users", ctrl.GetUsersByRole)
+	return app, repo
+}
+
+func TestCreateUserSuccess(t *testing.T) {
+	app, _ := setupApp()
+	payload := models.User{Username: "test", Password: "123", Role: "admin"}
+	body, _ := json.Marshal(payload)
 	req := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := app.Test(req)
+	resp, err := app.Test(req, -1)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
 
-func TestIntegration_CreateUser_Duplicate(t *testing.T) {
-	app, ctx := setupTestApp(t)
-
-	// Insert trước bản ghi
-	userRepo := repositories.NewUserRepository(app.Config().Config.Context.(*inmemory.Database))
-	_ = userRepo.Create(ctx, &models.User{
-		Username: "testuser",
-		Password: "hashedpassword",
-		Role:     "admin",
-	})
-
-	payload := map[string]interface{}{
-		"username": "testuser",
-		"password": "123456",
-		"role":     "admin",
-	}
+func TestCreateUserDuplicate(t *testing.T) {
+	app, repo := setupApp()
+	repo.users["test"] = models.User{ID: primitive.NewObjectID(), Username: "test", Password: "hash", Role: "admin"}
+	payload := models.User{Username: "test", Password: "123", Role: "admin"}
 	body, _ := json.Marshal(payload)
-
 	req := httptest.NewRequest(http.MethodPost, "/api/users", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := app.Test(req)
+	resp, err := app.Test(req, -1)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 }
 
-func TestIntegration_GetUsersByRole(t *testing.T) {
-	app, ctx := setupTestApp(t)
-
-	// Insert user
-	userRepo := repositories.NewUserRepository(app.Config().Config.Context.(*inmemory.Database))
-	_ = userRepo.Create(ctx, &models.User{
-		Username: "member1",
-		Password: "hashed",
-		Role:     "member",
-	})
-
+func TestGetUsersByRole(t *testing.T) {
+	app, repo := setupApp()
+	repo.users["member"] = models.User{ID: primitive.NewObjectID(), Username: "member", Password: "hash", Role: "member"}
 	req := httptest.NewRequest(http.MethodGet, "/api/users?role=member", nil)
-
-	resp, err := app.Test(req)
+	resp, err := app.Test(req, -1)
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
 }
