@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"go-fiber-api/config"
 	"go-fiber-api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -109,3 +110,15 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User,
 	return &user, nil
 }
 
+// FindUserByUsername finds a user from the global DB by username.
+func FindUserByUsername(username string) (*models.User, error) {
+	if config.DB == nil {
+		return nil, errors.New("database not initialized")
+	}
+	var user models.User
+	err := config.DB.Collection("users").FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}

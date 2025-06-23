@@ -8,6 +8,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+var loginRepo UserRepo
+
+// SetLoginRepo allows tests to replace the repository used in Login.
+func SetLoginRepo(r UserRepo) {
+	loginRepo = r
+}
+
 func Login(c *fiber.Ctx) error {
 	var input struct {
 		Username string `json:"username"`
@@ -21,7 +28,15 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := repositories.FindUserByUsername(input.Username)
+	var (
+		user *models.User
+		err  error
+	)
+	if loginRepo != nil {
+		user, err = loginRepo.FindByUsername(c.Context(), input.Username)
+	} else {
+		user, err = repositories.FindUserByUsername(input.Username)
+	}
 	if err != nil || !utils.CheckPasswordHash(input.Password, user.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
 			Status:  "error",

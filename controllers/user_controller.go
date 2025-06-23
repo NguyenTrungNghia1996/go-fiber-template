@@ -1,19 +1,28 @@
 package controllers
 
 import (
+	"context"
 	"go-fiber-api/models"
-	"go-fiber-api/repositories"
 	"go-fiber-api/utils"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type UserController struct {
-	Repo *repositories.UserRepository
+type UserRepo interface {
+	FindByUsername(ctx context.Context, username string) (*models.User, error)
+	Create(ctx context.Context, user *models.User) error
+	IsUsernameExists(ctx context.Context, username string) (bool, error)
+	GetByRole(ctx context.Context, role string) ([]models.User, error)
+	UpdatePassword(ctx context.Context, id string, hashedPassword string) error
+	FindByID(ctx context.Context, id string) (*models.User, error)
 }
 
-func NewUserController(repo *repositories.UserRepository) *UserController {
+type UserController struct {
+	Repo UserRepo
+}
+
+func NewUserController(repo UserRepo) *UserController {
 	return &UserController{Repo: repo}
 }
 
