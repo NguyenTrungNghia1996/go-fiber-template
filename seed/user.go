@@ -21,12 +21,13 @@ func SeedAdminUser() {
 		return
 	}
 	password, _ := utils.HashPassword("admin123")
+	groupID, _ := primitive.ObjectIDFromHex("685d01ab5e17ba55d0e349f2")
 	admin := models.User{
 		Username:   "admin",
 		Password:   password,
 		Role:       "admin",
 		Name:       "Administrator",
-		RoleGroups: []primitive.ObjectID{},
+		RoleGroups: []primitive.ObjectID{groupID},
 	}
 
 	_, err = collection.InsertOne(context.TODO(), admin)
