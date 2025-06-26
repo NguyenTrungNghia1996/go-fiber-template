@@ -13,6 +13,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/inmemory"
 )
 
@@ -35,9 +36,11 @@ func TestIntegration_CreateUser_Success(t *testing.T) {
 	app, _ := setupTestApp(t)
 
 	payload := map[string]interface{}{
-		"username": "testuser",
-		"password": "123456",
-		"role":     "admin",
+		"username":    "testuser",
+		"password":    "123456",
+		"role":        "admin",
+		"name":        "Tester",
+		"role_groups": []string{},
 	}
 	body, _ := json.Marshal(payload)
 
@@ -55,15 +58,19 @@ func TestIntegration_CreateUser_Duplicate(t *testing.T) {
 	// Insert trước bản ghi
 	userRepo := repositories.NewUserRepository(app.Config().Config.Context.(*inmemory.Database))
 	_ = userRepo.Create(ctx, &models.User{
-		Username: "testuser",
-		Password: "hashedpassword",
-		Role:     "admin",
+		Username:   "testuser",
+		Password:   "hashedpassword",
+		Role:       "admin",
+		Name:       "Tester",
+		RoleGroups: []primitive.ObjectID{},
 	})
 
 	payload := map[string]interface{}{
-		"username": "testuser",
-		"password": "123456",
-		"role":     "admin",
+		"username":    "testuser",
+		"password":    "123456",
+		"role":        "admin",
+		"name":        "Tester",
+		"role_groups": []string{},
 	}
 	body, _ := json.Marshal(payload)
 
@@ -81,9 +88,11 @@ func TestIntegration_GetUsersByRole(t *testing.T) {
 	// Insert user
 	userRepo := repositories.NewUserRepository(app.Config().Config.Context.(*inmemory.Database))
 	_ = userRepo.Create(ctx, &models.User{
-		Username: "member1",
-		Password: "hashed",
-		Role:     "member",
+		Username:   "member1",
+		Password:   "hashed",
+		Role:       "member",
+		Name:       "Member One",
+		RoleGroups: []primitive.ObjectID{},
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/users?role=member", nil)

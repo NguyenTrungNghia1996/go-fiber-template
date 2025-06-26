@@ -143,7 +143,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"role\": \"member\"\n}"
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"role\": \"member\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
@@ -304,6 +304,125 @@
               "path": [
                 "api",
                 "menus"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "000000000000000000000000"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Role Group",
+      "item": [
+        {
+          "name": "Get Role Groups",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "role-groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Role Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"admin\",\n  \"description\": [{\n    \"key\": \"menu\",\n    \"permissionValue\": 42\n  }]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "role-groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Role Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"admin\",\n  \"description\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/role-groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "role-groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Role Group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-groups?id=000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "role-groups"
               ],
               "query": [
                 {
