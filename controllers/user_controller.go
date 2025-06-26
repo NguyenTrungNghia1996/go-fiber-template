@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserController struct {
@@ -167,15 +168,21 @@ func (ctrl *UserController) ChangeUserPassword(c *fiber.Ctx) error {
 
 // UpdateUser handles PUT /api/users to update user information
 func (ctrl *UserController) UpdateUser(c *fiber.Ctx) error {
-	var user models.User
-	if err := c.BodyParser(&user); err != nil || user.ID.IsZero() {
+	var req struct {
+		ID         primitive.ObjectID   `json:"id"`
+		Name       string               `json:"name"`
+		RoleGroups []primitive.ObjectID `json:"role_groups"`
+	}
+	if err := c.BodyParser(&req); err != nil || req.ID.IsZero() {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
 			Message: "Invalid data",
 			Data:    nil,
 		})
 	}
-	if err := ctrl.Repo.UpdateByID(c.Context(), user.ID.Hex(), &user); err != nil {
+
+	user, err := ctrl.Repo.UpdateByID(c.Context(), req.ID.Hex(), req.Name, req.RoleGroups)
+	if err != nil {
 		status := fiber.StatusInternalServerError
 		if err.Error() == "user not found" {
 			status = fiber.StatusNotFound

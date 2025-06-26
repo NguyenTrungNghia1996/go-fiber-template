@@ -118,24 +118,26 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User,
 }
 
 // UpdateByID updates user's non-password fields by id
-func (r *UserRepository) UpdateByID(ctx context.Context, id string, user *models.User) error {
+// UpdateByID updates the name and role groups of a user by id and returns the
+// updated document. Username and password cannot be changed here.
+func (r *UserRepository) UpdateByID(ctx context.Context, id string, name string, roleGroups []primitive.ObjectID) (*models.User, error) {
 	objID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	update := bson.M{"$set": bson.M{
-		"username":    user.Username,
-		"name":        user.Name,
-		"role_groups": user.RoleGroups,
+		"name":        name,
+		"role_groups": roleGroups,
 	}}
 
-	res, err := r.collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updated models.User
+	err = r.collection.FindOneAndUpdate(ctx, bson.M{"_id": objID}, update, opts).Decode(&updated)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("user not found")
+	}
 	if err != nil {
-		return err
+		return nil, err
 	}
-	if res.MatchedCount == 0 {
-		return errors.New("user not found")
-	}
-	user.ID = objID
-	return nil
+	return &updated, nil
 }
