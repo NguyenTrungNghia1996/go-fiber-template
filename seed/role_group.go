@@ -24,7 +24,7 @@ func SeedRoleGroups() {
 		Permission: []models.PermissionDetail{
 			{Key: "menu", PermissionValue: 10},
 			{Key: "menu-euoi92n7f0", PermissionValue: 0},
-			{Key: "menu-byy4w5x6la", PermissionValue: 2},
+			{Key: "menu-byy4w5x6la", PermissionValue: 10},
 		},
 	}
 
