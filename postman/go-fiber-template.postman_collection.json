@@ -97,7 +97,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/users?role=admin",
+              "raw": "{{baseUrl}}/api/users?role=admin&page=1&limit=10&search=user",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -109,6 +109,18 @@
                 {
                   "key": "role",
                   "value": "admin"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "user"
                 }
               ]
             }
@@ -162,13 +174,19 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/menus",
+              "raw": "{{baseUrl}}/api/menus?search=menu",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "menus"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "menu"
+                }
               ]
             }
           },

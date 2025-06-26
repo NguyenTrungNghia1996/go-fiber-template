@@ -7,6 +7,8 @@ import (
 	"go-fiber-api/repositories"
 	"go-fiber-api/utils"
 
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
@@ -79,8 +81,11 @@ func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 // GetUsersByRole returns a list of users optionally filtered by role.
 func (ctrl *UserController) GetUsersByRole(c *fiber.Ctx) error {
 	role := c.Query("role")
+	search := c.Query("search")
+	page, _ := strconv.ParseInt(c.Query("page", "1"), 10, 64)
+	limit, _ := strconv.ParseInt(c.Query("limit", "10"), 10, 64)
 
-	users, err := ctrl.Repo.GetByRole(c.Context(), role)
+	users, total, err := ctrl.Repo.GetByRole(c.Context(), role, search, page, limit)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
@@ -92,7 +97,10 @@ func (ctrl *UserController) GetUsersByRole(c *fiber.Ctx) error {
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Get user list successfully",
-		Data:    users,
+		Data: fiber.Map{
+			"items": users,
+			"total": total,
+		},
 	})
 }
 

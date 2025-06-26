@@ -24,12 +24,19 @@ func (r *MenuRepository) Create(ctx context.Context, menu *models.Menu) error {
 	return err
 }
 
-func (r *MenuRepository) GetAll(ctx context.Context) ([]models.Menu, error) {
-	cursor, err := r.collection.Find(ctx, bson.M{})
+// GetAll returns menus optionally filtered by a search keyword.
+func (r *MenuRepository) GetAll(ctx context.Context, search string) ([]models.Menu, error) {
+	filter := bson.M{}
+	if search != "" {
+		filter["title"] = bson.M{"$regex": search, "$options": "i"}
+	}
+
+	cursor, err := r.collection.Find(ctx, filter)
 	if err != nil {
 		return nil, err
 	}
 	defer cursor.Close(ctx)
+
 	var menus []models.Menu
 	for cursor.Next(ctx) {
 		var m models.Menu
