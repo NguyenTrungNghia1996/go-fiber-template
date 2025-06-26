@@ -331,13 +331,27 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/role-groups",
+              "raw": "{{baseUrl}}/api/role-groups?page=1&limit=10&search=admin",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "role-groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "search",
+                  "value": "admin"
+                }
               ]
             }
           },
