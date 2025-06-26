@@ -9,8 +9,9 @@
 *.test
 *.out
 
-# Output of the go coverage tool, specifically when used with LiteIDE
+# Output of the go coverage tool
 *.coverprofile
+coverage.*
 
 # Temporary files
 *.log
@@ -26,6 +27,15 @@ go.work
 # Dependency directories (Go modules)
 vendor/
 
+# Build directories / output
+bin/
+build/
+dist/
+tmp/                 # 👈 Thư mục build tạm của Air (bạn nên ignore)
+
+# Go build cache
+**/pkg/
+
 # IDE / Editor files
 .idea/
 .vscode/
@@ -36,18 +46,10 @@ vendor/
 .DS_Store
 Thumbs.db
 
-# Build directories
-bin/
-build/
-dist/
-
-# Go build cache
-**/pkg/
-
-# Coverage reports
-coverage.*
-
-# Example: ignore environment files
+# Environment files
 .env
 .env.*
 
+# Air config (nếu bạn có file riêng cho từng môi trường)
+.air.toml.local
+.air.toml.dev
