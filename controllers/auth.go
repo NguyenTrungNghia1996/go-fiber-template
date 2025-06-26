@@ -3,6 +3,7 @@ package controllers
 // This file contains authentication handlers used by the API.
 
 import (
+	"go-fiber-api/config"
 	"go-fiber-api/models"
 	"go-fiber-api/repositories"
 	"go-fiber-api/utils"
@@ -24,7 +25,8 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := repositories.FindUserByUsername(input.Username)
+	repo := repositories.NewUserRepository(config.DB)
+	user, err := repo.FindByUsername(c.Context(), input.Username)
 	if err != nil || !utils.CheckPasswordHash(input.Password, user.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
 			Status:  "error",
