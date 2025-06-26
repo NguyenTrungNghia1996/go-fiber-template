@@ -84,7 +84,14 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Get role group list successfully\",\n  \"data\": {\n    \"items\": [{\n      \"id\": \"000000000000000000000000\",\n      \"name\": \"admin\",\n      \"description\": [{\n        \"key\": \"menu\",\n        \"permissionValue\": 42\n      }]\n    }],\n    \"totalrecord\": 1\n  }\n}"
+            }
+          ]
         },
         {
           "name": "Get Users",
@@ -414,6 +421,36 @@
               "path": [
                 "api",
                 "role-groups"
+              ]
+            }
+          },
+            "response": []
+        },
+        {
+          "name": "Role Group Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/role-groups/detail?id=000000000000000000000000",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "role-groups",
+                "detail"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "000000000000000000000000"
+                }
               ]
             }
           },

@@ -16,6 +16,34 @@ func NewRoleGroupController(repo *repositories.RoleGroupRepository) *RoleGroupCo
 	return &RoleGroupController{Repo: repo}
 }
 
+func (ctrl *RoleGroupController) GetRoleGroupDetail(c *fiber.Ctx) error {
+	id := c.Query("id")
+	if id == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Missing id",
+			Data:    nil,
+		})
+	}
+	group, err := ctrl.Repo.GetByID(c.Context(), id)
+	if err != nil {
+		status := fiber.StatusInternalServerError
+		if err.Error() == "role group not found" {
+			status = fiber.StatusNotFound
+		}
+		return c.Status(status).JSON(models.APIResponse{
+			Status:  "error",
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	return c.JSON(models.APIResponse{
+		Status:  "success",
+		Message: "Get role group detail successfully",
+		Data:    group.ToResponse(),
+	})
+}
+
 func (ctrl *RoleGroupController) CreateRoleGroup(c *fiber.Ctx) error {
 	var group models.RoleGroup
 	if err := c.BodyParser(&group); err != nil {

@@ -19,6 +19,22 @@ func NewRoleGroupRepository(db *mongo.Database) *RoleGroupRepository {
 	return &RoleGroupRepository{collection: db.Collection("role_groups")}
 }
 
+func (r *RoleGroupRepository) GetByID(ctx context.Context, id string) (*models.RoleGroup, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	var group models.RoleGroup
+	err = r.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&group)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("role group not found")
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &group, nil
+}
+
 func (r *RoleGroupRepository) Create(ctx context.Context, group *models.RoleGroup) error {
 	group.ID = primitive.NewObjectID()
 	_, err := r.collection.InsertOne(ctx, group)

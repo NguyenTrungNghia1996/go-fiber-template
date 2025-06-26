@@ -46,6 +46,7 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	roleGroupAdmin := api.Group("/role-groups", middleware.AdminOnly())
 	roleGroupAdmin.Post("/", roleGroupCtrl.CreateRoleGroup)
 	roleGroupAdmin.Put("/", roleGroupCtrl.UpdateRoleGroup)
+	roleGroupAdmin.Get("/detail", roleGroupCtrl.GetRoleGroupDetail)
 	roleGroupAdmin.Get("/", roleGroupCtrl.GetRoleGroups)
 	roleGroupAdmin.Delete("/", roleGroupCtrl.DeleteRoleGroup)
 }

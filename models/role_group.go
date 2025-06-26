@@ -17,7 +17,7 @@ type RoleGroup struct {
 
 // RoleGroupResponse is used when returning role groups to clients.
 type RoleGroupResponse struct {
-	ID          primitive.ObjectID `json:"id"`
+	ID          string             `json:"id"`
 	Name        string             `json:"name"`
 	Description []PermissionDetail `json:"description"`
 }
@@ -25,7 +25,7 @@ type RoleGroupResponse struct {
 // ToResponse converts a RoleGroup to RoleGroupResponse.
 func (r RoleGroup) ToResponse() RoleGroupResponse {
 	return RoleGroupResponse{
-		ID:          r.ID,
+		ID:          r.ID.Hex(),
 		Name:        r.Name,
 		Description: r.Description,
 	}
