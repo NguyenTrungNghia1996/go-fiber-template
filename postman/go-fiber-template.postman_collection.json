@@ -104,7 +104,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/users?role=admin&page=1&limit=10&search=user",
+              "raw": "{{baseUrl}}/api/users?page=1&limit=10&search=user",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -113,10 +113,6 @@
                 "users"
               ],
               "query": [
-                {
-                  "key": "role",
-                  "value": "admin"
-                },
                 {
                   "key": "page",
                   "value": "1"
@@ -157,7 +153,38 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"role\": \"member\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"username\": \"user1\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",

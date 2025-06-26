@@ -47,14 +47,10 @@ func (r *UserRepository) IsUsernameExists(ctx context.Context, username string) 
 	return count > 0, nil
 }
 
-// Lấy danh sách user theo role (nếu có)
-// GetByRole returns a paginated list of users filtered by role and search keyword.
+// GetAll returns a paginated list of users filtered by username keyword.
 // It also returns the total number of matched documents for pagination.
-func (r *UserRepository) GetByRole(ctx context.Context, role, search string, page, limit int64) ([]models.User, int64, error) {
+func (r *UserRepository) GetAll(ctx context.Context, search string, page, limit int64) ([]models.User, int64, error) {
 	filter := bson.M{}
-	if role != "" {
-		filter["role"] = role
-	}
 	if search != "" {
 		filter["username"] = bson.M{"$regex": search, "$options": "i"}
 	}
@@ -119,4 +115,27 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User,
 		return nil, err
 	}
 	return &user, nil
+}
+
+// UpdateByID updates user's non-password fields by id
+func (r *UserRepository) UpdateByID(ctx context.Context, id string, user *models.User) error {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	update := bson.M{"$set": bson.M{
+		"username":    user.Username,
+		"name":        user.Name,
+		"role_groups": user.RoleGroups,
+	}}
+
+	res, err := r.collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return errors.New("user not found")
+	}
+	user.ID = objID
+	return nil
 }

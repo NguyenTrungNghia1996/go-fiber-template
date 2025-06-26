@@ -43,13 +43,12 @@ func (ctrl *AuthController) Login(c *fiber.Ctx) error {
 		})
 	}
 
-	token, _ := utils.GenerateJWT(user.ID.Hex(), user.Role)
+	token, _ := utils.GenerateJWT(user.ID.Hex())
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Login successful",
 		Data: fiber.Map{
 			"id":    user.ID.Hex(),
-			"role":  user.Role,
 			"token": token,
 		},
 	})
