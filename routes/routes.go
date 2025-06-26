@@ -13,11 +13,12 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	// Initialize repositories and controllers once so they can be reused
 	userRepo := repositories.NewUserRepository(db)
 	userCtrl := controllers.NewUserController(userRepo)
+	authCtrl := controllers.NewAuthController(userRepo)
 	menuRepo := repositories.NewMenuRepository(db)
 	menuCtrl := controllers.NewMenuController(menuRepo)
 
 	// Public routes do not require authentication
-	app.Post("/login", controllers.Login)
+	app.Post("/login", authCtrl.Login)
 	app.Get("/test", controllers.Hello)
 
 	// Protected API group requires JWT authentication
