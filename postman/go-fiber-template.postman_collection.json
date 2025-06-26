@@ -190,7 +190,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\\n  \\\"title\\\": \\\"1\\\",\\n  \\\"key\\\": \\\"1\\\",\\n  \\\"url\\\": \\\"/\\\",\\n  \\\"icon\\\": \\\"/\\\",\\n  \\\"parent_Id\\\": \\\"000000000000000000000000\\\",\\n  \\\"permissionBit\\\": 0\\n}"
+              "raw": "{\n  \"title\": \"1\",\n  \"key\": \"1\",\n  \"url\": \"/\",\n  \"icon\": \"/\",\n  \"parent_Id\": \"000000000000000000000000\",\n  \"permissionBit\": 0\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/menus",
@@ -221,22 +221,16 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\\n  \\\"title\\\": \\\"Updated\\\",\\n  \\\"key\\\": \\\"menu-updated\\\",\\n  \\\"url\\\": \\\"/new\\\",\\n  \\\"icon\\\": \\\"icon\\\",\\n  \\\"parent_Id\\\": \\\"000000000000000000000000\\\",\\n  \\\"permissionBit\\\": 1\\n}"
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"title\": \"Updated\",\n  \"key\": \"menu-updated\",\n  \"url\": \"/new\",\n  \"icon\": \"icon\",\n  \"parent_Id\": \"000000000000000000000000\",\n  \"permissionBit\": 1\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/menus?id=000000000000000000000000",
+              "raw": "{{baseUrl}}/api/menus",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "menus"
-              ],
-              "query": [
-                {
-                  "key": "id",
-                  "value": "000000000000000000000000"
-                }
               ]
             }
           },

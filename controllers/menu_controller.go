@@ -83,15 +83,6 @@ func (ctrl *MenuController) DeleteMenu(c *fiber.Ctx) error {
 }
 
 func (ctrl *MenuController) UpdateMenu(c *fiber.Ctx) error {
-	id := c.Query("id")
-	if id == "" {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Status:  "error",
-			Message: "Missing id",
-			Data:    nil,
-		})
-	}
-
 	var menu models.Menu
 	if err := c.BodyParser(&menu); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
@@ -101,7 +92,15 @@ func (ctrl *MenuController) UpdateMenu(c *fiber.Ctx) error {
 		})
 	}
 
-	if err := ctrl.Repo.UpdateByID(c.Context(), id, &menu); err != nil {
+	if menu.ID.IsZero() {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Missing id",
+			Data:    nil,
+		})
+	}
+
+	if err := ctrl.Repo.UpdateByID(c.Context(), menu.ID.Hex(), &menu); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
 			Message: err.Error(),
