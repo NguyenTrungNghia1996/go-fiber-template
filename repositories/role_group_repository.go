@@ -79,6 +79,7 @@ func (r *RoleGroupRepository) UpdateByID(ctx context.Context, id string, group *
 	update := bson.M{"$set": bson.M{
 		"name":        group.Name,
 		"description": group.Description,
+		"permission":  group.Permission,
 	}}
 	res, err := r.collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
 	if err != nil {

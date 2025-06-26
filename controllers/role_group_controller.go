@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type RoleGroupController struct {
@@ -45,13 +46,22 @@ func (ctrl *RoleGroupController) GetRoleGroupDetail(c *fiber.Ctx) error {
 }
 
 func (ctrl *RoleGroupController) CreateRoleGroup(c *fiber.Ctx) error {
-	var group models.RoleGroup
-	if err := c.BodyParser(&group); err != nil {
+	var req struct {
+		Name        string                    `json:"name"`
+		Description string                    `json:"description"`
+		Permission  []models.PermissionDetail `json:"permission"`
+	}
+	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
 			Message: "Invalid data",
 			Data:    nil,
 		})
+	}
+	group := models.RoleGroup{
+		Name:        req.Name,
+		Description: req.Description,
+		Permission:  req.Permission,
 	}
 	if err := ctrl.Repo.Create(c.Context(), &group); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
@@ -80,9 +90,9 @@ func (ctrl *RoleGroupController) GetRoleGroups(c *fiber.Ctx) error {
 			Data:    nil,
 		})
 	}
-	resp := make([]models.RoleGroupResponse, len(groups))
+	resp := make([]models.RoleGroupListItem, len(groups))
 	for i, g := range groups {
-		resp[i] = g.ToResponse()
+		resp[i] = g.ToListItem()
 	}
 	return c.JSON(models.APIResponse{
 		Status:  "success",
@@ -95,21 +105,32 @@ func (ctrl *RoleGroupController) GetRoleGroups(c *fiber.Ctx) error {
 }
 
 func (ctrl *RoleGroupController) UpdateRoleGroup(c *fiber.Ctx) error {
-	var group models.RoleGroup
-	if err := c.BodyParser(&group); err != nil || group.ID.IsZero() {
+	var req struct {
+		ID          string                    `json:"id"`
+		Name        string                    `json:"name"`
+		Description string                    `json:"description"`
+		Permission  []models.PermissionDetail `json:"permission"`
+	}
+	if err := c.BodyParser(&req); err != nil || req.ID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
 			Message: "Invalid data",
 			Data:    nil,
 		})
 	}
-	if err := ctrl.Repo.UpdateByID(c.Context(), group.ID.Hex(), &group); err != nil {
+	group := models.RoleGroup{
+		Name:        req.Name,
+		Description: req.Description,
+		Permission:  req.Permission,
+	}
+	if err := ctrl.Repo.UpdateByID(c.Context(), req.ID, &group); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
 			Message: err.Error(),
 			Data:    nil,
 		})
 	}
+	group.ID, _ = primitive.ObjectIDFromHex(req.ID)
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Updated role group successfully",

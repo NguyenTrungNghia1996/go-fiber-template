@@ -132,7 +132,14 @@
               ]
             }
           },
-          "response": []
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Get role group list successfully\",\n  \"data\": {\n    \"items\": [{\n      \"id\": \"000000000000000000000000\",\n      \"name\": \"admin\",\n      \"description\": \"gioi thieu\"\n    }],\n    \"totalrecord\": 1\n  }\n}"
+            }
+          ]
         },
         {
           "name": "Create User",
@@ -380,7 +387,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"admin\",\n  \"description\": [{\n    \"key\": \"menu\",\n    \"permissionValue\": 42\n  }]\n}"
+              "raw": "{\n  \"name\": \"admin\",\n  \"description\": \"gioi thieu\",\n  \"permission\": [\n    {\n      \"key\": \"menu\",\n      \"permissionValue\": 42\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/role-groups",
@@ -411,7 +418,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"admin\",\n  \"description\": []\n}"
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"admin\",\n  \"description\": \"gioi thieu\",\n  \"permission\": [\n    {\n      \"key\": \"menu\",\n      \"permissionValue\": 42\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/role-groups",

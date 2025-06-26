@@ -4,6 +4,7 @@ This project provides a starting point for building REST APIs with
 [Fiber](https://github.com/gofiber/fiber). It includes basic user
 authentication, role-based authorization and MongoDB integration.
 Users now store a `name` field and can belong to multiple role groups.
+Admins can manage role groups with dedicated CRUD endpoints.
 
 ## Running locally
 
