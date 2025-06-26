@@ -25,8 +25,9 @@ func main() {
 	config.ConnectDB()
 
 	// Seed default accounts if needed
-	seed.SeedAdminUser()
-	seed.SeedDefaultUser()
+    seed.SeedAdminUser()
+    seed.SeedDefaultUser()
+    seed.SeedMenus()
 
 	app := fiber.New()
 	app.Use(cors.New())
