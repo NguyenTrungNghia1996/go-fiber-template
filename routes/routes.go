@@ -33,17 +33,17 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	api.Put("/presigned_url", controllers.GetUploadUrl)
 
 	// Admin-only routes are nested under /api/users
-	admin := api.Group("/users", middleware.AdminOnly())
+	admin := api.Group("/users")
 	admin.Post("/", userCtrl.CreateUser)
 	admin.Get("/", userCtrl.GetUsersByRole)
 
-	menuAdmin := api.Group("/menus", middleware.AdminOnly())
+	menuAdmin := api.Group("/menus")
 	menuAdmin.Post("/", menuCtrl.CreateMenu)
 	menuAdmin.Put("/", menuCtrl.UpdateMenu)
 	menuAdmin.Get("/", menuCtrl.GetMenus)
 	menuAdmin.Delete("/", menuCtrl.DeleteMenu)
 
-	roleGroupAdmin := api.Group("/role-groups", middleware.AdminOnly())
+	roleGroupAdmin := api.Group("/role-groups")
 	roleGroupAdmin.Post("/", roleGroupCtrl.CreateRoleGroup)
 	roleGroupAdmin.Put("/", roleGroupCtrl.UpdateRoleGroup)
 	roleGroupAdmin.Get("/detail", roleGroupCtrl.GetRoleGroupDetail)
