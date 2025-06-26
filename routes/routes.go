@@ -13,6 +13,8 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	// Initialize repositories and controllers once so they can be reused
 	userRepo := repositories.NewUserRepository(db)
 	userCtrl := controllers.NewUserController(userRepo)
+	menuRepo := repositories.NewMenuRepository(db)
+	menuCtrl := controllers.NewMenuController(menuRepo)
 
 	// Public routes do not require authentication
 	app.Post("/login", controllers.Login)
@@ -31,4 +33,10 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	admin := api.Group("/users", middleware.AdminOnly())
 	admin.Post("/", userCtrl.CreateUser)
 	admin.Get("/", userCtrl.GetUsersByRole)
+
+	menuAdmin := api.Group("/menus", middleware.AdminOnly())
+	menuAdmin.Post("/", menuCtrl.CreateMenu)
+	menuAdmin.Put("/", menuCtrl.UpdateMenu)
+	menuAdmin.Get("/", menuCtrl.GetMenus)
+	menuAdmin.Delete("/", menuCtrl.DeleteMenu)
 }
