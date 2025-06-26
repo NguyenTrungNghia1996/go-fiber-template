@@ -10,8 +10,18 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// AuthController handles authentication requests.
+type AuthController struct {
+	Repo *repositories.UserRepository
+}
+
+// NewAuthController creates a controller with the provided user repository.
+func NewAuthController(repo *repositories.UserRepository) *AuthController {
+	return &AuthController{Repo: repo}
+}
+
 // Login authenticates a user and returns a signed JWT on success.
-func Login(c *fiber.Ctx) error {
+func (ctrl *AuthController) Login(c *fiber.Ctx) error {
 	var input struct {
 		Username string `json:"username"`
 		Password string `json:"password"`
@@ -24,7 +34,7 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := repositories.FindUserByUsername(input.Username)
+	user, err := ctrl.Repo.FindByUsername(c.Context(), input.Username)
 	if err != nil || !utils.CheckPasswordHash(input.Password, user.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
 			Status:  "error",

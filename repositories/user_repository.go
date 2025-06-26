@@ -48,20 +48,26 @@ func (r *UserRepository) IsUsernameExists(ctx context.Context, username string) 
 }
 
 // Lấy danh sách user theo role (nếu có)
-func (r *UserRepository) GetByRole(ctx context.Context, role string) ([]models.User, error) {
+// GetByRole returns a paginated list of users filtered by role and search keyword.
+// It also returns the total number of matched documents for pagination.
+func (r *UserRepository) GetByRole(ctx context.Context, role, search string, page, limit int64) ([]models.User, int64, error) {
 	filter := bson.M{}
 	if role != "" {
 		filter["role"] = role
 	}
-
-	projection := bson.M{
-		"password": 0, // không lấy field password
+	if search != "" {
+		filter["username"] = bson.M{"$regex": search, "$options": "i"}
 	}
+
+	projection := bson.M{"password": 0}
 	opts := options.Find().SetProjection(projection)
+	if limit > 0 {
+		opts.SetLimit(limit).SetSkip((page - 1) * limit)
+	}
 
 	cursor, err := r.collection.Find(ctx, filter, opts)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer cursor.Close(ctx)
 
@@ -69,11 +75,17 @@ func (r *UserRepository) GetByRole(ctx context.Context, role string) ([]models.U
 	for cursor.Next(ctx) {
 		var user models.User
 		if err := cursor.Decode(&user); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		users = append(users, user)
 	}
-	return users, nil
+
+	total, err := r.collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
 }
 
 // Update password theo user ID
@@ -108,4 +120,3 @@ func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User,
 	}
 	return &user, nil
 }
-
