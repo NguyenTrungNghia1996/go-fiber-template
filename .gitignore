@@ -31,7 +31,7 @@ vendor/
 bin/
 build/
 dist/
-tmp/                 # 👈 Thư mục build tạm của Air (bạn nên ignore)
+tmp/*
 
 # Go build cache
 **/pkg/
