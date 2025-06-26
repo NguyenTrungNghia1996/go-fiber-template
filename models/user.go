@@ -7,7 +7,6 @@ type User struct {
 	ID         primitive.ObjectID   `json:"id" bson:"_id,omitempty"`
 	Username   string               `json:"username" bson:"username"`
 	Password   string               `json:"password,omitempty" bson:"password"`
-	Role       string               `json:"role" bson:"role"` // admin or member
 	Name       string               `json:"name" bson:"name"`
 	RoleGroups []primitive.ObjectID `json:"role_groups" bson:"role_groups"`
 }

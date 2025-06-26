@@ -15,7 +15,7 @@ import (
 func SeedAdminUser() {
 	collection := config.DB.Collection("users")
 	var existing models.User
-	err := collection.FindOne(context.TODO(), bson.M{"role": "admin"}).Decode(&existing)
+	err := collection.FindOne(context.TODO(), bson.M{"username": "admin"}).Decode(&existing)
 	if err != mongo.ErrNoDocuments {
 		fmt.Println("✅ Admin user already exists.")
 		return
@@ -25,7 +25,6 @@ func SeedAdminUser() {
 	admin := models.User{
 		Username:   "admin",
 		Password:   password,
-		Role:       "admin",
 		Name:       "Administrator",
 		RoleGroups: []primitive.ObjectID{groupID},
 	}
@@ -42,7 +41,7 @@ func SeedAdminUser() {
 func SeedDefaultUser() {
 	collection := config.DB.Collection("users")
 	var existing models.User
-	err := collection.FindOne(context.TODO(), bson.M{"role": "user"}).Decode(&existing)
+	err := collection.FindOne(context.TODO(), bson.M{"username": "user"}).Decode(&existing)
 	if err != mongo.ErrNoDocuments {
 		fmt.Println("✅ Regular user already exists.")
 		return
@@ -51,7 +50,6 @@ func SeedDefaultUser() {
 	user := models.User{
 		Username:   "user",
 		Password:   password,
-		Role:       "user",
 		Name:       "Default User",
 		RoleGroups: []primitive.ObjectID{},
 	}

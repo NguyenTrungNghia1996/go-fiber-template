@@ -11,6 +11,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UserController struct {
@@ -78,14 +79,13 @@ func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 	})
 }
 
-// GetUsersByRole returns a list of users optionally filtered by role.
-func (ctrl *UserController) GetUsersByRole(c *fiber.Ctx) error {
-	role := c.Query("role")
+// GetUsers returns a paginated list of users.
+func (ctrl *UserController) GetUsers(c *fiber.Ctx) error {
 	search := c.Query("search")
 	page, _ := strconv.ParseInt(c.Query("page", "1"), 10, 64)
 	limit, _ := strconv.ParseInt(c.Query("limit", "10"), 10, 64)
 
-	users, total, err := ctrl.Repo.GetByRole(c.Context(), role, search, page, limit)
+	users, total, err := ctrl.Repo.GetAll(c.Context(), search, page, limit)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
@@ -163,6 +163,41 @@ func (ctrl *UserController) ChangeUserPassword(c *fiber.Ctx) error {
 		Status:  "success",
 		Message: "Password changed successfully",
 		Data:    nil,
+	})
+}
+
+// UpdateUser handles PUT /api/users to update user information
+func (ctrl *UserController) UpdateUser(c *fiber.Ctx) error {
+	var req struct {
+		ID         primitive.ObjectID   `json:"id"`
+		Name       string               `json:"name"`
+		RoleGroups []primitive.ObjectID `json:"role_groups"`
+	}
+	if err := c.BodyParser(&req); err != nil || req.ID.IsZero() {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Invalid data",
+			Data:    nil,
+		})
+	}
+
+	user, err := ctrl.Repo.UpdateByID(c.Context(), req.ID.Hex(), req.Name, req.RoleGroups)
+	if err != nil {
+		status := fiber.StatusInternalServerError
+		if err.Error() == "user not found" {
+			status = fiber.StatusNotFound
+		}
+		return c.Status(status).JSON(models.APIResponse{
+			Status:  "error",
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+	user.Password = ""
+	return c.JSON(models.APIResponse{
+		Status:  "success",
+		Message: "Updated user successfully",
+		Data:    user,
 	})
 }
 

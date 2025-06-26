@@ -35,7 +35,8 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	// Admin-only routes are nested under /api/users
 	admin := api.Group("/users")
 	admin.Post("/", userCtrl.CreateUser)
-	admin.Get("/", userCtrl.GetUsersByRole)
+	admin.Get("/", userCtrl.GetUsers)
+	admin.Put("/", userCtrl.UpdateUser)
 
 	menuAdmin := api.Group("/menus")
 	menuAdmin.Post("/", menuCtrl.CreateMenu)
