@@ -14,7 +14,7 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	userRepo := repositories.NewUserRepository(db)
 	roleGroupRepo := repositories.NewRoleGroupRepository(db)
 	userCtrl := controllers.NewUserController(userRepo, roleGroupRepo)
-	authCtrl := controllers.NewAuthController(userRepo)
+	authCtrl := controllers.NewAuthController(userRepo, roleGroupRepo)
 	menuRepo := repositories.NewMenuRepository(db)
 	menuCtrl := controllers.NewMenuController(menuRepo)
 	roleGroupCtrl := controllers.NewRoleGroupController(roleGroupRepo)
