@@ -28,7 +28,8 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	api.Get("/test2", controllers.Hello)
 
 	// Endpoints accessible to any authenticated user
-	api.Get("/me", userCtrl.GetCurrentUser)
+    api.Get("/me", userCtrl.GetCurrentUser)
+    api.Put("/me", userCtrl.UpdateCurrentUser)
 	api.Get("/permissions", userCtrl.GetUserPermissions)
 	api.Put("/users/password", userCtrl.ChangeUserPassword)
 	api.Put("/presigned_url", controllers.GetUploadUrl)
