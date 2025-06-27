@@ -24,5 +24,5 @@ assumes two variables:
 - `baseUrl` – base address of your running server, e.g. `http://localhost:4000`
 - `token` – JWT obtained from the `Login` request
 
-The collection contains examples for logging in, retrieving the current user
-and managing users as an admin.
+The collection contains examples for logging in, retrieving and updating the
+current user, and managing users as an admin.

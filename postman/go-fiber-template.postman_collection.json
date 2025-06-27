@@ -95,6 +95,37 @@
           ]
         },
         {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Get Permissions",
           "request": {
             "method": "GET",
@@ -177,7 +208,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
@@ -208,7 +239,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
@@ -482,7 +513,7 @@
               ]
             }
           },
-            "response": []
+          "response": []
         },
         {
           "name": "Role Group Detail",
