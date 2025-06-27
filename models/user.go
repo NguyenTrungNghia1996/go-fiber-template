@@ -8,6 +8,7 @@ type User struct {
 	Username   string               `json:"username" bson:"username"`
 	Password   string               `json:"password,omitempty" bson:"password"`
 	Name       string               `json:"name" bson:"name"`
+	UrlAvatar  string               `json:"url_avatar" bson:"url_avatar"`
 	RoleGroups []primitive.ObjectID `json:"role_groups" bson:"role_groups"`
 }
 
@@ -16,6 +17,7 @@ type UserListItem struct {
 	ID         string              `json:"id"`
 	Username   string              `json:"username"`
 	Name       string              `json:"name"`
+	UrlAvatar  string              `json:"url_avatar"`
 	RoleGroups []RoleGroupListItem `json:"role_groups"`
 }
 
@@ -31,6 +33,7 @@ func (u User) ToListItem(groups map[primitive.ObjectID]RoleGroupListItem) UserLi
 		ID:         u.ID.Hex(),
 		Username:   u.Username,
 		Name:       u.Name,
+		UrlAvatar:  u.UrlAvatar,
 		RoleGroups: rg,
 	}
 }
