@@ -1,12 +1,55 @@
-# .env file
-.env
-# Thư mục Go build
-/bin/
-/obj/
-# File go binary
-/main
-# Thư mục chứa file tạm thời của Go
-vendor/
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build output
+*.test
+*.out
+
+# Output of the go coverage tool
+*.coverprofile
+coverage.*
+
+# Temporary files
 *.log
+*.tmp
+
+# Object files
+*.o
+*.a
+
+# Go workspace file
+go.work
+
+# Dependency directories (Go modules)
+vendor/
+
+# Build directories / output
+bin/
+build/
+dist/
+tmp/*
+
+# Go build cache
+**/pkg/
+
+# IDE / Editor files
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS generated files
 .DS_Store
 Thumbs.db
+
+# Environment files
+.env
+.env.*
+
+# Air config (nếu bạn có file riêng cho từng môi trường)
+.air.toml.local
+.air.toml.dev

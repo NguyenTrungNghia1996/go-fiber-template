@@ -2,93 +2,142 @@ package repositories
 
 import (
 	"context"
-
-	"go-fiber-api/config"
+	"errors"
 	"go-fiber-api/models"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+type UserRepository struct {
+	collection *mongo.Collection
+}
+
+func NewUserRepository(db *mongo.Database) *UserRepository {
+	return &UserRepository{
+		collection: db.Collection("users"),
+	}
+}
+
 // Tìm user theo username
-func FindUserByUsername(username string) (*models.User, error) {
+func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
-	err := config.DB.Collection("users").FindOne(context.TODO(), bson.M{"username": username}).Decode(&user)
+	err := r.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-// Tạo user mới và gắn với giáo viên (PersonID)
-func CreateUser(user *models.User) error {
-	user.ID = primitive.NewObjectID().Hex()
-	_, err := config.DB.Collection("users").InsertOne(context.TODO(), user)
+// Tạo user mới
+func (r *UserRepository) Create(ctx context.Context, user *models.User) error {
+	user.ID = primitive.NewObjectID()
+	_, err := r.collection.InsertOne(ctx, user)
 	return err
 }
 
-// Kiểm tra Username already exists
-func IsUsernameExists(username string) (bool, error) {
-	count, err := config.DB.Collection("users").CountDocuments(context.TODO(), bson.M{"username": username})
+// Kiểm tra username đã tồn tại
+func (r *UserRepository) IsUsernameExists(ctx context.Context, username string) (bool, error) {
+	count, err := r.collection.CountDocuments(ctx, bson.M{"username": username})
 	if err != nil {
 		return false, err
 	}
 	return count > 0, nil
 }
 
-// Lấy danh sách user theo role (nếu có)
-func GetUsersByRole(role string) ([]models.User, error) {
+// GetAll returns a paginated list of users filtered by username keyword.
+// It also returns the total number of matched documents for pagination.
+func (r *UserRepository) GetAll(ctx context.Context, search string, page, limit int64) ([]models.User, int64, error) {
 	filter := bson.M{}
-	if role != "" {
-		filter["role"] = role
+	if search != "" {
+		filter["username"] = bson.M{"$regex": search, "$options": "i"}
 	}
 
-	// Projection: loại bỏ trường password
-	projection := bson.M{
-		"password": 0, // 0 = không lấy trường này
-	}
-
+	projection := bson.M{"password": 0}
 	opts := options.Find().SetProjection(projection)
-
-	cursor, err := config.DB.Collection("users").Find(context.TODO(), filter, opts)
-	if err != nil {
-		return nil, err
+	if limit > 0 {
+		opts.SetLimit(limit).SetSkip((page - 1) * limit)
 	}
-	defer cursor.Close(context.TODO())
+
+	cursor, err := r.collection.Find(ctx, filter, opts)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer cursor.Close(ctx)
 
 	var users []models.User
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(ctx) {
 		var user models.User
 		if err := cursor.Decode(&user); err != nil {
-			return nil, err
+			return nil, 0, err
 		}
 		users = append(users, user)
 	}
 
-	return users, nil
-}
-func UpdateUserPersonID(id string, personID string) error {
-	filter := bson.M{"_id": id}
-	update := bson.M{"$set": bson.M{"person_id": personID}}
-	_, err := config.DB.Collection("users").UpdateOne(context.TODO(), filter, update)
-	return err
+	total, err := r.collection.CountDocuments(ctx, filter)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return users, total, nil
 }
 
-func UpdateUserPassword(id string, hashedPassword string) error {
-	filter := bson.M{"_id": id}
+// Update password theo user ID
+func (r *UserRepository) UpdatePassword(ctx context.Context, id string, hashedPassword string) error {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": objID}
 	update := bson.M{"$set": bson.M{"password": hashedPassword}}
-	_, err := config.DB.Collection("users").UpdateOne(context.TODO(), filter, update)
-	return err
+
+	res, err := r.collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+	if res.MatchedCount == 0 {
+		return errors.New("user not found")
+	}
+	return nil
 }
 
 // Lấy user theo ID
-func FindUserByID(id string) (*models.User, error) {
+func (r *UserRepository) FindByID(ctx context.Context, id string) (*models.User, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
 	var user models.User
-	objID := id
-	err := config.DB.Collection("users").FindOne(context.TODO(), bson.M{"_id": objID}).Decode(&user)
+	err = r.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
 	if err != nil {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// UpdateByID updates user's non-password fields by id
+// UpdateByID updates the name and role groups of a user by id and returns the
+// updated document. Username and password cannot be changed here.
+func (r *UserRepository) UpdateByID(ctx context.Context, id string, name string, roleGroups []primitive.ObjectID) (*models.User, error) {
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+	update := bson.M{"$set": bson.M{
+		"name":        name,
+		"role_groups": roleGroups,
+	}}
+
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	var updated models.User
+	err = r.collection.FindOneAndUpdate(ctx, bson.M{"_id": objID}, update, opts).Decode(&updated)
+	if err == mongo.ErrNoDocuments {
+		return nil, errors.New("user not found")
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &updated, nil
 }

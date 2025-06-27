@@ -24,8 +24,11 @@ func main() {
 	// Kết nối MongoDB một lần duy nhất
 	config.ConnectDB()
 
-	// Seed user admin nếu cần
+	// Seed default accounts if needed
+	seed.SeedRoleGroups()
 	seed.SeedAdminUser()
+	seed.SeedDefaultUser()
+	seed.SeedMenus()
 
 	app := fiber.New()
 	app.Use(cors.New())
