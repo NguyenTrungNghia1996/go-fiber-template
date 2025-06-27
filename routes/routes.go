@@ -12,11 +12,11 @@ import (
 func Setup(app *fiber.App, db *mongo.Database) {
 	// Initialize repositories and controllers once so they can be reused
 	userRepo := repositories.NewUserRepository(db)
-	userCtrl := controllers.NewUserController(userRepo)
+	roleGroupRepo := repositories.NewRoleGroupRepository(db)
+	userCtrl := controllers.NewUserController(userRepo, roleGroupRepo)
 	authCtrl := controllers.NewAuthController(userRepo)
 	menuRepo := repositories.NewMenuRepository(db)
 	menuCtrl := controllers.NewMenuController(menuRepo)
-	roleGroupRepo := repositories.NewRoleGroupRepository(db)
 	roleGroupCtrl := controllers.NewRoleGroupController(roleGroupRepo)
 
 	// Public routes do not require authentication
@@ -29,6 +29,7 @@ func Setup(app *fiber.App, db *mongo.Database) {
 
 	// Endpoints accessible to any authenticated user
 	api.Get("/me", userCtrl.GetCurrentUser)
+	api.Get("/permissions", userCtrl.GetUserPermissions)
 	api.Put("/users/password", userCtrl.ChangeUserPassword)
 	api.Put("/presigned_url", controllers.GetUploadUrl)
 
