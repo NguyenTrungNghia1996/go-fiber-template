@@ -26,6 +26,7 @@ func SeedAdminUser() {
 		Username:   "admin",
 		Password:   password,
 		Name:       "Administrator",
+		UrlAvatar:  "",
 		RoleGroups: []primitive.ObjectID{groupID},
 	}
 
@@ -51,6 +52,7 @@ func SeedDefaultUser() {
 		Username:   "user",
 		Password:   password,
 		Name:       "Default User",
+		UrlAvatar:  "",
 		RoleGroups: []primitive.ObjectID{},
 	}
 

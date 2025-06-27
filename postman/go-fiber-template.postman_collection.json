@@ -177,7 +177,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
@@ -208,7 +208,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"User 1\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",

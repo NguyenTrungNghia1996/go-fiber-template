@@ -216,6 +216,7 @@ func (ctrl *UserController) UpdateUser(c *fiber.Ctx) error {
 	var req struct {
 		ID         primitive.ObjectID   `json:"id"`
 		Name       string               `json:"name"`
+		UrlAvatar  string               `json:"url_avatar"`
 		RoleGroups []primitive.ObjectID `json:"role_groups"`
 	}
 	if err := c.BodyParser(&req); err != nil || req.ID.IsZero() {
@@ -226,7 +227,7 @@ func (ctrl *UserController) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := ctrl.Repo.UpdateByID(c.Context(), req.ID.Hex(), req.Name, req.RoleGroups)
+	user, err := ctrl.Repo.UpdateByID(c.Context(), req.ID.Hex(), req.Name, req.UrlAvatar, req.RoleGroups)
 	if err != nil {
 		status := fiber.StatusInternalServerError
 		if err.Error() == "user not found" {
