@@ -15,12 +15,13 @@ import (
 )
 
 type UserController struct {
-	Repo *repositories.UserRepository // provides DB operations
+	Repo          *repositories.UserRepository
+	RoleGroupRepo *repositories.RoleGroupRepository
 }
 
 // NewUserController creates a controller with the given repository.
-func NewUserController(repo *repositories.UserRepository) *UserController {
-	return &UserController{Repo: repo}
+func NewUserController(repo *repositories.UserRepository, roleRepo *repositories.RoleGroupRepository) *UserController {
+	return &UserController{Repo: repo, RoleGroupRepo: roleRepo}
 }
 
 // CreateUser handles POST /api/users and registers a new account.
@@ -221,5 +222,50 @@ func (ctrl *UserController) GetCurrentUser(c *fiber.Ctx) error {
 		Status:  "success",
 		Message: "Get profile successfully",
 		Data:    user,
+	})
+}
+
+// GetUserPermissions aggregates permissions from the user's role groups.
+func (ctrl *UserController) GetUserPermissions(c *fiber.Ctx) error {
+	token := c.Locals("user").(*jwt.Token)
+	claims := token.Claims.(jwt.MapClaims)
+	id, _ := claims["id"].(string)
+
+	user, err := ctrl.Repo.FindByID(c.Context(), id)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "User not found",
+			Data:    nil,
+		})
+	}
+
+	groups, err := ctrl.RoleGroupRepo.GetByIDs(c.Context(), user.RoleGroups)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Cannot get role groups",
+			Data:    nil,
+		})
+	}
+
+	permMap := map[string]int64{}
+	for _, g := range groups {
+		for _, p := range g.Permission {
+			permMap[p.Key] |= p.PermissionValue
+		}
+	}
+
+	permissions := make([]models.PermissionDetail, 0, len(permMap))
+	for k, v := range permMap {
+		permissions = append(permissions, models.PermissionDetail{Key: k, PermissionValue: v})
+	}
+
+	return c.JSON(models.APIResponse{
+		Status:  "success",
+		Message: "Get permissions successfully",
+		Data: fiber.Map{
+			"permission": permissions,
+		},
 	})
 }

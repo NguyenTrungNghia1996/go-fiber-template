@@ -41,6 +41,30 @@ func (r *RoleGroupRepository) Create(ctx context.Context, group *models.RoleGrou
 	return err
 }
 
+// GetByIDs returns all role groups matching the provided IDs.
+func (r *RoleGroupRepository) GetByIDs(ctx context.Context, ids []primitive.ObjectID) ([]models.RoleGroup, error) {
+	if len(ids) == 0 {
+		return []models.RoleGroup{}, nil
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": ids}}
+	cursor, err := r.collection.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var groups []models.RoleGroup
+	for cursor.Next(ctx) {
+		var g models.RoleGroup
+		if err := cursor.Decode(&g); err != nil {
+			return nil, err
+		}
+		groups = append(groups, g)
+	}
+	return groups, nil
+}
+
 func (r *RoleGroupRepository) GetAll(ctx context.Context, search string, page, limit int64) ([]models.RoleGroup, int64, error) {
 	filter := bson.M{}
 	if search != "" {
