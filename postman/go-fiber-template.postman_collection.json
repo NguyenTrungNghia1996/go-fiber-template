@@ -156,7 +156,7 @@
               "name": "Success",
               "status": "OK",
               "code": 200,
-              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Get role group list successfully\",\n  \"data\": {\n    \"items\": [{\n      \"id\": \"000000000000000000000000\",\n      \"name\": \"admin\",\n      \"description\": \"gioi thieu\"\n    }],\n    \"totalrecord\": 1\n  }\n}"
+              "body": "{\n  \"status\": \"success\",\n  \"message\": \"Get user list successfully\",\n  \"data\": {\n    \"items\": [{\n      \"id\": \"000000000000000000000000\",\n      \"username\": \"user\",\n      \"name\": \"Default User\",\n      \"role_groups\": [{\n        \"id\": \"000000000000000000000000\",\n        \"name\": \"admin\"\n      }]\n    }],\n    \"total\": 1\n  }\n}"
             }
           ]
         },

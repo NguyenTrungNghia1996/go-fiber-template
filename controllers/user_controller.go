@@ -73,10 +73,23 @@ func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 	}
 
 	user.Password = ""
+	groups, err := ctrl.RoleGroupRepo.GetByIDs(c.Context(), user.RoleGroups)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Cannot get role groups",
+			Data:    nil,
+		})
+	}
+	gm := make(map[primitive.ObjectID]models.RoleGroupListItem, len(groups))
+	for _, g := range groups {
+		gm[g.ID] = g.ToListItem()
+	}
+
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Created user successfully",
-		Data:    user,
+		Data:    user.ToListItem(gm),
 	})
 }
 
@@ -95,11 +108,42 @@ func (ctrl *UserController) GetUsers(c *fiber.Ctx) error {
 		})
 	}
 
+	// Collect all role group IDs across users for lookup
+	idSet := map[primitive.ObjectID]struct{}{}
+	for _, u := range users {
+		for _, id := range u.RoleGroups {
+			idSet[id] = struct{}{}
+		}
+	}
+	ids := make([]primitive.ObjectID, 0, len(idSet))
+	for id := range idSet {
+		ids = append(ids, id)
+	}
+
+	groups, err := ctrl.RoleGroupRepo.GetByIDs(c.Context(), ids)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Cannot get role groups",
+			Data:    nil,
+		})
+	}
+
+	groupMap := make(map[primitive.ObjectID]models.RoleGroupListItem, len(groups))
+	for _, g := range groups {
+		groupMap[g.ID] = g.ToListItem()
+	}
+
+	resp := make([]models.UserListItem, len(users))
+	for i, u := range users {
+		resp[i] = u.ToListItem(groupMap)
+	}
+
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Get user list successfully",
 		Data: fiber.Map{
-			"items": users,
+			"items": resp,
 			"total": total,
 		},
 	})
@@ -195,10 +239,22 @@ func (ctrl *UserController) UpdateUser(c *fiber.Ctx) error {
 		})
 	}
 	user.Password = ""
+	groups, err := ctrl.RoleGroupRepo.GetByIDs(c.Context(), user.RoleGroups)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Cannot get role groups",
+			Data:    nil,
+		})
+	}
+	gm := make(map[primitive.ObjectID]models.RoleGroupListItem, len(groups))
+	for _, g := range groups {
+		gm[g.ID] = g.ToListItem()
+	}
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Updated user successfully",
-		Data:    user,
+		Data:    user.ToListItem(gm),
 	})
 }
 
@@ -217,11 +273,23 @@ func (ctrl *UserController) GetCurrentUser(c *fiber.Ctx) error {
 		})
 	}
 	user.Password = ""
+	groups, err := ctrl.RoleGroupRepo.GetByIDs(c.Context(), user.RoleGroups)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Cannot get role groups",
+			Data:    nil,
+		})
+	}
+	gm := make(map[primitive.ObjectID]models.RoleGroupListItem, len(groups))
+	for _, g := range groups {
+		gm[g.ID] = g.ToListItem()
+	}
 
 	return c.JSON(models.APIResponse{
 		Status:  "success",
 		Message: "Get profile successfully",
-		Data:    user,
+		Data:    user.ToListItem(gm),
 	})
 }
 
