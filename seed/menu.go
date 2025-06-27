@@ -62,6 +62,17 @@ func SeedMenus() {
 		PermissionBit: 2,
 	})
 
+	id5, _ := primitive.ObjectIDFromHex("685e0007bd9eb34fceea7f4c")
+	menus = append(menus, models.Menu{
+		ID:            id5,
+		Title:         "Người Dùng",
+		Key:           "menu-w8bjq07960",
+		URL:           "/administration/user",
+		Icon:          "ant-design:user-outlined",
+		ParentID:      id2,
+		PermissionBit: 4,
+	})
+
 	for _, m := range menus {
 		var existing models.Menu
 		err := collection.FindOne(context.TODO(), bson.M{"_id": m.ID}).Decode(&existing)
