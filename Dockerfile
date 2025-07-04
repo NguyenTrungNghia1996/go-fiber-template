@@ -1,5 +1,5 @@
 # Stage 1: Build phase
-FROM golang:1.24.2-alpine AS builder
+FROM golang:alpine AS builder
 # Cài đặt các dependencies cần thiết
 RUN apk update && apk add --no-cache git
 WORKDIR /app
