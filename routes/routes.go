@@ -28,11 +28,12 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	api.Get("/test2", controllers.Hello)
 
 	// Endpoints accessible to any authenticated user
-    api.Get("/me", userCtrl.GetCurrentUser)
-    api.Put("/me", userCtrl.UpdateCurrentUser)
+	api.Get("/me", userCtrl.GetCurrentUser)
+	api.Put("/me", userCtrl.UpdateCurrentUser)
 	api.Get("/permissions", userCtrl.GetUserPermissions)
 	api.Put("/users/password", userCtrl.ChangeUserPassword)
 	api.Put("/presigned_url", controllers.GetUploadUrl)
+	api.Delete("/image", controllers.DeleteImage)
 
 	// Admin-only routes are nested under /api/users
 	admin := api.Group("/users")

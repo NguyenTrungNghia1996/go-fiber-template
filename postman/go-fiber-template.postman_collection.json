@@ -304,6 +304,7 @@
               "mode": "raw",
               "raw": "{\n  \"key\": \"uploads/test.jpg\"\n}"
             },
+            "description": "Response contains upload_url, direct_url and object_key",
             "url": {
               "raw": "{{baseUrl}}/api/presigned_url",
               "host": [
@@ -312,6 +313,35 @@
               "path": [
                 "api",
                 "presigned_url"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/image?key=uploads/test.jpg",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "image"
+              ],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "uploads/test.jpg"
+                }
               ]
             }
           },

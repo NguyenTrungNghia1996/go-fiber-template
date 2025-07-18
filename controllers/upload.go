@@ -6,12 +6,13 @@ import (
 	"strconv"
 	"time"
 
-	"go-fiber-api/models"
 	"fmt"
-	"strings"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"go-fiber-api/models"
+	"go-fiber-api/utils"
+	"strings"
 )
 
 func GetUploadUrl(c *fiber.Ctx) error {
@@ -43,11 +44,14 @@ func GetUploadUrl(c *fiber.Ctx) error {
 		})
 	}
 
+	// Generate a unique object key based on the original file name
+	objectKey := utils.GenerateFileKey(input.Key)
+
 	// Tạo URL tạm thời để upload file
 	presignedURL, err := minioClient.PresignedPutObject(
 		context.Background(),
 		bucket,
-		input.Key,
+		objectKey,
 		15*time.Minute,
 	)
 	if err != nil {
@@ -59,14 +63,58 @@ func GetUploadUrl(c *fiber.Ctx) error {
 	}
 	// directURL := "https://" + endpoint + "/" + bucket + "/" + input.Key
 	publicURL := os.Getenv("MINIO_PUBLIC_URL")
-objectKey := input.Key
-directURL := fmt.Sprintf("%s/%s", strings.TrimRight(publicURL, "/"), objectKey)
+	directURL := fmt.Sprintf("%s/%s", strings.TrimRight(publicURL, "/"), objectKey)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "Upload URL generated successfully",
 		"data": fiber.Map{
 			"upload_url": presignedURL.String(),
 			"direct_url": directURL,
+			"object_key": objectKey,
 		},
+	})
+}
+
+func DeleteImage(c *fiber.Ctx) error {
+	key := c.Query("key")
+	if key == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Missing key",
+			"data":    nil,
+		})
+	}
+
+	endpoint := os.Getenv("MINIO_ENDPOINT")
+	accessKey := os.Getenv("MINIO_ACCESS_KEY")
+	secretKey := os.Getenv("MINIO_SECRET_KEY")
+	bucket := os.Getenv("MINIO_BUCKET")
+	ssl, _ := strconv.ParseBool(os.Getenv("MINIO_SSL"))
+
+	minioClient, err := minio.New(endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
+		Secure: ssl,
+	})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Failed to init MinIO client",
+			"data":    err.Error(),
+		})
+	}
+
+	err = minioClient.RemoveObject(context.Background(), bucket, key, minio.RemoveObjectOptions{})
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"status":  "error",
+			"message": "Failed to delete image",
+			"data":    err.Error(),
+		})
+	}
+
+	return c.JSON(fiber.Map{
+		"status":  "success",
+		"message": "Deleted image successfully",
+		"data":    nil,
 	})
 }
