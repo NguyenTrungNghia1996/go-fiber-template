@@ -316,6 +316,35 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Delete Image",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/image?key=uploads/test.jpg",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "image"
+              ],
+              "query": [
+                {
+                  "key": "key",
+                  "value": "uploads/test.jpg"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
