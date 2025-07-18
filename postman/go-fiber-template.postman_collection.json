@@ -285,6 +285,37 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Presigned Upload URL",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"key\": \"uploads/test.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/presigned_url",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "presigned_url"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
