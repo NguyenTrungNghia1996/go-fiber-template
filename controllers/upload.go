@@ -7,7 +7,8 @@ import (
 	"time"
 
 	"go-fiber-api/models"
-
+	"fmt"
+	"strings"
 	"github.com/gofiber/fiber/v2"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
@@ -56,7 +57,10 @@ func GetUploadUrl(c *fiber.Ctx) error {
 			"data":    err.Error(),
 		})
 	}
-	directURL := "https://" + endpoint + "/" + bucket + "/" + input.Key
+	// directURL := "https://" + endpoint + "/" + bucket + "/" + input.Key
+	publicURL := os.Getenv("MINIO_PUBLIC_URL")
+objectKey := input.Key
+directURL := fmt.Sprintf("%s/%s", strings.TrimRight(publicURL, "/"), objectKey)
 	return c.JSON(fiber.Map{
 		"status":  "success",
 		"message": "Upload URL generated successfully",
