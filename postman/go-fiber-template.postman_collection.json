@@ -304,6 +304,7 @@
               "mode": "raw",
               "raw": "{\n  \"key\": \"uploads/test.jpg\"\n}"
             },
+            "description": "Response contains upload_url, direct_url and object_key",
             "url": {
               "raw": "{{baseUrl}}/api/presigned_url",
               "host": [

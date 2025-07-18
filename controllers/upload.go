@@ -11,6 +11,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"go-fiber-api/models"
+	"go-fiber-api/utils"
 	"strings"
 )
 
@@ -43,11 +44,14 @@ func GetUploadUrl(c *fiber.Ctx) error {
 		})
 	}
 
+	// Generate a unique object key based on the original file name
+	objectKey := utils.GenerateFileKey(input.Key)
+
 	// Tạo URL tạm thời để upload file
 	presignedURL, err := minioClient.PresignedPutObject(
 		context.Background(),
 		bucket,
-		input.Key,
+		objectKey,
 		15*time.Minute,
 	)
 	if err != nil {
@@ -59,7 +63,6 @@ func GetUploadUrl(c *fiber.Ctx) error {
 	}
 	// directURL := "https://" + endpoint + "/" + bucket + "/" + input.Key
 	publicURL := os.Getenv("MINIO_PUBLIC_URL")
-	objectKey := input.Key
 	directURL := fmt.Sprintf("%s/%s", strings.TrimRight(publicURL, "/"), objectKey)
 	return c.JSON(fiber.Map{
 		"status":  "success",
@@ -67,6 +70,7 @@ func GetUploadUrl(c *fiber.Ctx) error {
 		"data": fiber.Map{
 			"upload_url": presignedURL.String(),
 			"direct_url": directURL,
+			"object_key": objectKey,
 		},
 	})
 }
