@@ -22,6 +22,7 @@ func SeedOrganizations() {
         ID:          orgID,
         Name:        "Admin Organization",
         Description: "Seeded admin organization",
+        Subdomain:   "admin",
     }
 
     var existing models.Organization

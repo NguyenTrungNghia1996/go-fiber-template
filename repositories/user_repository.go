@@ -23,12 +23,23 @@ func NewUserRepository(db *mongo.Database) *UserRepository {
 
 // Tìm user theo username
 func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*models.User, error) {
-	var user models.User
-	err := r.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
-	if err != nil {
-		return nil, err
-	}
-	return &user, nil
+    var user models.User
+    err := r.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
+    if err != nil {
+        return nil, err
+    }
+    return &user, nil
+}
+
+// FindByUsernameInOrg finds user by username within a specific organization.
+func (r *UserRepository) FindByUsernameInOrg(ctx context.Context, username string, organizationID primitive.ObjectID) (*models.User, error) {
+    var user models.User
+    filter := bson.M{"username": username, "organization_id": organizationID}
+    err := r.collection.FindOne(ctx, filter).Decode(&user)
+    if err != nil {
+        return nil, err
+    }
+    return &user, nil
 }
 
 // Tạo user mới

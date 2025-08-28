@@ -19,6 +19,18 @@ func NewOrganizationRepository(db *mongo.Database) *OrganizationRepository {
     return &OrganizationRepository{collection: db.Collection("organizations")}
 }
 
+func (r *OrganizationRepository) FindBySubdomain(ctx context.Context, sub string) (*models.Organization, error) {
+    var org models.Organization
+    err := r.collection.FindOne(ctx, bson.M{"subdomain": sub}).Decode(&org)
+    if err == mongo.ErrNoDocuments {
+        return nil, errors.New("organization not found")
+    }
+    if err != nil {
+        return nil, err
+    }
+    return &org, nil
+}
+
 func (r *OrganizationRepository) GetByID(ctx context.Context, id string) (*models.Organization, error) {
     objID, err := primitive.ObjectIDFromHex(id)
     if err != nil {
@@ -105,4 +117,3 @@ func (r *OrganizationRepository) DeleteByID(ctx context.Context, id string) erro
     }
     return nil
 }
-
