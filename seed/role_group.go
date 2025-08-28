@@ -14,17 +14,20 @@ import (
 
 // SeedRoleGroups seeds default role groups if they don't already exist.
 func SeedRoleGroups() {
-	collection := config.DB.Collection("role_groups")
+    collection := config.DB.Collection("role_groups")
 
-	adminID, _ := primitive.ObjectIDFromHex("685d01ab5e17ba55d0e349f2")
+    adminID, _ := primitive.ObjectIDFromHex("685d01ab5e17ba55d0e349f2")
+    orgID, _ := primitive.ObjectIDFromHex(defaultOrgIDHex)
 	adminGroup := models.RoleGroup{
 		ID:          adminID,
+		OrganizationID: orgID,
 		Name:        "admin",
 		Description: "gioi thieu",
 		Permission: []models.PermissionDetail{
 			{Key: "menu", PermissionValue: 10},
 			{Key: "menu-euoi92n7f0", PermissionValue: 0},
 			{Key: "menu-byy4w5x6la", PermissionValue: 42},
+			{Key: "menu-organization", PermissionValue: 42},
 		},
 	}
 

@@ -36,9 +36,9 @@ func (r *RoleGroupRepository) GetByID(ctx context.Context, id string) (*models.R
 }
 
 func (r *RoleGroupRepository) Create(ctx context.Context, group *models.RoleGroup) error {
-	group.ID = primitive.NewObjectID()
-	_, err := r.collection.InsertOne(ctx, group)
-	return err
+    group.ID = primitive.NewObjectID()
+    _, err := r.collection.InsertOne(ctx, group)
+    return err
 }
 
 // GetByIDs returns all role groups matching the provided IDs.
@@ -65,11 +65,16 @@ func (r *RoleGroupRepository) GetByIDs(ctx context.Context, ids []primitive.Obje
 	return groups, nil
 }
 
-func (r *RoleGroupRepository) GetAll(ctx context.Context, search string, page, limit int64) ([]models.RoleGroup, int64, error) {
-	filter := bson.M{}
-	if search != "" {
-		filter["name"] = bson.M{"$regex": search, "$options": "i"}
-	}
+func (r *RoleGroupRepository) GetAll(ctx context.Context, search string, organizationID string, page, limit int64) ([]models.RoleGroup, int64, error) {
+    filter := bson.M{}
+    if search != "" {
+        filter["name"] = bson.M{"$regex": search, "$options": "i"}
+    }
+    if organizationID != "" {
+        if objID, err := primitive.ObjectIDFromHex(organizationID); err == nil {
+            filter["organization_id"] = objID
+        }
+    }
 	findOpts := options.Find()
 	if limit > 0 {
 		findOpts.SetLimit(limit).SetSkip((page - 1) * limit)
@@ -96,15 +101,16 @@ func (r *RoleGroupRepository) GetAll(ctx context.Context, search string, page, l
 }
 
 func (r *RoleGroupRepository) UpdateByID(ctx context.Context, id string, group *models.RoleGroup) error {
-	objID, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return err
-	}
-	update := bson.M{"$set": bson.M{
-		"name":        group.Name,
-		"description": group.Description,
-		"permission":  group.Permission,
-	}}
+    objID, err := primitive.ObjectIDFromHex(id)
+    if err != nil {
+        return err
+    }
+    update := bson.M{"$set": bson.M{
+        "organization_id": group.OrganizationID,
+        "name":        group.Name,
+        "description": group.Description,
+        "permission":  group.Permission,
+    }}
 	res, err := r.collection.UpdateOne(ctx, bson.M{"_id": objID}, update)
 	if err != nil {
 		return err

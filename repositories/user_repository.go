@@ -49,11 +49,16 @@ func (r *UserRepository) IsUsernameExists(ctx context.Context, username string) 
 
 // GetAll returns a paginated list of users filtered by username keyword.
 // It also returns the total number of matched documents for pagination.
-func (r *UserRepository) GetAll(ctx context.Context, search string, page, limit int64) ([]models.User, int64, error) {
-	filter := bson.M{}
-	if search != "" {
-		filter["username"] = bson.M{"$regex": search, "$options": "i"}
-	}
+func (r *UserRepository) GetAll(ctx context.Context, search string, organizationID string, page, limit int64) ([]models.User, int64, error) {
+    filter := bson.M{}
+    if search != "" {
+        filter["username"] = bson.M{"$regex": search, "$options": "i"}
+    }
+    if organizationID != "" {
+        if objID, err := primitive.ObjectIDFromHex(organizationID); err == nil {
+            filter["organization_id"] = objID
+        }
+    }
 
 	projection := bson.M{"password": 0}
 	opts := options.Find().SetProjection(projection)
@@ -76,7 +81,7 @@ func (r *UserRepository) GetAll(ctx context.Context, search string, page, limit 
 		users = append(users, user)
 	}
 
-	total, err := r.collection.CountDocuments(ctx, filter)
+    total, err := r.collection.CountDocuments(ctx, filter)
 	if err != nil {
 		return nil, 0, err
 	}

@@ -159,7 +159,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/users?page=1&limit=10&search=user",
+              "raw": "{{baseUrl}}/api/users?page=1&limit=10&search=user&organization_id=000000000000000000000000",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -179,6 +179,10 @@
                 {
                   "key": "search",
                   "value": "user"
+                },
+                {
+                  "key": "organization_id",
+                  "value": "000000000000000000000000"
                 }
               ]
             }
@@ -208,7 +212,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
+              "raw": "{\n  \"organization_id\": \"000000000000000000000000\",\n  \"username\": \"user1\",\n  \"password\": \"pass\",\n  \"name\": \"User 1\",\n  \"url_avatar\": \"https://example.com/avatar.jpg\",\n  \"role_groups\": [\n    \"000000000000000000000000\"\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/users",
@@ -488,7 +492,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/role-groups?page=1&limit=10&search=admin",
+              "raw": "{{baseUrl}}/api/role-groups?page=1&limit=10&search=admin&organization_id=000000000000000000000000",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -508,6 +512,10 @@
                 {
                   "key": "search",
                   "value": "admin"
+                },
+                {
+                  "key": "organization_id",
+                  "value": "000000000000000000000000"
                 }
               ]
             }
@@ -530,7 +538,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"admin\",\n  \"description\": \"gioi thieu\",\n  \"permission\": [\n    {\n      \"key\": \"menu\",\n      \"permissionValue\": 42\n    }\n  ]\n}"
+              "raw": "{\n  \"organization_id\": \"000000000000000000000000\",\n  \"name\": \"admin\",\n  \"description\": \"gioi thieu\",\n  \"permission\": [\n    {\n      \"key\": \"menu\",\n      \"permissionValue\": 42\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/role-groups",
@@ -561,7 +569,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"admin\",\n  \"description\": \"gioi thieu\",\n  \"permission\": [\n    {\n      \"key\": \"menu\",\n      \"permissionValue\": 42\n    }\n  ]\n}"
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"organization_id\": \"000000000000000000000000\",\n  \"name\": \"admin\",\n  \"description\": \"gioi thieu\",\n  \"permission\": [\n    {\n      \"key\": \"menu\",\n      \"permissionValue\": 42\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/role-groups",
@@ -630,6 +638,107 @@
                   "key": "id",
                   "value": "000000000000000000000000"
                 }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Organization",
+      "item": [
+        {
+          "name": "Get Organizations",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/organizations?page=1&limit=10&search=acme",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "organizations"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "search", "value": "acme" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Acme Inc\",\n  \"description\": \"Example organization\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/organizations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "organizations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Organization",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"000000000000000000000000\",\n  \"name\": \"Acme Inc\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/organizations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "organizations"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Organization Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/organizations/detail?id=000000000000000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "organizations", "detail"],
+              "query": [
+                { "key": "id", "value": "000000000000000000000000" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Organization",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/organizations?id=000000000000000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "organizations"],
+              "query": [
+                { "key": "id", "value": "000000000000000000000000" }
               ]
             }
           },

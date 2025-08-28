@@ -95,11 +95,12 @@ func (ctrl *UserController) CreateUser(c *fiber.Ctx) error {
 
 // GetUsers returns a paginated list of users.
 func (ctrl *UserController) GetUsers(c *fiber.Ctx) error {
-	search := c.Query("search")
-	page, _ := strconv.ParseInt(c.Query("page", "1"), 10, 64)
-	limit, _ := strconv.ParseInt(c.Query("limit", "10"), 10, 64)
+    search := c.Query("search")
+    organizationID := c.Query("organization_id")
+    page, _ := strconv.ParseInt(c.Query("page", "1"), 10, 64)
+    limit, _ := strconv.ParseInt(c.Query("limit", "10"), 10, 64)
 
-	users, total, err := ctrl.Repo.GetAll(c.Context(), search, page, limit)
+    users, total, err := ctrl.Repo.GetAll(c.Context(), search, organizationID, page, limit)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",

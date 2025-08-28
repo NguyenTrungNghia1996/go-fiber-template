@@ -14,9 +14,9 @@ import (
 
 // SeedMenus inserts default menu entries if they do not exist.
 func SeedMenus() {
-	collection := config.DB.Collection("menus")
+    collection := config.DB.Collection("menus")
 
-	menus := []models.Menu{}
+    menus := []models.Menu{}
 
 	id1, _ := primitive.ObjectIDFromHex("685d0554394165c3d5a0c625")
 	menus = append(menus, models.Menu{
@@ -63,15 +63,27 @@ func SeedMenus() {
 	})
 
 	id5, _ := primitive.ObjectIDFromHex("685e0007bd9eb34fceea7f4c")
-	menus = append(menus, models.Menu{
-		ID:            id5,
-		Title:         "Người Dùng",
-		Key:           "menu-w8bjq07960",
-		URL:           "/administration/user",
-		Icon:          "ant-design:user-outlined",
-		ParentID:      id2,
-		PermissionBit: 4,
-	})
+    menus = append(menus, models.Menu{
+        ID:            id5,
+        Title:         "Người Dùng",
+        Key:           "menu-w8bjq07960",
+        URL:           "/administration/user",
+        Icon:          "ant-design:user-outlined",
+        ParentID:      id2,
+        PermissionBit: 4,
+    })
+
+    // Organization management menu (shared across organizations)
+    id6, _ := primitive.ObjectIDFromHex("68600107bd9eb34fceea7f4d")
+    menus = append(menus, models.Menu{
+        ID:            id6,
+        Title:         "Tổ Chức",
+        Key:           "menu-organization",
+        URL:           "/administration/organization",
+        Icon:          "ant-design:apartment-outlined",
+        ParentID:      id2,
+        PermissionBit: 8,
+    })
 
 	for _, m := range menus {
 		var existing models.Menu
