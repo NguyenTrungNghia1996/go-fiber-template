@@ -9,6 +9,7 @@ import (
     "go-fiber-api/models"
     "go-fiber-api/repositories"
     "go-fiber-api/pkg/response"
+    "go-fiber-api/pkg/auth"
 
     "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
@@ -145,4 +146,46 @@ func (h *SuperAdminController) Delete(c *fiber.Ctx) error {
         return response.Error(c, "not found", fiber.StatusNotFound, nil)
     }
     return response.Success(c, true, "deleted")
+}
+
+// Login authenticates a super admin and returns a JWT token.
+func (h *SuperAdminController) Login(c *fiber.Ctx) error {
+    var in struct {
+        Username string `json:"username"`
+        Password string `json:"password"`
+    }
+    if err := c.BodyParser(&in); err != nil {
+        return response.Error(c, "invalid body", fiber.StatusBadRequest, nil)
+    }
+    in.Username = strings.TrimSpace(in.Username)
+    in.Password = strings.TrimSpace(in.Password)
+    if in.Username == "" || in.Password == "" {
+        return response.Error(c, "username and password are required", fiber.StatusBadRequest, nil)
+    }
+    sa, err := h.repo.FindByUsername(c.Context(), in.Username)
+    if err != nil {
+        return response.Error(c, "authentication failed", fiber.StatusUnauthorized, nil)
+    }
+    if sa == nil {
+        return response.Error(c, "authentication failed", fiber.StatusUnauthorized, nil)
+    }
+    if err := bcrypt.CompareHashAndPassword([]byte(sa.PasswordHash), []byte(in.Password)); err != nil {
+        return response.Error(c, "authentication failed", fiber.StatusUnauthorized, nil)
+    }
+    token, exp, err := auth.GenerateToken(sa.ID.Hex(), 24*time.Hour)
+    if err != nil {
+        return response.Error(c, "failed to issue token", fiber.StatusInternalServerError, nil)
+    }
+    // minimal user payload
+    user := fiber.Map{
+        "id":       sa.ID.Hex(),
+        "username": sa.Username,
+        "name":     sa.Name,
+        "email":    sa.Email,
+    }
+    return response.Success(c, fiber.Map{
+        "token":      token,
+        "expires_at": exp.Format(time.RFC3339),
+        "user":       user,
+    }, "logged in")
 }

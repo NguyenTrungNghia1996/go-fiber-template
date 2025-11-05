@@ -57,6 +57,7 @@ func main() {
         log.Fatalf("failed to init superadmin repository: %v", err)
     }
     saCtrl := controllers.NewSuperAdminController(saRepo)
+    routes.RegisterAuthRoutes(app, saCtrl)
     routes.RegisterSuperAdminRoutes(app, saCtrl)
 
     // Seed default super admin account
