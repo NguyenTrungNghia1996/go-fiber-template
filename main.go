@@ -1,15 +1,17 @@
 package main
 
 import (
-	"go-fiber-api/config"
-	"go-fiber-api/routes"
-	"go-fiber-api/seed"
-	"log"
-	"os"
+    "context"
+    "log"
+    "os"
+    "time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/joho/godotenv"
+    "go-fiber-api/config"
+
+    "github.com/gofiber/fiber/v2"
+    "github.com/gofiber/fiber/v2/middleware/cors"
+    "github.com/joho/godotenv"
+    "go.mongodb.org/mongo-driver/bson"
 )
 
 func main() {
@@ -21,20 +23,32 @@ func main() {
 		}
 	}
 
-	// Kết nối MongoDB một lần duy nhất
-	config.ConnectDB()
+    // Kết nối MongoDB một lần duy nhất
+    config.ConnectDB()
 
-    // Seed default organization and accounts
-    seed.SeedOrganizations()
-    seed.SeedRoleGroups()
-    seed.SeedAdminUser()
-    seed.SeedDefaultUser()
-    seed.SeedMenus()
+    // Khởi tạo Fiber server tối giản
+    app := fiber.New()
+    app.Use(cors.New())
 
-	app := fiber.New()
-	app.Use(cors.New())
-	routes.Setup(app, config.DB)
+    // Endpoint kiểm tra sức khỏe hệ thống và kết nối DB
+    app.Get("/health", func(c *fiber.Ctx) error {
+        ctx, cancel := context.WithTimeout(c.Context(), 2*time.Second)
+        defer cancel()
+        // Ping DB thông qua lệnh ping
+        err := config.DB.RunCommand(ctx, bson.D{{Key: "ping", Value: 1}}).Err()
+        dbStatus := "up"
+        if err != nil {
+            dbStatus = "down"
+        }
+        return c.JSON(fiber.Map{
+            "status": "ok",
+            "db":     dbStatus,
+        })
+    })
 
-	port := os.Getenv("PORT")
-	log.Fatal(app.Listen(":" + port))
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "4000"
+    }
+    log.Fatal(app.Listen(":" + port))
 }
