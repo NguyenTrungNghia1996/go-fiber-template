@@ -60,6 +60,14 @@ func main() {
     routes.RegisterAuthRoutes(app, saCtrl)
     routes.RegisterSuperAdminRoutes(app, saCtrl)
 
+    // Units feature
+    unitRepo, err := repositories.NewUnitRepository(config.DB)
+    if err != nil {
+        log.Fatalf("failed to init unit repository: %v", err)
+    }
+    unitCtrl := controllers.NewUnitController(unitRepo)
+    routes.RegisterUnitRoutes(app, unitCtrl)
+
     // Seed default super admin account
     if err := seed.SeedSuperAdmin(saRepo); err != nil {
         log.Printf("seed error: %v", err)

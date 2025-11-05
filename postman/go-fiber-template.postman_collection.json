@@ -198,6 +198,114 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Units",
+      "item": [
+        {
+          "name": "List Units",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/units?page=0&q=sales",
+              "host": ["{{baseUrl}}"],
+              "path": ["units"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "q", "value": "sales" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Units (paged)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/units?page=1&limit=10&q=sales",
+              "host": ["{{baseUrl}}"],
+              "path": ["units"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "q", "value": "sales" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Unit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/units",
+              "host": ["{{baseUrl}}"],
+              "path": ["units"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unit",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/units?id={{unitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["units"],
+              "query": [ { "key": "id", "value": "{{unitId}}" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Unit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/units",
+              "host": ["{{baseUrl}}"],
+              "path": ["units"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Unit",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/units?id={{unitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["units"],
+              "query": [ { "key": "id", "value": "{{unitId}}" } ]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [
@@ -230,6 +338,11 @@
     },
     {
       "key": "superAdminId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unitId",
       "value": "",
       "type": "string"
     },
