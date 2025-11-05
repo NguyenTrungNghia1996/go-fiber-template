@@ -7,6 +7,11 @@ import (
     "time"
 
     "go-fiber-api/config"
+    "go-fiber-api/controllers"
+    "go-fiber-api/repositories"
+    "go-fiber-api/routes"
+    "go-fiber-api/seed"
+    "go-fiber-api/pkg/response"
 
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/cors"
@@ -30,7 +35,7 @@ func main() {
     app := fiber.New()
     app.Use(cors.New())
 
-    // Endpoint kiểm tra sức khỏe hệ thống và kết nối DB
+    // Endpoint kiểm tra sức khỏe hệ thống và kết nối DB (chuẩn hóa response)
     app.Get("/health", func(c *fiber.Ctx) error {
         ctx, cancel := context.WithTimeout(c.Context(), 2*time.Second)
         defer cancel()
@@ -40,11 +45,24 @@ func main() {
         if err != nil {
             dbStatus = "down"
         }
-        return c.JSON(fiber.Map{
+        return response.Success(c, fiber.Map{
             "status": "ok",
             "db":     dbStatus,
-        })
+        }, "ok")
     })
+
+    // DI wiring for SuperAdmin feature
+    saRepo, err := repositories.NewSuperAdminRepository(config.DB)
+    if err != nil {
+        log.Fatalf("failed to init superadmin repository: %v", err)
+    }
+    saCtrl := controllers.NewSuperAdminController(saRepo)
+    routes.RegisterSuperAdminRoutes(app, saCtrl)
+
+    // Seed default super admin account
+    if err := seed.SeedSuperAdmin(saRepo); err != nil {
+        log.Printf("seed error: %v", err)
+    }
 
     port := os.Getenv("PORT")
     if port == "" {
