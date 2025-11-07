@@ -553,6 +553,31 @@
           "response": []
         }
       ]
+    },
+    {
+      "name": "Uploads",
+      "item": [
+        {
+          "name": "Get Presigned Upload URL",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"filename\": \"example.jpg\",\n  \"filetype\": \"image/jpeg\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/presigned_url",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "presigned_url"]
+            }
+          },
+          "response": []
+        }
+      ]
     }
   ],
   "event": [

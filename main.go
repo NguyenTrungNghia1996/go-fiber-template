@@ -83,6 +83,10 @@ func main() {
 
     // (already initialized above)
 
+    // Upload (S3/MinIO) feature
+    uploadCtrl := controllers.NewUploadController()
+    routes.RegisterUploadRoutes(app, uploadCtrl)
+
     // Seed default super admin account
     if err := seed.SeedSuperAdmin(saRepo); err != nil {
         log.Printf("seed error: %v", err)
