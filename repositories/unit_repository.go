@@ -15,11 +15,11 @@ import (
 
 type UnitRepository struct {
     coll *mongo.Collection
+    regRepo *UnitServicePackageRegistrationRepository
 }
 
-func NewUnitRepository(db *mongo.Database) (*UnitRepository, error) {
-    r := &UnitRepository{coll: db.Collection("units")}
-    // Ensure unique index on subdomain
+func NewUnitRepository(db *mongo.Database, regRepo *UnitServicePackageRegistrationRepository) (*UnitRepository, error) {
+    r := &UnitRepository{coll: db.Collection("units"), regRepo: regRepo}    // Ensure unique index on subdomain
     idx := mongo.IndexModel{
         Keys:    bson.D{{Key: "subdomain", Value: 1}},
         Options: options.Index().SetUnique(true).SetBackground(true),
@@ -30,7 +30,7 @@ func NewUnitRepository(db *mongo.Database) (*UnitRepository, error) {
     return r, nil
 }
 
-func (r *UnitRepository) Create(ctx context.Context, u *models.Unit) error {
+func (r *UnitRepository) Create(ctx context.Context, u *models.Unit, servicePackageIDs []string) error {
     now := time.Now().UTC()
     u.ID = primitive.NilObjectID
     u.CreatedAt = now
@@ -42,6 +42,22 @@ func (r *UnitRepository) Create(ctx context.Context, u *models.Unit) error {
     if oid, ok := res.InsertedID.(primitive.ObjectID); ok {
         u.ID = oid
     }
+
+    // Create registrations for service packages
+    for _, spID := range servicePackageIDs {
+        spOID, err := primitive.ObjectIDFromHex(spID)
+        if err != nil {
+            return err // Or handle as a bad request
+        }
+        reg := &models.UnitServicePackageRegistration{
+            UnitID: u.ID,
+            ServicePackageID: spOID,
+        }
+        if err := r.regRepo.Create(ctx, reg); err != nil {
+            return err
+        }
+    }
+
     return nil
 }
 
@@ -103,7 +119,7 @@ func (r *UnitRepository) FindPaged(ctx context.Context, page, limit int64, q str
     return items, total, nil
 }
 
-func (r *UnitRepository) UpdateByID(ctx context.Context, id string, updates bson.D) (*models.Unit, error) {
+func (r *UnitRepository) UpdateByID(ctx context.Context, id string, updates bson.D, servicePackageIDs []string) (*models.Unit, error) {
     oid, err := primitive.ObjectIDFromHex(id)
     if err != nil {
         return nil, err
@@ -118,6 +134,59 @@ func (r *UnitRepository) UpdateByID(ctx context.Context, id string, updates bson
         }
         return nil, err
     }
+
+    // Update service package registrations
+    if servicePackageIDs != nil {
+        // Get existing registrations for this unit
+        existingRegs, _, err := r.regRepo.FindPaged(ctx, 0, 0, id, "") // page=0, limit=0 to get all
+        if err != nil {
+            return nil, err
+        }
+
+        existingServicePackageIDs := make(map[string]struct{})
+        for _, reg := range existingRegs {
+            existingServicePackageIDs[reg.ServicePackageID.Hex()] = struct{}{}
+        }
+
+        newServicePackageIDs := make(map[string]struct{})
+        for _, spID := range servicePackageIDs {
+            newServicePackageIDs[spID] = struct{}{}
+        }
+
+        // Service packages to add
+        for spID := range newServicePackageIDs {
+            if _, exists := existingServicePackageIDs[spID]; !exists {
+                spOID, err := primitive.ObjectIDFromHex(spID)
+                if err != nil {
+                    return nil, err
+                }
+                reg := &models.UnitServicePackageRegistration{
+                    UnitID: out.ID,
+                    ServicePackageID: spOID,
+                }
+                if err := r.regRepo.Create(ctx, reg); err != nil {
+                    return nil, err
+                }
+            }
+        }
+
+        // Service packages to remove
+        for spID := range existingServicePackageIDs {
+            if _, exists := newServicePackageIDs[spID]; !exists {
+                // Find and delete the specific registration
+                spOID, err := primitive.ObjectIDFromHex(spID)
+                if err != nil {
+                    return nil, err
+                }
+                filter := bson.D{{Key: "unit_id", Value: out.ID}, {Key: "service_package_id", Value: spOID}}
+                _, err = r.regRepo.coll.DeleteMany(ctx, filter)
+                if err != nil {
+                    return nil, err
+                }
+            }
+        }
+    }
+
     return &out, nil
 }
 

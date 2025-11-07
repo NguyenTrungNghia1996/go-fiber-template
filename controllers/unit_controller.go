@@ -10,14 +10,17 @@ import (
 
     "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type UnitController struct {
     repo *repositories.UnitRepository
+    regRepo *repositories.UnitServicePackageRegistrationRepository
+    spRepo *repositories.ServicePackageRepository
 }
 
-func NewUnitController(repo *repositories.UnitRepository) *UnitController {
-    return &UnitController{repo: repo}
+func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository) *UnitController {
+    return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo}
 }
 
 // List handles GET /units with optional ?id, ?q and pagination.
@@ -30,7 +33,31 @@ func (h *UnitController) List(c *fiber.Ctx) error {
         if u == nil {
             return response.Error(c, "not found", fiber.StatusNotFound, nil)
         }
-        return response.Success(c, u, "ok")
+        // Resolve service packages for this unit
+        regs, _, err := h.regRepo.FindPaged(c.Context(), 0, 0, id, "")
+        if err != nil {
+            return response.Error(c, "failed to resolve packages", fiber.StatusInternalServerError, nil)
+        }
+        spCache := map[string]string{}
+        var sps []models.ServicePackageBasic
+        for _, r := range regs {
+            spID := r.ServicePackageID.Hex()
+            name, ok := spCache[spID]
+            if !ok {
+                sp, err := h.spRepo.FindByID(c.Context(), spID)
+                if err != nil {
+                    return response.Error(c, "failed to resolve packages", fiber.StatusInternalServerError, nil)
+                }
+                if sp == nil { // skip dangling
+                    continue
+                }
+                name = sp.Name
+                spCache[spID] = name
+            }
+            sps = append(sps, models.ServicePackageBasic{ID: spID, Name: name})
+        }
+        dto := models.UnitDTO{Unit: *u, ServicePackages: sps}
+        return response.Success(c, dto, "ok")
     }
     page, limit := response.ParsePageLimit(c)
     q := strings.TrimSpace(c.Query("q"))
@@ -38,8 +65,36 @@ func (h *UnitController) List(c *fiber.Ctx) error {
     if err != nil {
         return response.Error(c, "failed to list", fiber.StatusInternalServerError, nil)
     }
-    data := response.ListData[models.Unit]{
-        Items: items,
+    // For list, resolve packages per unit with simple caching per request
+    spNameCache := map[string]string{}
+    var out []models.UnitDTO
+    for i := range items {
+        u := items[i]
+        regs, _, err := h.regRepo.FindPaged(c.Context(), 0, 0, u.ID.Hex(), "")
+        if err != nil {
+            return response.Error(c, "failed to resolve packages", fiber.StatusInternalServerError, nil)
+        }
+        var sps []models.ServicePackageBasic
+        for _, r := range regs {
+            spID := r.ServicePackageID.Hex()
+            name, ok := spNameCache[spID]
+            if !ok {
+                sp, err := h.spRepo.FindByID(c.Context(), spID)
+                if err != nil {
+                    return response.Error(c, "failed to resolve packages", fiber.StatusInternalServerError, nil)
+                }
+                if sp == nil {
+                    continue
+                }
+                name = sp.Name
+                spNameCache[spID] = name
+            }
+            sps = append(sps, models.ServicePackageBasic{ID: spID, Name: name})
+        }
+        out = append(out, models.UnitDTO{Unit: u, ServicePackages: sps})
+    }
+    data := response.ListData[models.UnitDTO]{
+        Items: out,
         Page:  page,
         Limit: limit,
         Total: total,
@@ -67,7 +122,13 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
         Description: strings.TrimSpace(in.Description),
         LogoURL:     strings.TrimSpace(in.LogoURL),
     }
-    if err := h.repo.Create(c.Context(), u); err != nil {
+    // Validate service_package_ids if provided
+    for _, id := range in.ServicePackageIDs {
+        if _, err := primitive.ObjectIDFromHex(id); err != nil {
+            return response.Error(c, "invalid service_package_ids entry", fiber.StatusBadRequest, nil)
+        }
+    }
+    if err := h.repo.Create(c.Context(), u, in.ServicePackageIDs); err != nil {
         if strings.Contains(err.Error(), "E11000") {
             return response.Error(c, "subdomain already exists", fiber.StatusConflict, nil)
         }
@@ -109,10 +170,27 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
     if in.LogoURL != nil {
         updates = append(updates, bson.E{Key: "logo_url", Value: strings.TrimSpace(*in.LogoURL)})
     }
-    if len(updates) == 0 {
+    if len(updates) == 0 && in.ServicePackageIDs == nil {
         return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
     }
-    u, err := h.repo.UpdateByID(c.Context(), id, updates)
+    // Validate service_package_ids if provided and
+    // convert pointer slice to plain slice to preserve semantics:
+    // - nil => not provided (no change)
+    // - empty slice => clear all registrations
+    var servicePackageIDs []string
+    if in.ServicePackageIDs != nil {
+        // validate
+        for _, id := range *in.ServicePackageIDs {
+            if _, err := primitive.ObjectIDFromHex(id); err != nil {
+                return response.Error(c, "invalid service_package_ids entry", fiber.StatusBadRequest, nil)
+            }
+        }
+        servicePackageIDs = *in.ServicePackageIDs
+    } else {
+        servicePackageIDs = nil
+    }
+
+    u, err := h.repo.UpdateByID(c.Context(), id, updates, servicePackageIDs)
     if err != nil {
         if strings.Contains(err.Error(), "E11000") {
             return response.Error(c, "subdomain already exists", fiber.StatusConflict, nil)

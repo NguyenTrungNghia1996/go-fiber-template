@@ -18,16 +18,18 @@ type Unit struct {
 }
 
 type CreateUnitInput struct {
-    Subdomain   string `json:"subdomain"`
-    Name        string `json:"name"`
-    Description string `json:"description"`
-    LogoURL     string `json:"logo_url"`
+    Subdomain   string   `json:"subdomain"`
+    Name        string   `json:"name"`
+    Description string   `json:"description"`
+    LogoURL     string   `json:"logo_url"`
+    ServicePackageIDs []string `json:"service_package_ids,omitempty"`
 }
 
 type UpdateUnitInput struct {
-    ID          string  `json:"id"`
-    Subdomain   *string `json:"subdomain,omitempty"`
-    Name        *string `json:"name,omitempty"`
-    Description *string `json:"description,omitempty"`
-    LogoURL     *string `json:"logo_url,omitempty"`
+    ID          string   `json:"id"`
+    Subdomain   *string  `json:"subdomain,omitempty"`
+    Name        *string  `json:"name,omitempty"`
+    Description *string  `json:"description,omitempty"`
+    LogoURL     *string  `json:"logo_url,omitempty"`
+    ServicePackageIDs *[]string `json:"service_package_ids,omitempty"`
 }

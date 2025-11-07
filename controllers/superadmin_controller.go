@@ -36,7 +36,7 @@ func (h *SuperAdminController) Create(c *fiber.Ctx) error {
     }
     // Check existing username
     if exists, _ := h.repo.FindByUsername(c.Context(), in.Username); exists != nil {
-        return fiber.NewError(fiber.StatusConflict, "username already exists")
+        return response.Error(c, "username already exists", fiber.StatusConflict, nil)
     }
     // Hash password
     hash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)

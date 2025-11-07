@@ -60,13 +60,28 @@ func main() {
     routes.RegisterAuthRoutes(app, saCtrl)
     routes.RegisterSuperAdminRoutes(app, saCtrl)
 
+    // UnitServicePackageRegistration feature (init before Units so it can be injected)
+    unitServicePackageRegistrationRepo, err := repositories.NewUnitServicePackageRegistrationRepository(config.DB)
+    if err != nil {
+        log.Fatalf("failed to init unit service package registration repository: %v", err)
+    }
+    unitServicePackageRegistrationCtrl := controllers.NewUnitServicePackageRegistrationController(unitServicePackageRegistrationRepo)
+    routes.RegisterUnitServicePackageRegistrationRoutes(app, unitServicePackageRegistrationCtrl)
+
+    // ServicePackage feature (repo needed by Units controller)
+    servicePackageRepo := repositories.NewServicePackageRepository(config.DB)
+    servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
+    routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
+
     // Units feature
-    unitRepo, err := repositories.NewUnitRepository(config.DB)
+    unitRepo, err := repositories.NewUnitRepository(config.DB, unitServicePackageRegistrationRepo)
     if err != nil {
         log.Fatalf("failed to init unit repository: %v", err)
     }
-    unitCtrl := controllers.NewUnitController(unitRepo)
+    unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo)
     routes.RegisterUnitRoutes(app, unitCtrl)
+
+    // (already initialized above)
 
     // Seed default super admin account
     if err := seed.SeedSuperAdmin(saRepo); err != nil {

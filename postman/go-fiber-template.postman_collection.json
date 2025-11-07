@@ -247,7 +247,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\"\n}"
+              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_package_ids\": [\"{{servicePackageId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",
@@ -281,7 +281,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\"\n}"
+              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\",\n  \"service_package_ids\": [\"{{servicePackageId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",
@@ -301,6 +301,253 @@
               "host": ["{{baseUrl}}"],
               "path": ["units"],
               "query": [ { "key": "id", "value": "{{unitId}}" } ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Service Packages",
+      "item": [
+        {
+          "name": "List Service Packages",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/service_packages?page=0&q=basic",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_packages" ],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "q", "value": "basic" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service Package",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service_packages",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_packages" ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('servicePackageId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Service Package",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/service_packages?id={{servicePackageId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_packages" ],
+              "query": [
+                { "key": "id", "value": "{{servicePackageId}}" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service Package",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service_packages",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_packages" ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Service Package",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/service_packages?id={{servicePackageId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_packages" ],
+              "query": [
+                { "key": "id", "value": "{{servicePackageId}}" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unit Service Package Registrations",
+      "item": [
+        {
+          "name": "Create Registration",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('unitServicePackageRegistrationId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "List Registrations",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations?page=0",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ],
+              "query": [
+                { "key": "page", "value": "0" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Registrations by Unit ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations?unit_id={{unitId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ],
+              "query": [
+                { "key": "unit_id", "value": "{{unitId}}" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Registrations by Service Package ID",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations?service_package_id={{servicePackageId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ],
+              "query": [
+                { "key": "service_package_id", "value": "{{servicePackageId}}" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Registration",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ],
+              "query": [
+                { "key": "id", "value": "{{unitServicePackageRegistrationId}}" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Registration",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Registration",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_service_package_registrations" ],
+              "query": [
+                { "key": "id", "value": "{{unitServicePackageRegistrationId}}" }
+              ]
             }
           },
           "response": []
@@ -348,6 +595,16 @@
     },
     {
       "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "servicePackageId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unitServicePackageRegistrationId",
       "value": "",
       "type": "string"
     }
