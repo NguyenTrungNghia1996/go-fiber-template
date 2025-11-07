@@ -12,5 +12,5 @@ func RegisterUploadRoutes(app *fiber.App, ctrl *controllers.UploadController) {
     g := app.Group("/api")
     g.Use(auth.RequireAdmin())
     g.Put("/presigned_url", ctrl.PresignedURL)
+    g.Delete("/file", ctrl.Delete)
 }
-

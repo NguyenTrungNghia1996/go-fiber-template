@@ -1,10 +1,10 @@
 package controllers
 
 import (
+    "fmt"
     "errors"
     "net/url"
     "os"
-    "path"
     "path/filepath"
     "strings"
     "time"
@@ -102,8 +102,20 @@ func (h *UploadController) PresignedURL(c *fiber.Ctx) error {
     if len(ext) > 16 { // guard against abusive long ext
         ext = ""
     }
+    // Build a safe slug from the original filename (without extension)
+    baseNoExt := strings.TrimSuffix(base, ext)
+    slug := sanitizeFilename(baseNoExt)
+    if slug == "" {
+        slug = "file"
+    }
+    // keep slug short to avoid path length issues
+    if len(slug) > 60 {
+        slug = slug[:60]
+    }
     id := uuid.New().String()
-    objectName := path.Join("uploads", time.Now().UTC().Format("2006/01/02"), id+ext)
+    fileWithName := fmt.Sprintf("%s-%s%s", id, slug, ext)
+    // Upload directly to bucket root (no date-based folders)
+    objectName := fileWithName
 
     // Verify bucket exists
     exists, err := h.client.BucketExists(c.Context(), h.bucket)
@@ -143,4 +155,63 @@ func (h *UploadController) PresignedURL(c *fiber.Ctx) error {
         "key":       objectName,
         "public_url": public,
     }, "ok")
+}
+
+// Delete handles DELETE /api/file?id=<key> to remove an object from the bucket root.
+func (h *UploadController) Delete(c *fiber.Ctx) error {
+    key := strings.TrimSpace(c.Query("id"))
+    if key == "" {
+        return response.Error(c, "id query param is required", fiber.StatusBadRequest, nil)
+    }
+    if err := h.ensureClient(); err != nil {
+        return response.Error(c, "storage error", fiber.StatusInternalServerError, nil)
+    }
+    // Check if object exists to honor 404 semantics
+    if _, err := h.client.StatObject(c.Context(), h.bucket, key, minio.StatObjectOptions{}); err != nil {
+        er := minio.ToErrorResponse(err)
+        if er.Code == "NoSuchKey" || strings.EqualFold(er.Code, "NotFound") || er.StatusCode == 404 {
+            return response.Error(c, "file not found", fiber.StatusNotFound, nil)
+        }
+        return response.Error(c, "failed to stat file", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+    }
+    // Delete
+    if err := h.client.RemoveObject(c.Context(), h.bucket, key, minio.RemoveObjectOptions{}); err != nil {
+        return response.Error(c, "failed to delete file", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+    }
+    return response.Success(c, true, "deleted")
+}
+
+// sanitizeFilename returns a lowercase, hyphenated version keeping [a-z0-9-_].
+// Non-matching runes are replaced with '-'; repeated '-' are collapsed.
+func sanitizeFilename(s string) string {
+    s = strings.ToLower(strings.TrimSpace(s))
+    b := make([]rune, 0, len(s))
+    lastHyphen := false
+    for _, r := range s {
+        if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') {
+            b = append(b, r)
+            lastHyphen = false
+            continue
+        }
+        if r == '-' || r == '_' {
+            if r == '-' {
+                if lastHyphen {
+                    continue
+                }
+                lastHyphen = true
+            } else {
+                lastHyphen = false
+            }
+            b = append(b, r)
+            continue
+        }
+        // replace others with '-'
+        if !lastHyphen {
+            b = append(b, '-')
+            lastHyphen = true
+        }
+    }
+    // trim leading/trailing '-'
+    res := strings.Trim(string(b), "-")
+    return res
 }

@@ -577,6 +577,21 @@
           },
           "response": []
         }
+        ,
+        {
+          "name": "Delete File",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/file?id={{fileKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "file"],
+              "query": [ { "key": "id", "value": "{{fileKey}}" } ]
+            }
+          },
+          "response": []
+        }
       ]
     }
   ],
@@ -630,6 +645,11 @@
     },
     {
       "key": "unitServicePackageRegistrationId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "fileKey",
       "value": "",
       "type": "string"
     }
