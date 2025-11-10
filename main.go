@@ -73,13 +73,24 @@ func main() {
     servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
     routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
 
+    // Unit users repo (used by Units + UnitAuth)
+    unitUserRepo := repositories.NewUnitUserRepository(config.DB)
+
     // Units feature
     unitRepo, err := repositories.NewUnitRepository(config.DB, unitServicePackageRegistrationRepo)
     if err != nil {
         log.Fatalf("failed to init unit repository: %v", err)
     }
-    unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo)
+    unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo, unitUserRepo)
     routes.RegisterUnitRoutes(app, unitCtrl)
+
+    // Unit user auth (login with subdomain)
+    unitAuthCtrl := controllers.NewUnitAuthController(unitRepo, unitUserRepo)
+    routes.RegisterUnitAuthRoutes(app, unitAuthCtrl)
+
+    // Unit users management (requires unit user token; admin-only enforced in handlers)
+    unitUserCtrl := controllers.NewUnitUserController(unitUserRepo)
+    routes.RegisterUnitUserRoutes(app, unitUserCtrl)
 
     // (already initialized above)
 
@@ -89,6 +100,10 @@ func main() {
 
     // Seed default super admin account
     if err := seed.SeedSuperAdmin(saRepo); err != nil {
+        log.Printf("seed error: %v", err)
+    }
+    // Seed default unit admin accounts for existing units (admin/admin)
+    if err := seed.SeedUnitAdmins(unitRepo, unitUserRepo); err != nil {
         log.Printf("seed error: %v", err)
     }
 

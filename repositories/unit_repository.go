@@ -76,6 +76,18 @@ func (r *UnitRepository) FindByID(ctx context.Context, id string) (*models.Unit,
     return &u, nil
 }
 
+// FindBySubdomain returns a Unit by its subdomain or nil if not found.
+func (r *UnitRepository) FindBySubdomain(ctx context.Context, subdomain string) (*models.Unit, error) {
+    var u models.Unit
+    if err := r.coll.FindOne(ctx, bson.D{{Key: "subdomain", Value: subdomain}}).Decode(&u); err != nil {
+        if err == mongo.ErrNoDocuments {
+            return nil, nil
+        }
+        return nil, err
+    }
+    return &u, nil
+}
+
 func (r *UnitRepository) FindPaged(ctx context.Context, page, limit int64, q string) ([]models.Unit, int64, error) {
     // Build filter for search across code, name, description using regex
     filter := bson.D{}

@@ -7,6 +7,11 @@
 @servicePackageId =
 @unitServicePackageRegistrationId =
 @fileKey =
+@unitSubdomain = sales
+@unitUsername = admin
+@unitPassword = admin
+@unitToken =
+@unitUserId =
 
 ### Health
 GET {{baseUrl}}/health
@@ -20,6 +25,55 @@ Content-Type: application/json
   "username": "{{adminUsername}}",
   "password": "{{adminPassword}}"
 }
+
+### Auth: Login Unit User (requires subdomain)
+# @name unitLogin
+POST {{baseUrl}}/auth/unit
+Content-Type: application/json
+
+{
+  "subdomain": "{{unitSubdomain}}",
+  "username": "{{unitUsername}}",
+  "password": "{{unitPassword}}"
+}
+
+### Unit Users: List (admin-only)
+GET {{baseUrl}}/unit_users?page=0&q=
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Users: Create (admin-only)
+# @name createUnitUser
+POST {{baseUrl}}/unit_users
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "username": "member1",
+  "password": "Member@123",
+  "name": "Member One",
+  "email": "member1@example.com",
+  "is_admin": false
+}
+
+### Unit Users: Get Detail (admin-only)
+GET {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Users: Update (admin-only)
+PUT {{baseUrl}}/unit_users
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "id": "{{createUnitUser.response.body.$.data.id}}",
+  "name": "Member One Updated",
+  "email": "member1_new@example.com",
+  "is_admin": false
+}
+
+### Unit Users: Delete (admin-only)
+DELETE {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Auth: Login SuperAdmin (manual fallback)
 # Optional: use if you want to test credentials separately.
@@ -91,7 +145,13 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "name": "Sales Department",
   "description": "Handles sales operations",
   "logo_url": "https://example.com/logo.png",
-  "service_package_ids": ["{{createServicePackage.response.body.$.data.id}}"]
+  "service_package_ids": ["{{createServicePackage.response.body.$.data.id}}"],
+  "admin_user": {
+    "username": "admin",
+    "password": "admin",
+    "name": "Sales Admin",
+    "email": "sales.admin@example.com"
+  }
 }
  
 

@@ -23,6 +23,7 @@ type CreateUnitInput struct {
     Description string   `json:"description"`
     LogoURL     string   `json:"logo_url"`
     ServicePackageIDs []string `json:"service_package_ids,omitempty"`
+    AdminUser   *CreateUnitAdminInput `json:"admin_user,omitempty"`
 }
 
 type UpdateUnitInput struct {
@@ -32,4 +33,13 @@ type UpdateUnitInput struct {
     Description *string  `json:"description,omitempty"`
     LogoURL     *string  `json:"logo_url,omitempty"`
     ServicePackageIDs *[]string `json:"service_package_ids,omitempty"`
+}
+
+// CreateUnitAdminInput allows providing the first admin user of the new unit.
+// If provided, username and password are required. The new user is created with is_admin=true.
+type CreateUnitAdminInput struct {
+    Username string `json:"username"`
+    Password string `json:"password"`
+    Name     string `json:"name"`
+    Email    string `json:"email"`
 }

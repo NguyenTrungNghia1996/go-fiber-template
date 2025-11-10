@@ -24,6 +24,96 @@
       "response": []
     },
     {
+      "name": "Unit Users",
+      "item": [
+        {
+          "name": "List Unit Users",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_users?page=0&q=",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_users"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "q", "value": "" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Unit User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_users",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Unit User",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_users?id={{unitUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_users"],
+              "query": [ { "key": "id", "value": "{{unitUserId}}" } ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Unit User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_users",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_users"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Unit User",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_users?id={{unitUserId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_users"],
+              "query": [ { "key": "id", "value": "{{unitUserId}}" } ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Auth",
       "item": [
         {
@@ -52,6 +142,39 @@
                   "const res = pm.response.json();",
                   "if (res && res.data && res.data.token) {",
                   "  pm.collectionVariables.set('adminToken', res.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Login Unit User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subdomain\": \"{{unitSubdomain}}\",\n  \"username\": \"{{unitUsername}}\",\n  \"password\": \"{{unitPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/unit",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "unit"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.token) {",
+                  "  pm.collectionVariables.set('unitToken', res.data.token);",
                   "}"
                 ]
               }
@@ -247,7 +370,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_package_ids\": [\"{{servicePackageId}}\"]\n}"
+              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_package_ids\": [\"{{servicePackageId}}\"],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",
@@ -650,6 +773,31 @@
     },
     {
       "key": "fileKey",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unitSubdomain",
+      "value": "sales",
+      "type": "string"
+    },
+    {
+      "key": "unitUsername",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "unitPassword",
+      "value": "admin",
+      "type": "string"
+    },
+    {
+      "key": "unitToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unitUserId",
       "value": "",
       "type": "string"
     }

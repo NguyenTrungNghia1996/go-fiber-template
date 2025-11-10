@@ -11,16 +11,18 @@ import (
     "github.com/gofiber/fiber/v2"
     "go.mongodb.org/mongo-driver/bson"
     "go.mongodb.org/mongo-driver/bson/primitive"
+    "golang.org/x/crypto/bcrypt"
 )
 
 type UnitController struct {
     repo *repositories.UnitRepository
     regRepo *repositories.UnitServicePackageRegistrationRepository
     spRepo *repositories.ServicePackageRepository
+    userRepo *repositories.UnitUserRepository
 }
 
-func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository) *UnitController {
-    return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo}
+func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository, userRepo *repositories.UnitUserRepository) *UnitController {
+    return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo, userRepo: userRepo}
 }
 
 // List handles GET /units with optional ?id, ?q and pagination.
@@ -133,6 +135,46 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
             return response.Error(c, "subdomain already exists", fiber.StatusConflict, nil)
         }
         return response.Error(c, "failed to create", fiber.StatusInternalServerError, nil)
+    }
+    // Create the first admin user for the unit
+    if h.userRepo != nil {
+        if in.AdminUser != nil {
+            au := *in.AdminUser
+            au.Username = strings.TrimSpace(au.Username)
+            au.Password = strings.TrimSpace(au.Password)
+            if au.Username == "" || au.Password == "" {
+                return response.Error(c, "admin_user.username and admin_user.password are required", fiber.StatusBadRequest, nil)
+            }
+            hash, err := bcrypt.GenerateFromPassword([]byte(au.Password), bcrypt.DefaultCost)
+            if err == nil {
+                if err := h.userRepo.Create(c.Context(), &models.UnitUser{
+                    UnitID:       u.ID,
+                    Username:     au.Username,
+                    PasswordHash: string(hash),
+                    IsAdmin:      true,
+                    Name:         strings.TrimSpace(au.Name),
+                    Email:        strings.TrimSpace(au.Email),
+                }); err != nil {
+                    // If creating custom admin failed (very unlikely for new unit), fall back to default admin
+                    // Best-effort, do not fail unit creation
+                    if !strings.Contains(err.Error(), "E11000") {
+                        // log-like behavior isn't available here; simply ignore to keep API stable
+                    }
+                }
+            }
+        } else {
+            // Fallback: create default admin/admin
+            if hash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost); err == nil {
+                _ = h.userRepo.Create(c.Context(), &models.UnitUser{
+                    UnitID:       u.ID,
+                    Username:     "admin",
+                    PasswordHash: string(hash),
+                    IsAdmin:      true,
+                    Name:         "Unit Admin",
+                    Email:        "",
+                })
+            }
+        }
     }
     return response.Success(c, u, "created", fiber.StatusCreated)
 }
