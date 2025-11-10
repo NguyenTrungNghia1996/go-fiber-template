@@ -92,6 +92,14 @@ func main() {
     unitUserCtrl := controllers.NewUnitUserController(unitUserRepo)
     routes.RegisterUnitUserRoutes(app, unitUserCtrl)
 
+    // Unit self-management (unit admin can update their unit)
+    unitSelfCtrl := controllers.NewUnitSelfController(unitRepo)
+    routes.RegisterUnitSelfRoutes(app, unitSelfCtrl)
+
+    // Unit user self profile (any unit user can update own info)
+    unitMeCtrl := controllers.NewUnitMeController(unitUserRepo)
+    routes.RegisterUnitMeRoutes(app, unitMeCtrl)
+
     // (already initialized above)
 
     // Upload (S3/MinIO) feature

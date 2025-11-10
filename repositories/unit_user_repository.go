@@ -157,3 +157,8 @@ func (r *UnitUserRepository) AnyAdminExists(ctx context.Context, unitID primitiv
     }
     return count > 0, nil
 }
+
+// AdminCount returns number of admin users in a unit.
+func (r *UnitUserRepository) AdminCount(ctx context.Context, unitID primitive.ObjectID) (int64, error) {
+    return r.coll.CountDocuments(ctx, bson.D{{Key: "unit_id", Value: unitID}, {Key: "is_admin", Value: true}})
+}

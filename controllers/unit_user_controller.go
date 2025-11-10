@@ -165,6 +165,25 @@ func (h *UnitUserController) Update(c *fiber.Ctx) error {
         updates = append(updates, bson.E{Key: "email", Value: strings.TrimSpace(*in.Email)})
     }
     if in.IsAdmin != nil {
+        // Prevent demoting the last admin of the unit
+        if !*in.IsAdmin {
+            existing, err := h.repo.FindByIDWithinUnit(c.Context(), id, unitOID)
+            if err != nil {
+                return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+            }
+            if existing == nil {
+                return response.Error(c, "not found", fiber.StatusNotFound, nil)
+            }
+            if existing.IsAdmin {
+                cnt, err := h.repo.AdminCount(c.Context(), unitOID)
+                if err != nil {
+                    return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+                }
+                if cnt <= 1 {
+                    return response.Error(c, "cannot remove admin role from the last admin of the unit", fiber.StatusConflict, nil)
+                }
+            }
+        }
         updates = append(updates, bson.E{Key: "is_admin", Value: *in.IsAdmin})
     }
     if len(updates) == 0 {
@@ -196,6 +215,23 @@ func (h *UnitUserController) Delete(c *fiber.Ctx) error {
     if id == "" {
         return response.Error(c, "id query param is required", fiber.StatusBadRequest, nil)
     }
+    // Prevent deleting the last admin of the unit
+    existing, err := h.repo.FindByIDWithinUnit(c.Context(), id, unitOID)
+    if err != nil {
+        return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+    }
+    if existing == nil {
+        return response.Error(c, "not found", fiber.StatusNotFound, nil)
+    }
+    if existing.IsAdmin {
+        cnt, err := h.repo.AdminCount(c.Context(), unitOID)
+        if err != nil {
+            return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+        }
+        if cnt <= 1 {
+            return response.Error(c, "cannot delete the last admin of the unit", fiber.StatusConflict, nil)
+        }
+    }
     ok, err := h.repo.DeleteByIDWithinUnit(c.Context(), id, unitOID)
     if err != nil {
         return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
@@ -205,4 +241,3 @@ func (h *UnitUserController) Delete(c *fiber.Ctx) error {
     }
     return response.Success(c, true, "deleted")
 }
-

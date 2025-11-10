@@ -75,6 +75,36 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 DELETE {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
+### Unit Self: Get current unit (admin-only)
+GET {{baseUrl}}/unit_self
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Self: Update current unit (admin-only)
+PUT {{baseUrl}}/unit_self
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "name": "Sales Department Updated",
+  "description": "Handles sales and partnerships",
+  "logo_url": "https://example.com/newlogo.png"
+}
+
+### Unit Me: Get my profile
+GET {{baseUrl}}/unit_me
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Me: Update my profile
+PUT {{baseUrl}}/unit_me
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "name": "My New Name",
+  "email": "my.new@example.com",
+  "password": "NewP@ssw0rd"
+}
+
 ### Auth: Login SuperAdmin (manual fallback)
 # Optional: use if you want to test credentials separately.
 POST {{baseUrl}}/auth/admin
