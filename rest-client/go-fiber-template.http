@@ -1,0 +1,220 @@
+@baseUrl = http://localhost:4000
+@adminUsername = sa
+@adminPassword = sa123
+@adminToken = 
+@superAdminId =
+@unitId =
+@servicePackageId =
+@unitServicePackageRegistrationId =
+@fileKey =
+
+### Health
+GET {{baseUrl}}/health
+
+### Auth: Login SuperAdmin
+# @name login
+POST {{baseUrl}}/auth/admin
+Content-Type: application/json
+
+{
+  "username": "{{adminUsername}}",
+  "password": "{{adminPassword}}"
+}
+
+### Auth: Login SuperAdmin (manual fallback)
+# Optional: use if you want to test credentials separately.
+POST {{baseUrl}}/auth/admin
+Content-Type: application/json
+
+{
+  "username": "sa",
+  "password": "sa123"
+}
+
+### SuperAdmins: List (all, no pagination)
+GET {{baseUrl}}/superadmins?page=0&q=admin
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### SuperAdmins: List (paged)
+GET {{baseUrl}}/superadmins?page=1&limit=10&q=admin
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### SuperAdmins: Create
+# @name createSuperAdmin
+POST {{baseUrl}}/superadmins
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "username": "admin1",
+  "password": "StrongP@ssw0rd",
+  "name": "Admin One",
+  "email": "admin1@example.com"
+}
+
+### SuperAdmins: Get Detail
+GET {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### SuperAdmins: Update
+PUT {{baseUrl}}/superadmins
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createSuperAdmin.response.body.$.data.id}}",
+  "name": "Admin One Updated",
+  "email": "new@example.com",
+  "password": "NewP@ss123"
+}
+
+### SuperAdmins: Delete
+DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Units: List (all, no pagination)
+GET {{baseUrl}}/units?page=0&q=sales
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Units: List (paged)
+GET {{baseUrl}}/units?page=1&limit=10&q=sales
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Units: Create
+# @name createUnit
+POST {{baseUrl}}/units
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "subdomain": "sales",
+  "name": "Sales Department",
+  "description": "Handles sales operations",
+  "logo_url": "https://example.com/logo.png",
+  "service_package_ids": ["{{createServicePackage.response.body.$.data.id}}"]
+}
+ 
+
+### Units: Get Detail
+GET {{baseUrl}}/units?id={{createUnit.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Units: Update
+PUT {{baseUrl}}/units
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createUnit.response.body.$.data.id}}",
+  "subdomain": "sales-new",
+  "name": "Sales & Marketing",
+  "description": "Merged department",
+  "logo_url": "https://example.com/newlogo.png",
+  "service_package_ids": ["{{createServicePackage.response.body.$.data.id}}"]
+}
+
+### Units: Delete
+DELETE {{baseUrl}}/units?id={{createUnit.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Packages: List (all, no pagination)
+GET {{baseUrl}}/service_packages?page=0&q=basic
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Packages: List (paged)
+GET {{baseUrl}}/service_packages?page=1&limit=10&q=basic
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Packages: Create
+# @name createServicePackage
+POST {{baseUrl}}/service_packages
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "name": "Basic Plan",
+  "description": "Starter package",
+  "price": 49.99,
+  "duration": "monthly",
+  "is_active": true
+}
+
+### Service Packages: Get Detail
+GET {{baseUrl}}/service_packages?id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Packages: Update
+PUT {{baseUrl}}/service_packages
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createServicePackage.response.body.$.data.id}}",
+  "name": "Basic+ Plan",
+  "description": "Starter package with extras",
+  "price": 59.99,
+  "duration": "monthly",
+  "is_active": true
+}
+
+### Service Packages: Delete
+DELETE {{baseUrl}}/service_packages?id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit-ServicePackage Registrations: List (all)
+GET {{baseUrl}}/unit_service_package_registrations?page=0
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit-ServicePackage Registrations: Filter by unit_id
+GET {{baseUrl}}/unit_service_package_registrations?page=0&unit_id={{createUnit.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit-ServicePackage Registrations: Filter by service_package_id
+GET {{baseUrl}}/unit_service_package_registrations?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit-ServicePackage Registrations: Create
+# @name createRegistration
+POST {{baseUrl}}/unit_service_package_registrations
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "unit_id": "{{createUnit.response.body.$.data.id}}",
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}"
+}
+ 
+
+### Unit-ServicePackage Registrations: Get Detail
+GET {{baseUrl}}/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit-ServicePackage Registrations: Update
+PUT {{baseUrl}}/unit_service_package_registrations
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createRegistration.response.body.$.data.id}}",
+  "unit_id": "{{createUnit.response.body.$.data.id}}",
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}"
+}
+
+### Unit-ServicePackage Registrations: Delete
+DELETE {{baseUrl}}/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Uploads: Get Presigned Upload URL
+# @name presign
+PUT {{baseUrl}}/api/presigned_url
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "filename": "example.jpg",
+  "filetype": "image/jpeg"
+}
+
+### Uploads: Delete File
+DELETE {{baseUrl}}/api/file?id={{presign.response.body.$.data.key}}
+Authorization: Bearer {{login.response.body.$.data.token}}

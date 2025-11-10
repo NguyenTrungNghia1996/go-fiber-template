@@ -2,6 +2,11 @@ API Guidelines for this repository
 
 - Postman sync: When you change API routes or controllers, update `postman/go-fiber-template.postman_collection.json` so it reflects all available endpoints. Include example request bodies for create and update operations, and example query params for list/detail/delete.
 
+- VS Code REST Client sync: Alongside Postman, maintain `rest-client/go-fiber-template.http` for the REST Client extension. Ensure it mirrors all available endpoints with working sample requests:
+  - Include base variables (e.g., `@baseUrl`) and an auth login request that captures `adminToken` from the response for reuse.
+  - Provide example request bodies for create and update, and example query params for list/detail/delete.
+  - Update this file whenever API routes, request/response shapes, or auth change.
+
 - Standard response envelope: Always return JSON in the form `{ "data": any, "message": string, "status": "success"|"error" }`.
   - For list endpoints, `data` must be an object: `{ items: [], page: number, limit: number, total: number }`.
   - Use the helpers in `pkg/response` (`Success`, `Error`, `ParsePageLimit`, `ListData[T]`).
