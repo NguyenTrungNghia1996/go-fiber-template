@@ -51,6 +51,32 @@ func (r *ServicePackageRepository) FindByID(ctx context.Context, id string) (*mo
 	return &sp, nil
 }
 
+// FindByIDs returns all service packages whose IDs are in the provided slice.
+func (r *ServicePackageRepository) FindByIDs(ctx context.Context, ids []primitive.ObjectID) ([]models.ServicePackage, error) {
+	if len(ids) == 0 {
+		return []models.ServicePackage{}, nil
+	}
+	filter := bson.D{{Key: "_id", Value: bson.D{{Key: "$in", Value: ids}}}}
+	cur, err := r.coll.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var items []models.ServicePackage
+	for cur.Next(ctx) {
+		var sp models.ServicePackage
+		if err := cur.Decode(&sp); err != nil {
+			return nil, err
+		}
+		items = append(items, sp)
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 
 func (r *ServicePackageRepository) FindPaged(ctx context.Context, page, limit int64, q string) ([]models.ServicePackage, int64, error) {
 	filter := bson.D{}

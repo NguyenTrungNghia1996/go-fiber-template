@@ -100,7 +100,9 @@ func main() {
     unitMeCtrl := controllers.NewUnitMeController(unitUserRepo)
     routes.RegisterUnitMeRoutes(app, unitMeCtrl)
 
-    // (already initialized above)
+    // Unit menus derived from active service packages (for any authenticated unit user)
+    unitMenuCtrl := controllers.NewUnitMenuController(unitServicePackageRegistrationRepo, servicePackageRepo)
+    routes.RegisterUnitMenuRoutes(app, unitMenuCtrl)
 
     // Upload (S3/MinIO) feature
     uploadCtrl := controllers.NewUploadController()

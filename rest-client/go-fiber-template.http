@@ -226,7 +226,18 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "description": "Starter package",
   "price": 49.99,
   "duration": "monthly",
-  "is_active": true
+  "is_active": true,
+  "menus": [
+    {
+      "title": "Cấp Học",
+      "key": "menu-b94je",
+      "url": "/category_management/school_level",
+      "icon": "ant-design:unordered-list-outlined",
+      "parent_id": 11,
+      "permission": 0,
+      "active": true
+    }
+  ]
 }
 
 ### Service Packages: Get Detail
@@ -244,7 +255,18 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "description": "Starter package with extras",
   "price": 59.99,
   "duration": "monthly",
-  "is_active": true
+  "is_active": true,
+  "menus": [
+    {
+      "title": "Cấp Học",
+      "key": "menu-b94je",
+      "url": "/category_management/school_level",
+      "icon": "ant-design:unordered-list-outlined",
+      "parent_id": 11,
+      "permission": 0,
+      "active": true
+    }
+  ]
 }
 
 ### Service Packages: Delete
@@ -271,7 +293,9 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 
 {
   "unit_id": "{{createUnit.response.body.$.data.id}}",
-  "service_package_id": "{{createServicePackage.response.body.$.data.id}}"
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+  "start_at": "2024-01-01T00:00:00Z",
+  "end_at": "2024-12-31T23:59:59Z"
 }
  
 
@@ -287,12 +311,22 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 {
   "id": "{{createRegistration.response.body.$.data.id}}",
   "unit_id": "{{createUnit.response.body.$.data.id}}",
-  "service_package_id": "{{createServicePackage.response.body.$.data.id}}"
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+  "start_at": "2024-01-01T00:00:00Z",
+  "end_at": "2024-12-31T23:59:59Z"
 }
 
 ### Unit-ServicePackage Registrations: Delete
 DELETE {{baseUrl}}/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit Menus: List (all, no pagination)
+GET {{baseUrl}}/unit_menus?page=0&q=
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Menus: List (paged)
+GET {{baseUrl}}/unit_menus?page=1&limit=10&q=
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Uploads: Get Presigned Upload URL
 # @name presign

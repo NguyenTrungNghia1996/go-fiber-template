@@ -34,12 +34,21 @@ func (h *ServicePackageController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "name, duration, and a positive price are required", fiber.StatusBadRequest, nil)
 	}
 
+	// Basic trimming for menu fields where applicable
+	for i := range in.Menus {
+		in.Menus[i].Title = strings.TrimSpace(in.Menus[i].Title)
+		in.Menus[i].Key = strings.TrimSpace(in.Menus[i].Key)
+		in.Menus[i].URL = strings.TrimSpace(in.Menus[i].URL)
+		in.Menus[i].Icon = strings.TrimSpace(in.Menus[i].Icon)
+	}
+
 	sp := &models.ServicePackage{
 		Name:        in.Name,
 		Description: strings.TrimSpace(in.Description),
 		Price:       in.Price,
 		Duration:    in.Duration,
 		IsActive:    in.IsActive,
+		Menus:       in.Menus,
 	}
 
 	if err := h.repo.Create(c.Context(), sp); err != nil {
@@ -118,6 +127,17 @@ func (h *ServicePackageController) Update(c *fiber.Ctx) error {
 	}
 	if in.IsActive != nil {
 		updates = append(updates, bson.E{Key: "is_active", Value: *in.IsActive})
+	}
+	if in.Menus != nil {
+		// trim string fields in menus before saving
+		menus := *in.Menus
+		for i := range menus {
+			menus[i].Title = strings.TrimSpace(menus[i].Title)
+			menus[i].Key = strings.TrimSpace(menus[i].Key)
+			menus[i].URL = strings.TrimSpace(menus[i].URL)
+			menus[i].Icon = strings.TrimSpace(menus[i].Icon)
+		}
+		updates = append(updates, bson.E{Key: "menus", Value: menus})
 	}
 
 	if len(updates) == 0 {

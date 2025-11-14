@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"strings"
+	"time"
 
 	"go-fiber-api/models"
 	"go-fiber-api/pkg/response"
@@ -31,6 +32,9 @@ func (h *UnitServicePackageRegistrationController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "unit_id and service_package_id are required", fiber.StatusBadRequest, nil)
 	}
 
+	startStr := strings.TrimSpace(in.StartAt)
+	endStr := strings.TrimSpace(in.EndAt)
+
 	unitOID, err := primitive.ObjectIDFromHex(in.UnitID)
 	if err != nil {
 		return response.Error(c, "invalid unit_id format", fiber.StatusBadRequest, nil)
@@ -40,9 +44,36 @@ func (h *UnitServicePackageRegistrationController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "invalid service_package_id format", fiber.StatusBadRequest, nil)
 	}
 
+	now := time.Now().UTC()
+	var startAt time.Time
+	if startStr == "" {
+		startAt = now
+	} else {
+		t, err := time.Parse(time.RFC3339, startStr)
+		if err != nil {
+			return response.Error(c, "invalid start_at format, must be RFC3339", fiber.StatusBadRequest, nil)
+		}
+		startAt = t
+	}
+
+	var endAt time.Time
+	if endStr != "" {
+		t, err := time.Parse(time.RFC3339, endStr)
+		if err != nil {
+			return response.Error(c, "invalid end_at format, must be RFC3339", fiber.StatusBadRequest, nil)
+		}
+		endAt = t
+		// Optional logical validation
+		if !endAt.After(startAt) {
+			return response.Error(c, "end_at must be after start_at", fiber.StatusBadRequest, nil)
+		}
+	}
+
 	reg := &models.UnitServicePackageRegistration{
-		UnitID:         unitOID,
+		UnitID:           unitOID,
 		ServicePackageID: servicePackageOID,
+		StartAt:          startAt,
+		EndAt:            endAt,
 	}
 
 	if err := h.repo.Create(c.Context(), reg); err != nil {
@@ -115,6 +146,30 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 			return response.Error(c, "invalid service_package_id format", fiber.StatusBadRequest, nil)
 		}
 		updates = append(updates, bson.E{Key: "service_package_id", Value: servicePackageOID})
+	}
+	if in.StartAt != nil {
+		startStr := strings.TrimSpace(*in.StartAt)
+		if startStr == "" {
+			return response.Error(c, "start_at cannot be empty", fiber.StatusBadRequest, nil)
+		}
+		t, err := time.Parse(time.RFC3339, startStr)
+		if err != nil {
+			return response.Error(c, "invalid start_at format, must be RFC3339", fiber.StatusBadRequest, nil)
+		}
+		updates = append(updates, bson.E{Key: "start_at", Value: t})
+	}
+	if in.EndAt != nil {
+		endStr := strings.TrimSpace(*in.EndAt)
+		if endStr == "" {
+			// Allow clearing end_at by passing empty string
+			updates = append(updates, bson.E{Key: "end_at", Value: time.Time{}})
+		} else {
+			t, err := time.Parse(time.RFC3339, endStr)
+			if err != nil {
+				return response.Error(c, "invalid end_at format, must be RFC3339", fiber.StatusBadRequest, nil)
+			}
+			updates = append(updates, bson.E{Key: "end_at", Value: t})
+		}
 	}
 
 	if len(updates) == 0 {

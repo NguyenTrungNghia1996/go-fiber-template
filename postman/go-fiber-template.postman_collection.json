@@ -545,7 +545,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true\n}"
+              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true,\n  \"menus\": [\n    {\n      \"title\": \"Cấp Học\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_packages",
@@ -595,7 +595,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false\n}"
+              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false,\n  \"menus\": [\n    {\n      \"title\": \"Cấp Học\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_packages",
@@ -636,7 +636,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\"\n}"
+              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2024-01-01T00:00:00Z\",\n  \"end_at\": \"2024-12-31T23:59:59Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations",
@@ -734,7 +734,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\"\n}"
+              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2024-01-01T00:00:00Z\",\n  \"end_at\": \"2024-12-31T23:59:59Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations",
@@ -755,6 +755,46 @@
               "path": [ "unit_service_package_registrations" ],
               "query": [
                 { "key": "id", "value": "{{unitServicePackageRegistrationId}}" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unit Menus",
+      "item": [
+        {
+          "name": "List Unit Menus",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_menus?page=0&q=",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_menus" ],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "q", "value": "" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Unit Menus (paged)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_menus?page=1&limit=10&q=",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "unit_menus" ],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "q", "value": "" }
               ]
             }
           },
