@@ -77,7 +77,8 @@ type presignInput struct {
     Filetype string `json:"filetype"`
 }
 
-// PresignedURL handles PUT /api/presigned_url and returns a pre-signed PUT URL.
+// PresignedURL handles PUT /uploads/presigned_url (admin)
+// or PUT /unit_uploads/presigned_url (unit user) and returns a pre-signed PUT URL.
 func (h *UploadController) PresignedURL(c *fiber.Ctx) error {
     var in presignInput
     if err := c.BodyParser(&in); err != nil {
@@ -114,8 +115,18 @@ func (h *UploadController) PresignedURL(c *fiber.Ctx) error {
     }
     id := uuid.New().String()
     fileWithName := fmt.Sprintf("%s-%s%s", id, slug, ext)
-    // Upload directly to bucket root (no date-based folders)
+
+    // Namespace object key by tenant/admin:
+    // - Unit user (RequireUser):  <unit_id>/<uuid-slug.ext>
+    // - Super admin (RequireAdmin): admin/<uuid-slug.ext>
+    unitID, _ := c.Locals("unit_id").(string)
+    unitID = strings.TrimSpace(unitID)
     objectName := fileWithName
+    if unitID != "" {
+        objectName = fmt.Sprintf("%s/%s", unitID, fileWithName)
+    } else {
+        objectName = fmt.Sprintf("admin/%s", fileWithName)
+    }
 
     // Verify bucket exists
     exists, err := h.client.BucketExists(c.Context(), h.bucket)
@@ -157,7 +168,8 @@ func (h *UploadController) PresignedURL(c *fiber.Ctx) error {
     }, "ok")
 }
 
-// Delete handles DELETE /api/file?id=<key> to remove an object from the bucket root.
+// Delete handles DELETE /uploads/file?id=<key> (admin)
+// or DELETE /unit_uploads/file?id=<key> (unit user) to remove an object from the bucket root.
 func (h *UploadController) Delete(c *fiber.Ctx) error {
     key := strings.TrimSpace(c.Query("id"))
     if key == "" {

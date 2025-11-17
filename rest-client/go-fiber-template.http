@@ -330,7 +330,7 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Uploads: Get Presigned Upload URL
 # @name presign
-PUT {{baseUrl}}/api/presigned_url
+PUT {{baseUrl}}/uploads/presigned_url
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -340,5 +340,20 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Uploads: Delete File
-DELETE {{baseUrl}}/api/file?id={{presign.response.body.$.data.key}}
+DELETE {{baseUrl}}/uploads/file?id={{presign.response.body.$.data.key}}
 Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Unit Uploads: Get Presigned Upload URL
+# @name unitPresign
+PUT {{baseUrl}}/unit_uploads/presigned_url
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "filename": "unit-example.jpg",
+  "filetype": "image/jpeg"
+}
+
+### Unit Uploads: Delete File
+DELETE {{baseUrl}}/unit_uploads/file?id={{unitPresign.response.body.$.data.key}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
