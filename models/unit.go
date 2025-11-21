@@ -1,20 +1,16 @@
 package models
 
-import (
-	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "time"
 
 // Unit represents an organizational unit.
 type Unit struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Subdomain   string             `bson:"subdomain" json:"subdomain"`
-	Name        string             `bson:"name" json:"name"`
-	Description string             `bson:"description,omitempty" json:"description,omitempty"`
-	LogoURL     string             `bson:"logo_url,omitempty" json:"logo_url,omitempty"`
-	CreatedAt   time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time          `bson:"updated_at" json:"updated_at"`
+	ID          string    `gorm:"type:uuid;primaryKey" json:"id"`
+	Subdomain   string    `gorm:"uniqueIndex;not null" json:"subdomain"`
+	Name        string    `gorm:"not null" json:"name"`
+	Description string    `gorm:"not null;default:''" json:"description,omitempty"`
+	LogoURL     string    `gorm:"not null;default:''" json:"logo_url,omitempty"`
+	CreatedAt   time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }
 
 // CreateUnitServicePackageInput allows attaching service packages with optional active window.

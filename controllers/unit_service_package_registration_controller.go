@@ -9,8 +9,7 @@ import (
 	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
 )
 
 type UnitServicePackageRegistrationController struct {
@@ -35,50 +34,50 @@ func (h *UnitServicePackageRegistrationController) Create(c *fiber.Ctx) error {
 	startStr := strings.TrimSpace(in.StartAt)
 	endStr := strings.TrimSpace(in.EndAt)
 
-	unitOID, err := primitive.ObjectIDFromHex(in.UnitID)
-	if err != nil {
+	if _, err := uuid.Parse(in.UnitID); err != nil {
 		return response.Error(c, "invalid unit_id format", fiber.StatusBadRequest, nil)
 	}
-	servicePackageOID, err := primitive.ObjectIDFromHex(in.ServicePackageID)
-	if err != nil {
+	if _, err := uuid.Parse(in.ServicePackageID); err != nil {
 		return response.Error(c, "invalid service_package_id format", fiber.StatusBadRequest, nil)
 	}
 
 	now := time.Now().UTC()
-	var startAt time.Time
+	var startAt *time.Time
 	if startStr == "" {
-		startAt = now
+		startAt = &now
 	} else {
 		t, err := time.Parse(time.RFC3339, startStr)
 		if err != nil {
 			return response.Error(c, "invalid start_at format, must be RFC3339", fiber.StatusBadRequest, nil)
 		}
-		startAt = t
+		t = t.UTC()
+		startAt = &t
 	}
 
-	var endAt time.Time
+	var endAt *time.Time
 	if endStr != "" {
 		t, err := time.Parse(time.RFC3339, endStr)
 		if err != nil {
 			return response.Error(c, "invalid end_at format, must be RFC3339", fiber.StatusBadRequest, nil)
 		}
-		endAt = t
+		t = t.UTC()
+		endAt = &t
 		// Optional logical validation
-		if !endAt.After(startAt) {
+		if startAt != nil && !endAt.After(*startAt) {
 			return response.Error(c, "end_at must be after start_at", fiber.StatusBadRequest, nil)
 		}
 	}
 
 	reg := &models.UnitServicePackageRegistration{
-		UnitID:           unitOID,
-		ServicePackageID: servicePackageOID,
+		UnitID:           in.UnitID,
+		ServicePackageID: in.ServicePackageID,
 		StartAt:          startAt,
 		EndAt:            endAt,
 	}
 
 	if err := h.repo.Create(c.Context(), reg); err != nil {
 		// handle duplicate key error
-		if strings.Contains(err.Error(), "E11000") {
+		if repositories.IsUniqueViolation(err) {
 			return response.Error(c, "registration already exists for this unit and service package", fiber.StatusConflict, nil)
 		}
 		return response.Error(c, "failed to create registration", fiber.StatusInternalServerError, nil)
@@ -132,20 +131,18 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 		return response.Error(c, "id is required in body", fiber.StatusBadRequest, nil)
 	}
 
-	updates := bson.D{}
+	updates := map[string]interface{}{}
 	if in.UnitID != nil {
-		unitOID, err := primitive.ObjectIDFromHex(*in.UnitID)
-		if err != nil {
+		if _, err := uuid.Parse(*in.UnitID); err != nil {
 			return response.Error(c, "invalid unit_id format", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "unit_id", Value: unitOID})
+		updates["unit_id"] = strings.TrimSpace(*in.UnitID)
 	}
 	if in.ServicePackageID != nil {
-		servicePackageOID, err := primitive.ObjectIDFromHex(*in.ServicePackageID)
-		if err != nil {
+		if _, err := uuid.Parse(*in.ServicePackageID); err != nil {
 			return response.Error(c, "invalid service_package_id format", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "service_package_id", Value: servicePackageOID})
+		updates["service_package_id"] = strings.TrimSpace(*in.ServicePackageID)
 	}
 	if in.StartAt != nil {
 		startStr := strings.TrimSpace(*in.StartAt)
@@ -156,19 +153,20 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 		if err != nil {
 			return response.Error(c, "invalid start_at format, must be RFC3339", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "start_at", Value: t})
+		t = t.UTC()
+		updates["start_at"] = t
 	}
 	if in.EndAt != nil {
 		endStr := strings.TrimSpace(*in.EndAt)
 		if endStr == "" {
-			// Allow clearing end_at by passing empty string
-			updates = append(updates, bson.E{Key: "end_at", Value: time.Time{}})
+			updates["end_at"] = nil
 		} else {
 			t, err := time.Parse(time.RFC3339, endStr)
 			if err != nil {
 				return response.Error(c, "invalid end_at format, must be RFC3339", fiber.StatusBadRequest, nil)
 			}
-			updates = append(updates, bson.E{Key: "end_at", Value: t})
+			t = t.UTC()
+			updates["end_at"] = t
 		}
 	}
 

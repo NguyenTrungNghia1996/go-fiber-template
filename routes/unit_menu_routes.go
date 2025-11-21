@@ -13,4 +13,3 @@ func RegisterUnitMenuRoutes(app *fiber.App, ctrl *controllers.UnitMenuController
 	g.Use(auth.RequireUser())
 	g.Get("/", ctrl.List)
 }
-

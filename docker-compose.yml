@@ -8,28 +8,34 @@ services:
     ports:
       - 4000:4000
     environment:
-      MONGO_URL: mongodb://admin:cr969bp6x6@mongo:27017
-      MONGO_NAME: test
+      POSTGRES_URL: postgres://postgres:postgres@postgres:5432/appdb?sslmode=disable
       JWT_SECRET: test
+      JWT_SECRET_ADMIN: testadmin
       PORT: 4000
     restart: unless-stopped
     networks:
       - app-network
     depends_on:
-      - mongo
-    
-  mongo:
-    image: mongo:6
-    container_name: mongo
+      - postgres
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
     networks:
       - app-network
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: cr969bp6x6
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: appdb
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     expose:
-      - "27017"
+      - "5432"
     restart: unless-stopped
 
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  pgdata:

@@ -2,57 +2,40 @@ package repositories
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"go-fiber-api/models"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type UnitServicePackageRegistrationRepository struct {
-	coll *mongo.Collection
+	db *gorm.DB
 }
 
-func NewUnitServicePackageRegistrationRepository(db *mongo.Database) (*UnitServicePackageRegistrationRepository, error) {
-	r := &UnitServicePackageRegistrationRepository{coll: db.Collection("unit_service_package_registrations")}
-	// Ensure unique index on UnitID and ServicePackageID
-	idx := mongo.IndexModel{
-		Keys:    bson.D{{Key: "unit_id", Value: 1}, {Key: "service_package_id", Value: 1}},
-		Options: options.Index().SetUnique(true).SetBackground(true),
-	}
-	_, err := r.coll.Indexes().CreateOne(context.Background(), idx)
-	if err != nil {
-		return nil, err
-	}
-	return r, nil
+func NewUnitServicePackageRegistrationRepository(db *gorm.DB) *UnitServicePackageRegistrationRepository {
+	return &UnitServicePackageRegistrationRepository{db: db}
 }
 
 func (r *UnitServicePackageRegistrationRepository) Create(ctx context.Context, reg *models.UnitServicePackageRegistration) error {
-	now := time.Now().UTC()
-	reg.ID = primitive.NilObjectID
-	reg.CreatedAt = now
-	reg.UpdatedAt = now
-	res, err := r.coll.InsertOne(ctx, reg)
-	if err != nil {
-		return err
+	return r.create(ctx, r.db, reg)
+}
+
+func (r *UnitServicePackageRegistrationRepository) create(ctx context.Context, db *gorm.DB, reg *models.UnitServicePackageRegistration) error {
+	if reg.ID == "" {
+		reg.ID = uuid.NewString()
 	}
-	if oid, ok := res.InsertedID.(primitive.ObjectID); ok {
-		reg.ID = oid
-	}
-	return nil
+	return db.WithContext(ctx).Create(reg).Error
 }
 
 func (r *UnitServicePackageRegistrationRepository) FindByID(ctx context.Context, id string) (*models.UnitServicePackageRegistration, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
-	}
 	var reg models.UnitServicePackageRegistration
-	if err := r.coll.FindOne(ctx, bson.D{{Key: "_id", Value: oid}}).Decode(&reg); err != nil {
-		if err == mongo.ErrNoDocuments {
+	err := r.db.WithContext(ctx).First(&reg, "id = ?", id).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
 		return nil, err
@@ -61,79 +44,71 @@ func (r *UnitServicePackageRegistrationRepository) FindByID(ctx context.Context,
 }
 
 func (r *UnitServicePackageRegistrationRepository) FindPaged(ctx context.Context, page, limit int64, unitID, servicePackageID string) ([]models.UnitServicePackageRegistration, int64, error) {
-	filter := bson.D{}
+	return r.findPaged(ctx, r.db, page, limit, unitID, servicePackageID)
+}
+
+func (r *UnitServicePackageRegistrationRepository) findPaged(ctx context.Context, db *gorm.DB, page, limit int64, unitID, servicePackageID string) ([]models.UnitServicePackageRegistration, int64, error) {
+	query := db.WithContext(ctx).Model(&models.UnitServicePackageRegistration{})
 	if unitID != "" {
-		oid, err := primitive.ObjectIDFromHex(unitID)
-		if err != nil {
-			return nil, 0, err
-		}
-		filter = append(filter, bson.E{Key: "unit_id", Value: oid})
+		query = query.Where("unit_id = ?", unitID)
 	}
 	if servicePackageID != "" {
-		oid, err := primitive.ObjectIDFromHex(servicePackageID)
-		if err != nil {
-			return nil, 0, err
-		}
-		filter = append(filter, bson.E{Key: "service_package_id", Value: oid})
+		query = query.Where("service_package_id = ?", servicePackageID)
 	}
 
-	findOpt := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}})
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
 	if page > 0 {
 		if limit < 1 {
 			limit = 10
 		}
-		skip := (page - 1) * limit
-		findOpt.SetSkip(skip).SetLimit(limit)
+		offset := (page - 1) * limit
+		query = query.Limit(int(limit)).Offset(int(offset))
 	}
-	cur, err := r.coll.Find(ctx, filter, findOpt)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer cur.Close(ctx)
+
 	var items []models.UnitServicePackageRegistration
-	for cur.Next(ctx) {
-		var reg models.UnitServicePackageRegistration
-		if err := cur.Decode(&reg); err != nil {
-			return nil, 0, err
-		}
-		items = append(items, reg)
-	}
-	if err := cur.Err(); err != nil {
+	if err := query.Order("created_at DESC").Find(&items).Error; err != nil {
 		return nil, 0, err
 	}
-	total, err := r.coll.CountDocuments(ctx, filter)
-	if err != nil {
-		return nil, 0, err
+	if page == 0 {
+		limit = int64(len(items))
 	}
 	return items, total, nil
 }
 
-func (r *UnitServicePackageRegistrationRepository) UpdateByID(ctx context.Context, id string, updates bson.D) (*models.UnitServicePackageRegistration, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return nil, err
+func (r *UnitServicePackageRegistrationRepository) UpdateByID(ctx context.Context, id string, updates map[string]interface{}) (*models.UnitServicePackageRegistration, error) {
+	if len(updates) == 0 {
+		return nil, errors.New("no updates provided")
 	}
-	updates = append(updates, bson.E{Key: "updated_at", Value: time.Now().UTC()})
-	after := options.After
-	var out models.UnitServicePackageRegistration
-	err = r.coll.FindOneAndUpdate(ctx, bson.D{{Key: "_id", Value: oid}}, bson.D{{Key: "$set", Value: updates}}, options.FindOneAndUpdate().SetReturnDocument(after)).Decode(&out)
-	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return nil, nil
-		}
-		return nil, err
+	updates["updated_at"] = time.Now().UTC()
+
+	var reg models.UnitServicePackageRegistration
+	tx := r.db.WithContext(ctx).Model(&models.UnitServicePackageRegistration{}).
+		Where("id = ?", id).
+		Clauses(clause.Returning{}).
+		Updates(updates).
+		Scan(&reg)
+	if tx.Error != nil {
+		return nil, tx.Error
 	}
-	return &out, nil
+	if tx.RowsAffected == 0 {
+		return nil, nil
+	}
+	return &reg, nil
 }
 
 func (r *UnitServicePackageRegistrationRepository) DeleteByID(ctx context.Context, id string) (bool, error) {
-	oid, err := primitive.ObjectIDFromHex(id)
-	if err != nil {
-		return false, err
+	tx := r.db.WithContext(ctx).Delete(&models.UnitServicePackageRegistration{}, "id = ?", id)
+	if tx.Error != nil {
+		return false, tx.Error
 	}
-	res, err := r.coll.DeleteOne(ctx, bson.D{{Key: "_id", Value: oid}})
-	if err != nil {
-		return false, err
-	}
-	return res.DeletedCount > 0, nil
+	return tx.RowsAffected > 0, nil
+}
+
+func (r *UnitServicePackageRegistrationRepository) deleteByUnitAndServicePackage(ctx context.Context, db *gorm.DB, unitID, spID string) error {
+	return db.WithContext(ctx).Where("unit_id = ? AND service_package_id = ?", unitID, spID).
+		Delete(&models.UnitServicePackageRegistration{}).Error
 }

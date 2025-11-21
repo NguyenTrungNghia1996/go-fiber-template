@@ -1,33 +1,29 @@
 package models
 
-import (
-	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "time"
 
 // ServicePackage represents a service package offered by a unit.
 type ServicePackage struct {
-	ID          primitive.ObjectID      `bson:"_id,omitempty" json:"id"`
-	Name        string                  `bson:"name" json:"name"`
-	Description string                  `bson:"description,omitempty" json:"description,omitempty"`
-	Price       float64                 `bson:"price" json:"price"`
-	Duration    string                  `bson:"duration" json:"duration"` // e.g., "daily", "monthly", "yearly"
-	IsActive    bool                    `bson:"is_active" json:"is_active"`
-	Menus       []ServicePackageMenu    `bson:"menus,omitempty" json:"menus,omitempty"`
-	CreatedAt   time.Time               `bson:"created_at" json:"created_at"`
-	UpdatedAt   time.Time               `bson:"updated_at" json:"updated_at"`
+	ID          string                    `gorm:"type:uuid;primaryKey" json:"id"`
+	Name        string                    `gorm:"not null" json:"name"`
+	Description string                    `gorm:"not null;default:''" json:"description,omitempty"`
+	Price       float64                   `gorm:"not null" json:"price"`
+	Duration    string                    `gorm:"not null" json:"duration"` // e.g., "daily", "monthly", "yearly"
+	IsActive    bool                      `gorm:"not null;default:true" json:"is_active"`
+	Menus       JSONB[ServicePackageMenu] `gorm:"type:jsonb;not null;default:'[]'" json:"menus,omitempty"`
+	CreatedAt   time.Time                 `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt   time.Time                 `gorm:"autoUpdateTime" json:"updated_at"`
 }
 
 // ServicePackageMenu describes a menu entry available within a service package.
 type ServicePackageMenu struct {
-	Title      string `bson:"title" json:"title"`
-	Key        string `bson:"key" json:"key"`
-	URL        string `bson:"url" json:"url"`
-	Icon       string `bson:"icon" json:"icon"`
-	ParentID   int64  `bson:"parent_id" json:"parent_id"`
-	Permission int64  `bson:"permission" json:"permission"`
-	Active     bool   `bson:"active" json:"active"`
+	Title      string `json:"title"`
+	Key        string `json:"key"`
+	URL        string `json:"url"`
+	Icon       string `json:"icon"`
+	ParentID   int64  `json:"parent_id"`
+	Permission int64  `json:"permission"`
+	Active     bool   `json:"active"`
 }
 
 // CreateServicePackageInput is the request payload for creating a service package.

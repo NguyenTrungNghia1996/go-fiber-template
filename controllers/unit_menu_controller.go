@@ -9,7 +9,6 @@ import (
 	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // UnitMenuController exposes APIs for unit menus derived from registered service packages.
@@ -43,12 +42,12 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	}
 
 	now := time.Now().UTC()
-	activeIDsSet := make(map[primitive.ObjectID]struct{})
+	activeIDsSet := make(map[string]struct{})
 	for _, reg := range regs {
-		if !reg.StartAt.IsZero() && reg.StartAt.After(now) {
+		if reg.StartAt != nil && reg.StartAt.After(now) {
 			continue
 		}
-		if !reg.EndAt.IsZero() && reg.EndAt.Before(now) {
+		if reg.EndAt != nil && reg.EndAt.Before(now) {
 			continue
 		}
 		activeIDsSet[reg.ServicePackageID] = struct{}{}
@@ -64,7 +63,7 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 		return response.Success(c, data, "ok")
 	}
 
-	var activeIDs []primitive.ObjectID
+	var activeIDs []string
 	for id := range activeIDsSet {
 		activeIDs = append(activeIDs, id)
 	}
@@ -141,4 +140,3 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	}
 	return response.Success(c, data, "ok")
 }
-

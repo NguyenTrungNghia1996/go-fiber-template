@@ -1,5 +1,4 @@
-MONGO_URL=
-MONGO_NAME=test8
+POSTGRES_URL=postgres://admin:admin123@localhost:5432/mydb?sslmode=disable
 JWT_SECRET=test
 JWT_SECRET_ADMIN=testadmin
 PORT=4000

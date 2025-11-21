@@ -2,7 +2,7 @@
 
 This project provides a starting point for building REST APIs with
 [Fiber](https://github.com/gofiber/fiber). It includes basic user
-authentication and MongoDB integration.
+authentication and Postgres integration with automatic schema bootstrap.
 Users now store a `name` field and belong to role groups for authorization.
 Admins can manage role groups with dedicated CRUD endpoints.
 
@@ -13,7 +13,7 @@ go run main.go
 ```
 
 Create an `.env` file (see `env` for an example) containing your database
-credentials.
+credentials. The API expects `POSTGRES_URL` (or `DATABASE_URL`) to be set.
 
 ## Postman Collection
 

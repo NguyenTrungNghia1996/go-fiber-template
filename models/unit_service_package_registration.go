@@ -1,20 +1,16 @@
 package models
 
-import (
-	"time"
-
-	"go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "time"
 
 // UnitServicePackageRegistration represents the registration of a service package by a unit.
 type UnitServicePackageRegistration struct {
-	ID               primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	UnitID           primitive.ObjectID `bson:"unit_id" json:"unit_id"`
-	ServicePackageID primitive.ObjectID `bson:"service_package_id" json:"service_package_id"`
-	StartAt          time.Time          `bson:"start_at" json:"start_at"`
-	EndAt            time.Time          `bson:"end_at" json:"end_at"`
-	CreatedAt        time.Time          `bson:"created_at" json:"created_at"`
-	UpdatedAt        time.Time          `bson:"updated_at" json:"updated_at"`
+	ID               string     `gorm:"type:uuid;primaryKey" json:"id"`
+	UnitID           string     `gorm:"type:uuid;not null;index:idx_unit_sp,unique" json:"unit_id"`
+	ServicePackageID string     `gorm:"type:uuid;not null;index:idx_unit_sp,unique" json:"service_package_id"`
+	StartAt          *time.Time `gorm:"type:timestamptz" json:"start_at,omitempty"`
+	EndAt            *time.Time `gorm:"type:timestamptz" json:"end_at,omitempty"`
+	CreatedAt        time.Time  `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt        time.Time  `gorm:"autoUpdateTime" json:"updated_at"`
 }
 
 // CreateUnitServicePackageRegistrationInput is the request payload for creating a registration.

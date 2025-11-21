@@ -1,20 +1,16 @@
 package models
 
-import (
-    "time"
-
-    "go.mongodb.org/mongo-driver/bson/primitive"
-)
+import "time"
 
 // UnitUser represents a user that belongs to a specific Unit (tenant).
 type UnitUser struct {
-    ID           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-    UnitID       primitive.ObjectID `bson:"unit_id" json:"unit_id"`
-    Username     string             `bson:"username" json:"username"`
-    PasswordHash string             `bson:"password_hash" json:"-"`
-    IsAdmin      bool               `bson:"is_admin" json:"is_admin"`
-    Name         string             `bson:"name,omitempty" json:"name,omitempty"`
-    Email        string             `bson:"email,omitempty" json:"email,omitempty"`
-    CreatedAt    time.Time          `bson:"created_at" json:"created_at"`
-    UpdatedAt    time.Time          `bson:"updated_at" json:"updated_at"`
+	ID           string    `gorm:"type:uuid;primaryKey" json:"id"`
+	UnitID       string    `gorm:"type:uuid;not null;index:idx_unit_user,unique" json:"unit_id"`
+	Username     string    `gorm:"not null;index:idx_unit_user,unique" json:"username"`
+	PasswordHash string    `gorm:"not null" json:"-"`
+	IsAdmin      bool      `gorm:"not null;default:false" json:"is_admin"`
+	Name         string    `gorm:"not null;default:''" json:"name,omitempty"`
+	Email        string    `gorm:"not null;default:''" json:"email,omitempty"`
+	CreatedAt    time.Time `gorm:"autoCreateTime" json:"created_at"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime" json:"updated_at"`
 }

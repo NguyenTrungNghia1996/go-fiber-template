@@ -8,8 +8,6 @@ import (
 	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	// "go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ServicePackageController struct {
@@ -101,32 +99,32 @@ func (h *ServicePackageController) Update(c *fiber.Ctx) error {
 		return response.Error(c, "id is required in body", fiber.StatusBadRequest, nil)
 	}
 
-	updates := bson.D{}
+	updates := map[string]interface{}{}
 	if in.Name != nil {
 		v := strings.TrimSpace(*in.Name)
 		if v == "" {
 			return response.Error(c, "name cannot be empty", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "name", Value: v})
+		updates["name"] = v
 	}
 	if in.Description != nil {
-		updates = append(updates, bson.E{Key: "description", Value: strings.TrimSpace(*in.Description)})
+		updates["description"] = strings.TrimSpace(*in.Description)
 	}
 	if in.Price != nil {
 		if *in.Price <= 0 {
 			return response.Error(c, "price must be positive", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "price", Value: *in.Price})
+		updates["price"] = *in.Price
 	}
 	if in.Duration != nil {
 		v := strings.TrimSpace(*in.Duration)
 		if v == "" {
 			return response.Error(c, "duration cannot be empty", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "duration", Value: v})
+		updates["duration"] = v
 	}
 	if in.IsActive != nil {
-		updates = append(updates, bson.E{Key: "is_active", Value: *in.IsActive})
+		updates["is_active"] = *in.IsActive
 	}
 	if in.Menus != nil {
 		// trim string fields in menus before saving
@@ -137,7 +135,7 @@ func (h *ServicePackageController) Update(c *fiber.Ctx) error {
 			menus[i].URL = strings.TrimSpace(menus[i].URL)
 			menus[i].Icon = strings.TrimSpace(menus[i].Icon)
 		}
-		updates = append(updates, bson.E{Key: "menus", Value: menus})
+		updates["menus"] = menus
 	}
 
 	if len(updates) == 0 {

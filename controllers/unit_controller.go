@@ -10,8 +10,7 @@ import (
 	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -44,7 +43,7 @@ func (h *UnitController) List(c *fiber.Ctx) error {
 		spCache := map[string]string{}
 		var sps []models.ServicePackageBasic
 		for _, r := range regs {
-			spID := r.ServicePackageID.Hex()
+			spID := r.ServicePackageID
 			name, ok := spCache[spID]
 			if !ok {
 				sp, err := h.spRepo.FindByID(c.Context(), spID)
@@ -73,13 +72,13 @@ func (h *UnitController) List(c *fiber.Ctx) error {
 	var out []models.UnitDTO
 	for i := range items {
 		u := items[i]
-		regs, _, err := h.regRepo.FindPaged(c.Context(), 0, 0, u.ID.Hex(), "")
+		regs, _, err := h.regRepo.FindPaged(c.Context(), 0, 0, u.ID, "")
 		if err != nil {
 			return response.Error(c, "failed to resolve packages", fiber.StatusInternalServerError, nil)
 		}
 		var sps []models.ServicePackageBasic
 		for _, r := range regs {
-			spID := r.ServicePackageID.Hex()
+			spID := r.ServicePackageID
 			name, ok := spNameCache[spID]
 			if !ok {
 				sp, err := h.spRepo.FindByID(c.Context(), spID)
@@ -134,7 +133,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 			if spID == "" {
 				return response.Error(c, "service_packages.service_package_id is required", fiber.StatusBadRequest, nil)
 			}
-			if _, err := primitive.ObjectIDFromHex(spID); err != nil {
+			if _, err := uuid.Parse(spID); err != nil {
 				return response.Error(c, "invalid service_packages.service_package_id", fiber.StatusBadRequest, nil)
 			}
 			if _, duplicate := seen[spID]; duplicate {
@@ -142,48 +141,49 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 			}
 			seen[spID] = struct{}{}
 
-			var startAt, endAt time.Time
+			var startAtPtr *time.Time
 			if strings.TrimSpace(sp.StartAt) != "" {
 				t, err := time.Parse(time.RFC3339, sp.StartAt)
 				if err != nil {
 					return response.Error(c, "invalid start_at (use RFC3339)", fiber.StatusBadRequest, nil)
 				}
-				startAt = t.UTC()
+				t = t.UTC()
+				startAtPtr = &t
 			}
+			var endAtPtr *time.Time
 			if strings.TrimSpace(sp.EndAt) != "" {
 				t, err := time.Parse(time.RFC3339, sp.EndAt)
 				if err != nil {
 					return response.Error(c, "invalid end_at (use RFC3339)", fiber.StatusBadRequest, nil)
 				}
-				endAt = t.UTC()
+				t = t.UTC()
+				endAtPtr = &t
 			}
-			if !startAt.IsZero() && !endAt.IsZero() && endAt.Before(startAt) {
+			if startAtPtr != nil && endAtPtr != nil && endAtPtr.Before(*startAtPtr) {
 				return response.Error(c, "end_at cannot be before start_at", fiber.StatusBadRequest, nil)
 			}
-			oid, _ := primitive.ObjectIDFromHex(spID)
 			regs = append(regs, models.UnitServicePackageRegistration{
-				ServicePackageID: oid,
-				StartAt:          startAt,
-				EndAt:            endAt,
+				ServicePackageID: spID,
+				StartAt:          startAtPtr,
+				EndAt:            endAtPtr,
 			})
 		}
 	} else {
 		for _, id := range in.ServicePackageIDs {
-			if _, err := primitive.ObjectIDFromHex(id); err != nil {
+			if _, err := uuid.Parse(id); err != nil {
 				return response.Error(c, "invalid service_package_ids entry", fiber.StatusBadRequest, nil)
 			}
 			if _, duplicate := seen[id]; duplicate {
 				return response.Error(c, "duplicate service_package_id", fiber.StatusBadRequest, nil)
 			}
 			seen[id] = struct{}{}
-			oid, _ := primitive.ObjectIDFromHex(id)
 			regs = append(regs, models.UnitServicePackageRegistration{
-				ServicePackageID: oid,
+				ServicePackageID: id,
 			})
 		}
 	}
 	if err := h.repo.Create(c.Context(), u, regs); err != nil {
-		if strings.Contains(err.Error(), "E11000") {
+		if repositories.IsUniqueViolation(err) {
 			return response.Error(c, "subdomain already exists", fiber.StatusConflict, nil)
 		}
 		return response.Error(c, "failed to create", fiber.StatusInternalServerError, nil)
@@ -240,7 +240,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	if id == "" {
 		return response.Error(c, "id is required in body", fiber.StatusBadRequest, nil)
 	}
-	updates := bson.D{}
+	updates := map[string]interface{}{}
 	if in.Subdomain != nil {
 		v := strings.ToLower(strings.TrimSpace(*in.Subdomain))
 		if v == "" {
@@ -249,20 +249,20 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 		if !regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`).MatchString(v) {
 			return response.Error(c, "invalid subdomain format", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "subdomain", Value: v})
+		updates["subdomain"] = v
 	}
 	if in.Name != nil {
 		v := strings.TrimSpace(*in.Name)
 		if v == "" {
 			return response.Error(c, "name cannot be empty", fiber.StatusBadRequest, nil)
 		}
-		updates = append(updates, bson.E{Key: "name", Value: v})
+		updates["name"] = v
 	}
 	if in.Description != nil {
-		updates = append(updates, bson.E{Key: "description", Value: strings.TrimSpace(*in.Description)})
+		updates["description"] = strings.TrimSpace(*in.Description)
 	}
 	if in.LogoURL != nil {
-		updates = append(updates, bson.E{Key: "logo_url", Value: strings.TrimSpace(*in.LogoURL)})
+		updates["logo_url"] = strings.TrimSpace(*in.LogoURL)
 	}
 	if len(updates) == 0 && in.ServicePackageIDs == nil {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
@@ -275,7 +275,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	if in.ServicePackageIDs != nil {
 		// validate
 		for _, id := range *in.ServicePackageIDs {
-			if _, err := primitive.ObjectIDFromHex(id); err != nil {
+			if _, err := uuid.Parse(id); err != nil {
 				return response.Error(c, "invalid service_package_ids entry", fiber.StatusBadRequest, nil)
 			}
 		}
@@ -286,7 +286,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 
 	u, err := h.repo.UpdateByID(c.Context(), id, updates, servicePackageIDs)
 	if err != nil {
-		if strings.Contains(err.Error(), "E11000") {
+		if repositories.IsUniqueViolation(err) {
 			return response.Error(c, "subdomain already exists", fiber.StatusConflict, nil)
 		}
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
