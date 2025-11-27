@@ -1,19 +1,64 @@
+# # Stage 1: Build phase
+# FROM golang:alpine AS builder
+# # Cài đặt các dependencies cần thiết
+# RUN apk update && apk add --no-cache git
+# WORKDIR /app
+# # Chỉ copy các file cần thiết để build
+# COPY go.mod go.sum ./
+# RUN go mod tidy
+# COPY . .
+# # Build ứng dụng
+# RUN go build -ldflags="-s -w" -o myapp .
+# # Stage 2: Final image with just the binary
+# FROM alpine:latest
+# WORKDIR /root/
+# # Copy binary vào image cuối
+# COPY --from=builder /app/myapp .
+# # Chạy ứng dụng
+# CMD ["./myapp"]
+# =========================
 # Stage 1: Build phase
-FROM golang:alpine AS builder
+# =========================
+FROM golang:1.22-alpine AS builder
+
 # Cài đặt các dependencies cần thiết
-RUN apk update && apk add --no-cache git
+RUN apk update && apk add --no-cache git ca-certificates
+
+# Bật go module mode
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOOS=linux
+
 WORKDIR /app
-# Chỉ copy các file cần thiết để build
+
+# Copy go.mod + go.sum trước để cache dependency
 COPY go.mod go.sum ./
-RUN go mod tidy
+RUN go mod download
+
+# Copy toàn bộ source
 COPY . .
-# Build ứng dụng
+
+# Build ứng dụng (main.go ở root project)
 RUN go build -ldflags="-s -w" -o myapp .
-# Stage 2: Final image with just the binary
-FROM alpine:latest
-WORKDIR /root/
-# Copy binary vào image cuối
+
+# =========================
+# Stage 2: Final image
+# =========================
+FROM alpine:3.20
+
+RUN apk add --no-cache ca-certificates
+
+WORKDIR /app
+
+# Copy binary từ stage build sang
 COPY --from=builder /app/myapp .
+
+# Expose port (sửa lại nếu app bạn dùng port khác)
+EXPOSE 8080
+
 # Chạy ứng dụng
 CMD ["./myapp"]
+
+
+
 
