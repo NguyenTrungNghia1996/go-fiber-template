@@ -19,15 +19,18 @@
 # =========================
 # Stage 1: Build phase
 # =========================
+# =========================
+# Stage 1: Build phase
+# =========================
 FROM golang:1.22-alpine AS builder
 
-# Cài đặt các dependencies cần thiết
 RUN apk update && apk add --no-cache git ca-certificates
 
-# Bật go module mode
+# Bật modules + toolchain auto
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
-    GOOS=linux
+    GOOS=linux \
+    GOTOOLCHAIN=auto
 
 WORKDIR /app
 
@@ -38,7 +41,7 @@ RUN go mod download
 # Copy toàn bộ source
 COPY . .
 
-# Build ứng dụng (main.go ở root project)
+# Build ứng dụng
 RUN go build -ldflags="-s -w" -o myapp .
 
 # =========================
@@ -50,15 +53,11 @@ RUN apk add --no-cache ca-certificates
 
 WORKDIR /app
 
-# Copy binary từ stage build sang
 COPY --from=builder /app/myapp .
 
-# Expose port (sửa lại nếu app bạn dùng port khác)
 EXPOSE 8080
 
-# Chạy ứng dụng
 CMD ["./myapp"]
-
 
 
 
