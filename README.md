@@ -15,6 +15,17 @@ go run main.go
 Create an `.env` file (see `env` for an example) containing your database
 credentials.
 
+## Cloudflare DNS for unit subdomains
+
+When super admins create or update a unit, the API will provision a Cloudflare DNS record for that unit's subdomain. Configure these environment variables so DNS can be created:
+
+- `CLOUDFLARE_ZONE_ID` – Cloudflare zone containing your root domain.
+- `CLOUDFLARE_API_TOKEN` – token with DNS edit permissions for the zone.
+- `CLOUDFLARE_ROOT_DOMAIN` – apex domain (e.g., `example.com`), without protocol.
+- `CLOUDFLARE_CNAME_TARGET` – host that unit subdomains should CNAME to (e.g., `app.example.com`).
+- `CLOUDFLARE_PROXIED` – `true` to proxy through Cloudflare (default), `false` for DNS-only.
+- `CLOUDFLARE_TTL` – TTL in seconds; `1` uses Cloudflare's automatic TTL.
+
 ## Postman Collection
 
 To quickly explore the API you can import
