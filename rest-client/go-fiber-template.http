@@ -360,6 +360,15 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "filetype": "image/jpeg"
 }
 
+### Unit Uploads: List Files (paged)
+# @name unitListFiles
+GET {{baseUrl}}/unit_uploads?page=1&limit=10&q=
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Uploads: Get File Detail
+GET {{baseUrl}}/unit_uploads?id={{unitListFiles.response.body.$.data.items[0].key}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
 ### Unit Uploads: Delete File
 DELETE {{baseUrl}}/unit_uploads/file?id={{unitPresign.response.body.$.data.key}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}

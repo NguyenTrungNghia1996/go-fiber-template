@@ -888,6 +888,55 @@
           "response": []
         },
         {
+          "name": "Unit List Files (paged)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_uploads?page=1&limit=10&q=",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_uploads"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "q", "value": "" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && Array.isArray(res.data.items) && res.data.items.length > 0) {",
+                  "  const first = res.data.items[0];",
+                  "  if (first && first.key) {",
+                  "    pm.collectionVariables.set('fileKey', first.key);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Unit Get File Detail",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_uploads?id={{fileKey}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["unit_uploads"],
+              "query": [ { "key": "id", "value": "{{fileKey}}" } ]
+            }
+          },
+          "response": []
+        },
+        {
           "name": "Unit Delete File",
           "request": {
             "method": "DELETE",
