@@ -34,7 +34,7 @@ dist/
 tmp/*
 
 # Go build cache
-**/pkg/
+# **/pkg/
 
 # IDE / Editor files
 .idea/
