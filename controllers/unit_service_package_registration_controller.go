@@ -14,11 +14,21 @@ import (
 )
 
 type UnitServicePackageRegistrationController struct {
-	repo *repositories.UnitServicePackageRegistrationRepository
+	repo     *repositories.UnitServicePackageRegistrationRepository
+	unitRepo *repositories.UnitRepository
+	spRepo   *repositories.ServicePackageRepository
 }
 
-func NewUnitServicePackageRegistrationController(repo *repositories.UnitServicePackageRegistrationRepository) *UnitServicePackageRegistrationController {
-	return &UnitServicePackageRegistrationController{repo: repo}
+func NewUnitServicePackageRegistrationController(
+	repo *repositories.UnitServicePackageRegistrationRepository,
+	unitRepo *repositories.UnitRepository,
+	spRepo *repositories.ServicePackageRepository,
+) *UnitServicePackageRegistrationController {
+	return &UnitServicePackageRegistrationController{
+		repo:     repo,
+		unitRepo: unitRepo,
+		spRepo:   spRepo,
+	}
 }
 
 // Create handles POST /unit_service_package_registrations
@@ -42,6 +52,20 @@ func (h *UnitServicePackageRegistrationController) Create(c *fiber.Ctx) error {
 	servicePackageOID, err := primitive.ObjectIDFromHex(in.ServicePackageID)
 	if err != nil {
 		return response.Error(c, "invalid service_package_id format", fiber.StatusBadRequest, nil)
+	}
+	unit, err := h.unitRepo.FindByID(c.Context(), in.UnitID)
+	if err != nil {
+		return response.Error(c, "failed to load unit", fiber.StatusInternalServerError, nil)
+	}
+	if unit == nil {
+		return response.Error(c, "unit not found", fiber.StatusNotFound, nil)
+	}
+	sp, err := h.spRepo.FindByID(c.Context(), in.ServicePackageID)
+	if err != nil {
+		return response.Error(c, "failed to load service package", fiber.StatusInternalServerError, nil)
+	}
+	if sp == nil {
+		return response.Error(c, "service package not found", fiber.StatusNotFound, nil)
 	}
 
 	now := time.Now().UTC()
@@ -117,6 +141,9 @@ func (h *UnitServicePackageRegistrationController) List(c *fiber.Ctx) error {
 		Limit: limit,
 		Total: total,
 	}
+	if page == 0 {
+		data.Limit = total
+	}
 	return response.Success(c, data, "ok")
 }
 
@@ -132,11 +159,29 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 		return response.Error(c, "id is required in body", fiber.StatusBadRequest, nil)
 	}
 
+	existing, err := h.repo.FindByID(c.Context(), id)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
+	if existing == nil {
+		return response.Error(c, "registration not found", fiber.StatusNotFound, nil)
+	}
+
+	newStart := existing.StartAt
+	newEnd := existing.EndAt
+
 	updates := bson.D{}
 	if in.UnitID != nil {
 		unitOID, err := primitive.ObjectIDFromHex(*in.UnitID)
 		if err != nil {
 			return response.Error(c, "invalid unit_id format", fiber.StatusBadRequest, nil)
+		}
+		unit, err := h.unitRepo.FindByID(c.Context(), *in.UnitID)
+		if err != nil {
+			return response.Error(c, "failed to load unit", fiber.StatusInternalServerError, nil)
+		}
+		if unit == nil {
+			return response.Error(c, "unit not found", fiber.StatusNotFound, nil)
 		}
 		updates = append(updates, bson.E{Key: "unit_id", Value: unitOID})
 	}
@@ -144,6 +189,13 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 		servicePackageOID, err := primitive.ObjectIDFromHex(*in.ServicePackageID)
 		if err != nil {
 			return response.Error(c, "invalid service_package_id format", fiber.StatusBadRequest, nil)
+		}
+		sp, err := h.spRepo.FindByID(c.Context(), *in.ServicePackageID)
+		if err != nil {
+			return response.Error(c, "failed to load service package", fiber.StatusInternalServerError, nil)
+		}
+		if sp == nil {
+			return response.Error(c, "service package not found", fiber.StatusNotFound, nil)
 		}
 		updates = append(updates, bson.E{Key: "service_package_id", Value: servicePackageOID})
 	}
@@ -156,18 +208,21 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 		if err != nil {
 			return response.Error(c, "invalid start_at format, must be RFC3339", fiber.StatusBadRequest, nil)
 		}
+		newStart = t
 		updates = append(updates, bson.E{Key: "start_at", Value: t})
 	}
 	if in.EndAt != nil {
 		endStr := strings.TrimSpace(*in.EndAt)
 		if endStr == "" {
 			// Allow clearing end_at by passing empty string
+			newEnd = time.Time{}
 			updates = append(updates, bson.E{Key: "end_at", Value: time.Time{}})
 		} else {
 			t, err := time.Parse(time.RFC3339, endStr)
 			if err != nil {
 				return response.Error(c, "invalid end_at format, must be RFC3339", fiber.StatusBadRequest, nil)
 			}
+			newEnd = t
 			updates = append(updates, bson.E{Key: "end_at", Value: t})
 		}
 	}
@@ -176,12 +231,13 @@ func (h *UnitServicePackageRegistrationController) Update(c *fiber.Ctx) error {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
 
+	if !newEnd.IsZero() && !newStart.IsZero() && !newEnd.After(newStart) {
+		return response.Error(c, "end_at must be after start_at", fiber.StatusBadRequest, nil)
+	}
+
 	reg, err := h.repo.UpdateByID(c.Context(), id, updates)
 	if err != nil {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
-	}
-	if reg == nil {
-		return response.Error(c, "registration not found", fiber.StatusNotFound, nil)
 	}
 
 	return response.Success(c, reg, "registration updated")

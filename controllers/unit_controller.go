@@ -105,6 +105,9 @@ func (h *UnitController) List(c *fiber.Ctx) error {
 		Limit: limit,
 		Total: total,
 	}
+	if page == 0 {
+		data.Limit = total
+	}
 	return response.Success(c, data, "ok")
 }
 
@@ -209,43 +212,69 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "failed to create", fiber.StatusInternalServerError, nil)
 	}
 	// Create the first admin user for the unit
-	if h.userRepo != nil {
-		if in.AdminUser != nil {
-			au := *in.AdminUser
-			au.Username = strings.TrimSpace(au.Username)
-			au.Password = strings.TrimSpace(au.Password)
-			if au.Username == "" || au.Password == "" {
-				return response.Error(c, "admin_user.username and admin_user.password are required", fiber.StatusBadRequest, nil)
+	if h.userRepo == nil {
+		_, _ = h.repo.DeleteByID(c.Context(), u.ID.Hex())
+		_ = h.regRepo.DeleteByUnitID(c.Context(), u.ID)
+		if createdDNS {
+			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
+		}
+		return response.Error(c, "user repository not configured", fiber.StatusInternalServerError, nil)
+	}
+
+	rollback := func() {
+		_, _ = h.repo.DeleteByID(c.Context(), u.ID.Hex())
+		_ = h.regRepo.DeleteByUnitID(c.Context(), u.ID)
+		if createdDNS {
+			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
+		}
+	}
+
+	if in.AdminUser != nil {
+		au := *in.AdminUser
+		au.Username = strings.TrimSpace(au.Username)
+		au.Password = strings.TrimSpace(au.Password)
+		if au.Username == "" || au.Password == "" {
+			rollback()
+			return response.Error(c, "admin_user.username and admin_user.password are required", fiber.StatusBadRequest, nil)
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(au.Password), bcrypt.DefaultCost)
+		if err != nil {
+			rollback()
+			return response.Error(c, "failed to hash admin password", fiber.StatusInternalServerError, nil)
+		}
+		if err := h.userRepo.Create(c.Context(), &models.UnitUser{
+			UnitID:       u.ID,
+			Username:     au.Username,
+			PasswordHash: string(hash),
+			IsAdmin:      true,
+			Name:         strings.TrimSpace(au.Name),
+			Email:        strings.TrimSpace(au.Email),
+		}); err != nil {
+			rollback()
+			if strings.Contains(err.Error(), "E11000") {
+				return response.Error(c, "admin username already exists for this unit", fiber.StatusConflict, nil)
 			}
-			hash, err := bcrypt.GenerateFromPassword([]byte(au.Password), bcrypt.DefaultCost)
-			if err == nil {
-				if err := h.userRepo.Create(c.Context(), &models.UnitUser{
-					UnitID:       u.ID,
-					Username:     au.Username,
-					PasswordHash: string(hash),
-					IsAdmin:      true,
-					Name:         strings.TrimSpace(au.Name),
-					Email:        strings.TrimSpace(au.Email),
-				}); err != nil {
-					// If creating custom admin failed (very unlikely for new unit), fall back to default admin
-					// Best-effort, do not fail unit creation
-					if !strings.Contains(err.Error(), "E11000") {
-						// log-like behavior isn't available here; simply ignore to keep API stable
-					}
-				}
+			return response.Error(c, "failed to create admin user", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+		}
+	} else {
+		hash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+		if err != nil {
+			rollback()
+			return response.Error(c, "failed to hash default admin password", fiber.StatusInternalServerError, nil)
+		}
+		if err := h.userRepo.Create(c.Context(), &models.UnitUser{
+			UnitID:       u.ID,
+			Username:     "admin",
+			PasswordHash: string(hash),
+			IsAdmin:      true,
+			Name:         "Unit Admin",
+			Email:        "",
+		}); err != nil {
+			rollback()
+			if strings.Contains(err.Error(), "E11000") {
+				return response.Error(c, "default admin username already exists", fiber.StatusConflict, nil)
 			}
-		} else {
-			// Fallback: create default admin/admin
-			if hash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost); err == nil {
-				_ = h.userRepo.Create(c.Context(), &models.UnitUser{
-					UnitID:       u.ID,
-					Username:     "admin",
-					PasswordHash: string(hash),
-					IsAdmin:      true,
-					Name:         "Unit Admin",
-					Email:        "",
-				})
-			}
+			return response.Error(c, "failed to create default admin user", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
 		}
 	}
 	return response.Success(c, u, "created", fiber.StatusCreated)

@@ -66,13 +66,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init unit service package registration repository: %v", err)
 	}
-	unitServicePackageRegistrationCtrl := controllers.NewUnitServicePackageRegistrationController(unitServicePackageRegistrationRepo)
-	routes.RegisterUnitServicePackageRegistrationRoutes(app, unitServicePackageRegistrationCtrl)
 
 	// ServicePackage feature (repo needed by Units controller)
 	servicePackageRepo := repositories.NewServicePackageRepository(config.DB)
-	servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
-	routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
 
 	// Unit users repo (used by Units + UnitAuth)
 	unitUserRepo := repositories.NewUnitUserRepository(config.DB)
@@ -90,6 +86,14 @@ func main() {
 	}
 	unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo, unitUserRepo, dnsClient)
 	routes.RegisterUnitRoutes(app, unitCtrl)
+
+	// UnitServicePackageRegistration feature routes after unit repo is ready
+	unitServicePackageRegistrationCtrl := controllers.NewUnitServicePackageRegistrationController(unitServicePackageRegistrationRepo, unitRepo, servicePackageRepo)
+	routes.RegisterUnitServicePackageRegistrationRoutes(app, unitServicePackageRegistrationCtrl)
+
+	// ServicePackage routes
+	servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
+	routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
 
 	// Unit user auth (login with subdomain)
 	unitAuthCtrl := controllers.NewUnitAuthController(unitRepo, unitUserRepo)

@@ -77,6 +77,9 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	menuKeySeen := make(map[string]struct{})
 	var menus []models.ServicePackageMenu
 	for _, sp := range sps {
+		if !sp.IsActive {
+			continue
+		}
 		for _, m := range sp.Menus {
 			// Simple case-insensitive search over title/key/url when q is provided
 			if q != "" {
@@ -141,4 +144,3 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	}
 	return response.Success(c, data, "ok")
 }
-

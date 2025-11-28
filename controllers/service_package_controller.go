@@ -86,6 +86,9 @@ func (h *ServicePackageController) List(c *fiber.Ctx) error {
 		Limit: limit,
 		Total: total,
 	}
+	if page == 0 {
+		data.Limit = total
+	}
 	return response.Success(c, data, "ok")
 }
 

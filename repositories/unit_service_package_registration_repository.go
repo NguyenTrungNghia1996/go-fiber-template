@@ -137,3 +137,9 @@ func (r *UnitServicePackageRegistrationRepository) DeleteByID(ctx context.Contex
 	}
 	return res.DeletedCount > 0, nil
 }
+
+// DeleteByUnitID removes all registrations linked to a unit.
+func (r *UnitServicePackageRegistrationRepository) DeleteByUnitID(ctx context.Context, unitID primitive.ObjectID) error {
+	_, err := r.coll.DeleteMany(ctx, bson.D{{Key: "unit_id", Value: unitID}})
+	return err
+}
