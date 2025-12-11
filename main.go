@@ -107,6 +107,8 @@ func main() {
 	// ServicePackage routes
 	servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
 	routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
+	servicePackageMenuCtrl := controllers.NewServicePackageMenuController(servicePackageRepo)
+	routes.RegisterServicePackageMenuRoutes(app, servicePackageMenuCtrl)
 
 	// Unit user auth (login with subdomain)
 	unitAuthCtrl := controllers.NewUnitAuthController(unitRepo, unitUserRepo)

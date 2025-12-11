@@ -5,6 +5,7 @@
 @superAdminId =
 @unitId =
 @servicePackageId =
+@servicePackageMenuId =
 @unitServicePackageRegistrationId =
 @fileKey =
 @unitSubdomain = sales
@@ -178,8 +179,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "service_packages": [
     {
       "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
-      "start_at": "2024-01-01T00:00:00Z",
-      "end_at": "2025-01-01T00:00:00Z"
+      "start_at": "2025-01-01T00:00:00Z",
+      "end_at": "2030-01-01T00:00:00Z"
     }
   ],
   "admin_user": {
@@ -279,6 +280,52 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 DELETE {{baseUrl}}/service_packages?id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
+### Service Package Menus: List (all, no pagination)
+GET {{baseUrl}}/service_package_menus?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}&q=
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Package Menus: Create
+# @name createServicePackageMenu
+POST {{baseUrl}}/service_package_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+  "title": "Dashboard",
+  "key": "menu-dashboard",
+  "url": "/dashboard",
+  "icon": "mdi:view-dashboard",
+  "parent_id": 0,
+  "permission": 0,
+  "active": true
+}
+
+### Service Package Menus: Get Detail
+GET {{baseUrl}}/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Package Menus: Update
+PUT {{baseUrl}}/service_package_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createServicePackageMenu.response.body.$.data.id}}",
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+  "title": "Dashboard Updated",
+  "key": "menu-dashboard",
+  "url": "/dashboard",
+  "icon": "mdi:view-dashboard",
+  "parent_id": 0,
+  "permission": 1,
+  "active": true
+}
+
+### Service Package Menus: Delete
+DELETE {{baseUrl}}/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
 ### Unit-ServicePackage Registrations: List (all)
 GET {{baseUrl}}/unit_service_package_registrations?page=0
 Authorization: Bearer {{login.response.body.$.data.token}}
@@ -300,8 +347,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 {
   "unit_id": "{{createUnit.response.body.$.data.id}}",
   "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
-  "start_at": "2024-01-01T00:00:00Z",
-  "end_at": "2024-12-31T23:59:59Z"
+  "start_at": "2025-01-01T00:00:00Z",
+  "end_at": "2030-12-31T23:59:59Z"
 }
  
 
@@ -318,8 +365,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "id": "{{createRegistration.response.body.$.data.id}}",
   "unit_id": "{{createUnit.response.body.$.data.id}}",
   "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
-  "start_at": "2024-01-01T00:00:00Z",
-  "end_at": "2024-12-31T23:59:59Z"
+  "start_at": "2025-01-01T00:00:00Z",
+  "end_at": "2030-12-31T23:59:59Z"
 }
 
 ### Unit-ServicePackage Registrations: Delete

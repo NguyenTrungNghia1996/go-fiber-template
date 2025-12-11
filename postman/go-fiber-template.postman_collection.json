@@ -119,6 +119,117 @@
       ]
     },
     {
+      "name": "Service Package Menus",
+      "item": [
+        {
+          "name": "List Service Package Menus",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus?service_package_id={{servicePackageId}}&page=0&q=",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_package_menus" ],
+              "query": [
+                { "key": "service_package_id", "value": "{{servicePackageId}}" },
+                { "key": "page", "value": "0" },
+                { "key": "q", "value": "" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service Package Menu",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_package_menus" ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('servicePackageMenuId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Service Package Menu",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_package_menus" ],
+              "query": [
+                { "key": "id", "value": "{{servicePackageMenuId}}" },
+                { "key": "service_package_id", "value": "{{servicePackageId}}" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service Package Menu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{servicePackageMenuId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard Updated\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_package_menus" ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Service Package Menu",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "service_package_menus" ],
+              "query": [
+                { "key": "id", "value": "{{servicePackageMenuId}}" },
+                { "key": "service_package_id", "value": "{{servicePackageId}}" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Unit Self",
       "item": [
         {
@@ -455,7 +566,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2024-01-01T00:00:00Z\",\n      \"end_at\": \"2025-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
+              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2025-01-01T00:00:00Z\",\n      \"end_at\": \"2030-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",
@@ -636,7 +747,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2024-01-01T00:00:00Z\",\n  \"end_at\": \"2024-12-31T23:59:59Z\"\n}"
+              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2025-01-01T00:00:00Z\",\n  \"end_at\": \"2030-12-31T23:59:59Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations",
@@ -734,7 +845,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2024-01-01T00:00:00Z\",\n  \"end_at\": \"2024-12-31T23:59:59Z\"\n}"
+              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2025-01-01T00:00:00Z\",\n  \"end_at\": \"2030-12-31T23:59:59Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations",
