@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"go-fiber-api/config"
@@ -27,6 +28,13 @@ func main() {
 		} else {
 			log.Println("Loaded .env file")
 		}
+	}
+
+	appEnv := strings.ToLower(strings.TrimSpace(os.Getenv("APP_ENV")))
+	skipDNS := appEnv == "" || appEnv == "dev" || appEnv == "development"
+	envLabel := appEnv
+	if envLabel == "" {
+		envLabel = "development"
 	}
 
 	// Kết nối MongoDB một lần duy nhất
@@ -73,10 +81,15 @@ func main() {
 	// Unit users repo (used by Units + UnitAuth)
 	unitUserRepo := repositories.NewUnitUserRepository(config.DB)
 
-	// Cloudflare DNS for unit subdomains (optional but required for unit create/update)
-	dnsClient, err := cloudflare.NewDNSClientFromEnv()
-	if err != nil {
-		log.Printf("cloudflare dns not configured: %v", err)
+	// Cloudflare DNS for unit subdomains (skipped in dev environments)
+	var dnsClient *cloudflare.DNSClient
+	if skipDNS {
+		log.Printf("APP_ENV=%s -> skipping Cloudflare DNS provisioning for units", envLabel)
+	} else {
+		dnsClient, err = cloudflare.NewDNSClientFromEnv()
+		if err != nil {
+			log.Printf("cloudflare dns not configured: %v", err)
+		}
 	}
 
 	// Units feature
@@ -84,7 +97,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init unit repository: %v", err)
 	}
-	unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo, unitUserRepo, dnsClient)
+	unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo, unitUserRepo, dnsClient, skipDNS)
 	routes.RegisterUnitRoutes(app, unitCtrl)
 
 	// UnitServicePackageRegistration feature routes after unit repo is ready

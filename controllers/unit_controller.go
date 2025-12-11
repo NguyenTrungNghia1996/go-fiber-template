@@ -23,10 +23,11 @@ type UnitController struct {
 	spRepo   *repositories.ServicePackageRepository
 	userRepo *repositories.UnitUserRepository
 	dns      *cloudflare.DNSClient
+	skipDNS  bool
 }
 
-func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository, userRepo *repositories.UnitUserRepository, dns *cloudflare.DNSClient) *UnitController {
-	return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo, userRepo: userRepo, dns: dns}
+func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository, userRepo *repositories.UnitUserRepository, dns *cloudflare.DNSClient, skipDNS bool) *UnitController {
+	return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo, userRepo: userRepo, dns: dns, skipDNS: skipDNS}
 }
 
 // List handles GET /units with optional ?id, ?q and pagination.
@@ -125,7 +126,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 	if !regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`).MatchString(in.Subdomain) {
 		return response.Error(c, "invalid subdomain format", fiber.StatusBadRequest, nil)
 	}
-	if h.dns == nil {
+	if !h.skipDNS && h.dns == nil {
 		return response.Error(c, "cloudflare dns is not configured", fiber.StatusInternalServerError, nil)
 	}
 	existing, err := h.repo.FindBySubdomain(c.Context(), in.Subdomain)
@@ -198,12 +199,15 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 			})
 		}
 	}
-	_, createdDNS, err := h.dns.EnsureCNAME(c.Context(), in.Subdomain)
-	if err != nil {
-		return response.Error(c, "failed to provision subdomain", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+	var createdDNS bool
+	if !h.skipDNS {
+		_, createdDNS, err = h.dns.EnsureCNAME(c.Context(), in.Subdomain)
+		if err != nil {
+			return response.Error(c, "failed to provision subdomain", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+		}
 	}
 	if err := h.repo.Create(c.Context(), u, regs); err != nil {
-		if createdDNS {
+		if !h.skipDNS && createdDNS {
 			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
 		}
 		if strings.Contains(err.Error(), "E11000") {
@@ -215,7 +219,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 	if h.userRepo == nil {
 		_, _ = h.repo.DeleteByID(c.Context(), u.ID.Hex())
 		_ = h.regRepo.DeleteByUnitID(c.Context(), u.ID)
-		if createdDNS {
+		if !h.skipDNS && createdDNS {
 			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
 		}
 		return response.Error(c, "user repository not configured", fiber.StatusInternalServerError, nil)
@@ -224,7 +228,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 	rollback := func() {
 		_, _ = h.repo.DeleteByID(c.Context(), u.ID.Hex())
 		_ = h.regRepo.DeleteByUnitID(c.Context(), u.ID)
-		if createdDNS {
+		if !h.skipDNS && createdDNS {
 			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
 		}
 	}
@@ -350,7 +354,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	}
 
 	if subdomainChanged {
-		if h.dns == nil {
+		if !h.skipDNS && h.dns == nil {
 			return response.Error(c, "cloudflare dns is not configured", fiber.StatusInternalServerError, nil)
 		}
 		dup, err := h.repo.FindBySubdomain(c.Context(), newSubdomain)
@@ -363,7 +367,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	}
 
 	var dnsCreated bool
-	if subdomainChanged {
+	if subdomainChanged && !h.skipDNS {
 		_, dnsCreated, err = h.dns.EnsureCNAME(c.Context(), newSubdomain)
 		if err != nil {
 			return response.Error(c, "failed to provision subdomain", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
@@ -372,7 +376,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 
 	u, err := h.repo.UpdateByID(c.Context(), id, updates, servicePackageIDs)
 	if err != nil {
-		if subdomainChanged && dnsCreated {
+		if subdomainChanged && !h.skipDNS && dnsCreated {
 			_ = h.dns.DeleteByName(c.Context(), newSubdomain)
 		}
 		if strings.Contains(err.Error(), "E11000") {
@@ -381,12 +385,12 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
 	if u == nil {
-		if subdomainChanged && dnsCreated {
+		if subdomainChanged && !h.skipDNS && dnsCreated {
 			_ = h.dns.DeleteByName(c.Context(), newSubdomain)
 		}
 		return response.Error(c, "not found", fiber.StatusNotFound, nil)
 	}
-	if subdomainChanged {
+	if subdomainChanged && !h.skipDNS {
 		if err := h.dns.DeleteByName(c.Context(), oldSubdomain); err != nil {
 			log.Printf("failed to clean up old subdomain %s: %v", oldSubdomain, err)
 		}

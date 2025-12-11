@@ -15,6 +15,10 @@ go run main.go
 Create an `.env` file (see `env` for an example) containing your database
 credentials.
 
+Set `APP_ENV=production` in environments where you want Cloudflare DNS records
+to be created automatically. The default (`development`) skips Cloudflare
+provisioning for unit subdomains.
+
 ## Cloudflare DNS for unit subdomains
 
 When super admins create or update a unit, the API will provision a Cloudflare DNS record for that unit's subdomain. Configure these environment variables so DNS can be created:
