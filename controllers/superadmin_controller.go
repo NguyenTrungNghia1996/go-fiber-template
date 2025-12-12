@@ -37,6 +37,10 @@ func (h *SuperAdminController) Create(c *fiber.Ctx) error {
 	if in.Username == "" || in.Password == "" {
 		return response.Error(c, "username and password are required", fiber.StatusBadRequest, nil)
 	}
+	isAdmin := true
+	if in.IsAdmin != nil {
+		isAdmin = *in.IsAdmin
+	}
 	roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), in.RoleGroupIDs)
 	if err != nil {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
@@ -53,6 +57,7 @@ func (h *SuperAdminController) Create(c *fiber.Ctx) error {
 	sa := &models.SuperAdmin{
 		Username:     in.Username,
 		PasswordHash: string(hash),
+		IsAdmin:      isAdmin,
 		Name:         strings.TrimSpace(in.Name),
 		Email:        strings.TrimSpace(in.Email),
 		RoleGroupIDs: roleGroupIDs,
@@ -135,6 +140,9 @@ func (h *SuperAdminController) Update(c *fiber.Ctx) error {
 		}
 		updates = append(updates, bson.E{Key: "role_group_ids", Value: roleGroupIDs})
 	}
+	if in.IsAdmin != nil {
+		updates = append(updates, bson.E{Key: "is_admin", Value: *in.IsAdmin})
+	}
 	if len(updates) == 0 {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
@@ -190,7 +198,12 @@ func (h *SuperAdminController) Login(c *fiber.Ctx) error {
 	if err := bcrypt.CompareHashAndPassword([]byte(sa.PasswordHash), []byte(in.Password)); err != nil {
 		return response.Error(c, "authentication failed", fiber.StatusUnauthorized, nil)
 	}
-	token, exp, err := auth.GenerateToken(sa.ID.Hex(), 24*time.Hour)
+	isAdmin := sa.IsAdmin
+	if !isAdmin {
+		// Default super admins are privileged; treat missing values as true.
+		isAdmin = true
+	}
+	token, exp, err := auth.GenerateToken(sa.ID.Hex(), isAdmin, 24*time.Hour)
 	if err != nil {
 		return response.Error(c, "failed to issue token", fiber.StatusInternalServerError, nil)
 	}
@@ -198,6 +211,7 @@ func (h *SuperAdminController) Login(c *fiber.Ctx) error {
 	user := fiber.Map{
 		"id":             sa.ID.Hex(),
 		"username":       sa.Username,
+		"is_admin":       isAdmin,
 		"name":           sa.Name,
 		"email":          sa.Email,
 		"role_group_ids": sa.RoleGroupIDs,

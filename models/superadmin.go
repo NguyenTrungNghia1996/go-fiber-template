@@ -11,6 +11,7 @@ type SuperAdmin struct {
 	ID           primitive.ObjectID   `bson:"_id,omitempty" json:"id"`
 	Username     string               `bson:"username" json:"username"`
 	PasswordHash string               `bson:"password_hash" json:"-"`
+	IsAdmin      bool                 `bson:"is_admin" json:"is_admin"`
 	Name         string               `bson:"name,omitempty" json:"name,omitempty"`
 	Email        string               `bson:"email,omitempty" json:"email,omitempty"`
 	RoleGroupIDs []primitive.ObjectID `bson:"role_group_ids,omitempty" json:"role_group_ids,omitempty"`
@@ -24,6 +25,7 @@ type CreateSuperAdminInput struct {
 	Password     string   `json:"password"`
 	Name         string   `json:"name"`
 	Email        string   `json:"email"`
+	IsAdmin      *bool    `json:"is_admin,omitempty"`
 	RoleGroupIDs []string `json:"role_group_ids"`
 }
 
@@ -34,5 +36,6 @@ type UpdateSuperAdminInput struct {
 	Password     *string   `json:"password,omitempty"`
 	Name         *string   `json:"name,omitempty"`
 	Email        *string   `json:"email,omitempty"`
+	IsAdmin      *bool     `json:"is_admin,omitempty"`
 	RoleGroupIDs *[]string `json:"role_group_ids,omitempty"`
 }

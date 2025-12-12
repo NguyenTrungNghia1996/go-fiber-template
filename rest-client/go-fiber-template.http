@@ -182,6 +182,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 {
   "username": "admin1",
   "password": "StrongP@ssw0rd",
+  "is_admin": true,
   "name": "Admin One",
   "email": "admin1@example.com",
   "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
@@ -200,6 +201,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "id": "{{createSuperAdmin.response.body.$.data.id}}",
   "name": "Admin One Updated",
   "email": "new@example.com",
+  "is_admin": true,
   "password": "NewP@ss123",
   "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }

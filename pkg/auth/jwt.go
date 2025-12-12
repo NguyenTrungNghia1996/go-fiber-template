@@ -18,7 +18,8 @@ func adminSecret() (string, error) {
 }
 
 // GenerateToken signs a JWT for the given subject with an expiration TTL using JWT_SECRET_ADMIN.
-func GenerateToken(subject string, ttl time.Duration) (string, time.Time, error) {
+// Claims include sub, is_admin, exp, iat.
+func GenerateToken(subject string, isAdmin bool, ttl time.Duration) (string, time.Time, error) {
 	secret, err := adminSecret()
 	if err != nil {
 		return "", time.Time{}, err
@@ -26,9 +27,10 @@ func GenerateToken(subject string, ttl time.Duration) (string, time.Time, error)
 	now := time.Now().UTC()
 	exp := now.Add(ttl)
 	claims := jwt.MapClaims{
-		"sub": subject,
-		"exp": exp.Unix(),
-		"iat": now.Unix(),
+		"sub":      subject,
+		"is_admin": isAdmin,
+		"exp":      exp.Unix(),
+		"iat":      now.Unix(),
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	s, err := token.SignedString([]byte(secret))
