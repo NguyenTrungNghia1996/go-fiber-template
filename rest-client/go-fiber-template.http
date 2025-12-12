@@ -3,6 +3,7 @@
 @adminPassword = sa123
 @adminToken = 
 @superAdminId =
+@superAdminMenuId =
 @unitId =
 @servicePackageId =
 @servicePackageMenuId =
@@ -155,6 +156,50 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### SuperAdmins: Delete
 DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Menus: List (all, no pagination)
+GET {{baseUrl}}/superadmin_menus?page=0&q=
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Menus: Create
+# @name createSuperAdminMenu
+POST {{baseUrl}}/superadmin_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "title": "Dashboard",
+  "key": "admin-dashboard",
+  "url": "/admin/dashboard",
+  "icon": "mdi:view-dashboard",
+  "parent_id": 0,
+  "permission": 0,
+  "active": true
+}
+
+### Super Admin Menus: Get Detail
+GET {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Menus: Update
+PUT {{baseUrl}}/superadmin_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createSuperAdminMenu.response.body.$.data.id}}",
+  "title": "Dashboard Management",
+  "key": "admin-dashboard",
+  "url": "/admin/dashboard",
+  "icon": "mdi:view-dashboard-edit",
+  "parent_id": 0,
+  "permission": 1,
+  "active": true
+}
+
+### Super Admin Menus: Delete
+DELETE {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (all, no pagination)

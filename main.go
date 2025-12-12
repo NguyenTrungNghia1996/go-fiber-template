@@ -66,8 +66,14 @@ func main() {
 		log.Fatalf("failed to init superadmin repository: %v", err)
 	}
 	saCtrl := controllers.NewSuperAdminController(saRepo)
+	saMenuRepo, err := repositories.NewSuperAdminMenuRepository(config.DB)
+	if err != nil {
+		log.Fatalf("failed to init superadmin menu repository: %v", err)
+	}
+	saMenuCtrl := controllers.NewSuperAdminMenuController(saMenuRepo)
 	routes.RegisterAuthRoutes(app, saCtrl)
 	routes.RegisterSuperAdminRoutes(app, saCtrl)
+	routes.RegisterSuperAdminMenuRoutes(app, saMenuCtrl)
 
 	// UnitServicePackageRegistration feature (init before Units so it can be injected)
 	unitServicePackageRegistrationRepo, err := repositories.NewUnitServicePackageRegistrationRepository(config.DB)

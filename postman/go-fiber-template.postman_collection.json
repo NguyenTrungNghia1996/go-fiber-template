@@ -519,6 +519,132 @@
       ]
     },
     {
+      "name": "Super Admin Menus",
+      "item": [
+        {
+          "name": "List Super Admin Menus",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "superadmin_menus" ],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "q", "value": "dashboard" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Super Admin Menus (paged)",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "superadmin_menus" ],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "q", "value": "dashboard" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Super Admin Menu",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "superadmin_menus" ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('superAdminMenuId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Super Admin Menu",
+          "request": {
+            "method": "GET",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?id={{superAdminMenuId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "superadmin_menus" ],
+              "query": [
+                { "key": "id", "value": "{{superAdminMenuId}}" }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Super Admin Menu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "superadmin_menus" ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Super Admin Menu",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?id={{superAdminMenuId}}",
+              "host": [ "{{baseUrl}}" ],
+              "path": [ "superadmin_menus" ],
+              "query": [
+                { "key": "id", "value": "{{superAdminMenuId}}" }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Units",
       "item": [
         {
@@ -1094,6 +1220,11 @@
     },
     {
       "key": "superAdminId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "superAdminMenuId",
       "value": "",
       "type": "string"
     },
