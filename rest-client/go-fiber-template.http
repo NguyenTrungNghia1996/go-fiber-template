@@ -14,6 +14,7 @@
 @unitUsername = admin
 @unitPassword = admin
 @unitToken =
+@unitRoleGroupId =
 @unitUserId =
 
 ### Health
@@ -55,7 +56,8 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "password": "Member@123",
   "name": "Member One",
   "email": "member1@example.com",
-  "is_admin": false
+  "is_admin": false,
+  "role_group_ids": ["{{createUnitRoleGroup.response.body.$.data.id}}"]
 }
 
 ### Unit Users: Get Detail (admin-only)
@@ -71,11 +73,56 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "id": "{{createUnitUser.response.body.$.data.id}}",
   "name": "Member One Updated",
   "email": "member1_new@example.com",
-  "is_admin": false
+  "is_admin": false,
+  "role_group_ids": ["{{createUnitRoleGroup.response.body.$.data.id}}"]
 }
 
 ### Unit Users: Delete (admin-only)
 DELETE {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Role Groups: List (all, no pagination)
+GET {{baseUrl}}/unit_role_groups?page=0&q=
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Role Groups: Create
+# @name createUnitRoleGroup
+POST {{baseUrl}}/unit_role_groups
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "name": "Full Access",
+  "description": "Tat ca quyen cho don vi",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Unit Role Groups: Get Detail
+GET {{baseUrl}}/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Role Groups: Update
+PUT {{baseUrl}}/unit_role_groups
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "id": "{{createUnitRoleGroup.response.body.$.data.id}}",
+  "name": "Full Access Updated",
+  "description": "Cap nhat mo ta",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Unit Role Groups: Delete
+DELETE {{baseUrl}}/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Self: Get current unit (admin-only)

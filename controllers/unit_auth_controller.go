@@ -64,13 +64,14 @@ func (h *UnitAuthController) Login(c *fiber.Ctx) error {
 	}
 
 	userPayload := fiber.Map{
-		"id":        user.ID.Hex(),
-		"username":  user.Username,
-		"name":      user.Name,
-		"email":     user.Email,
-		"unit_id":   unit.ID.Hex(),
-		"subdomain": unit.Subdomain,
-		"is_admin":  user.IsAdmin,
+		"id":             user.ID.Hex(),
+		"username":       user.Username,
+		"name":           user.Name,
+		"email":          user.Email,
+		"unit_id":        unit.ID.Hex(),
+		"subdomain":      unit.Subdomain,
+		"is_admin":       user.IsAdmin,
+		"role_group_ids": user.RoleGroupIDs,
 	}
 
 	return response.Success(c, fiber.Map{

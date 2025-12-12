@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"strings"
 
 	"go-fiber-api/models"
@@ -14,11 +17,12 @@ import (
 )
 
 type UnitUserController struct {
-	repo *repositories.UnitUserRepository
+	repo          *repositories.UnitUserRepository
+	roleGroupRepo *repositories.UnitRoleGroupRepository
 }
 
-func NewUnitUserController(repo *repositories.UnitUserRepository) *UnitUserController {
-	return &UnitUserController{repo: repo}
+func NewUnitUserController(repo *repositories.UnitUserRepository, roleGroupRepo *repositories.UnitRoleGroupRepository) *UnitUserController {
+	return &UnitUserController{repo: repo, roleGroupRepo: roleGroupRepo}
 }
 
 func isUnitAdmin(c *fiber.Ctx) bool {
@@ -82,11 +86,12 @@ func (h *UnitUserController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
 	}
 	var in struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		IsAdmin  bool   `json:"is_admin"`
+		Username string   `json:"username"`
+		Password string   `json:"password"`
+		Name     string   `json:"name"`
+		Email    string   `json:"email"`
+		IsAdmin  bool     `json:"is_admin"`
+		RoleIDs  []string `json:"role_group_ids"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return response.Error(c, "invalid body", fiber.StatusBadRequest, nil)
@@ -95,6 +100,10 @@ func (h *UnitUserController) Create(c *fiber.Ctx) error {
 	in.Password = strings.TrimSpace(in.Password)
 	if in.Username == "" || in.Password == "" {
 		return response.Error(c, "username and password are required", fiber.StatusBadRequest, nil)
+	}
+	roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), unitOID, in.RoleIDs)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
 	// hash password
 	hash, err := bcrypt.GenerateFromPassword([]byte(in.Password), bcrypt.DefaultCost)
@@ -106,6 +115,7 @@ func (h *UnitUserController) Create(c *fiber.Ctx) error {
 		Username:     in.Username,
 		PasswordHash: string(hash),
 		IsAdmin:      in.IsAdmin,
+		RoleGroupIDs: roleGroupIDs,
 		Name:         strings.TrimSpace(in.Name),
 		Email:        strings.TrimSpace(in.Email),
 	}
@@ -128,12 +138,13 @@ func (h *UnitUserController) Update(c *fiber.Ctx) error {
 		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
 	}
 	var in struct {
-		ID       string  `json:"id"`
-		Username *string `json:"username,omitempty"`
-		Password *string `json:"password,omitempty"`
-		Name     *string `json:"name,omitempty"`
-		Email    *string `json:"email,omitempty"`
-		IsAdmin  *bool   `json:"is_admin,omitempty"`
+		ID       string    `json:"id"`
+		Username *string   `json:"username,omitempty"`
+		Password *string   `json:"password,omitempty"`
+		Name     *string   `json:"name,omitempty"`
+		Email    *string   `json:"email,omitempty"`
+		IsAdmin  *bool     `json:"is_admin,omitempty"`
+		RoleIDs  *[]string `json:"role_group_ids,omitempty"`
 	}
 	if err := c.BodyParser(&in); err != nil {
 		return response.Error(c, "invalid body", fiber.StatusBadRequest, nil)
@@ -189,6 +200,13 @@ func (h *UnitUserController) Update(c *fiber.Ctx) error {
 		}
 		updates = append(updates, bson.E{Key: "is_admin", Value: *in.IsAdmin})
 	}
+	if in.RoleIDs != nil {
+		roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), unitOID, *in.RoleIDs)
+		if err != nil {
+			return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+		}
+		updates = append(updates, bson.E{Key: "role_group_ids", Value: roleGroupIDs})
+	}
 	if len(updates) == 0 {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
@@ -243,4 +261,35 @@ func (h *UnitUserController) Delete(c *fiber.Ctx) error {
 		return response.Error(c, "not found", fiber.StatusNotFound, nil)
 	}
 	return response.Success(c, true, "deleted")
+}
+
+func (h *UnitUserController) parseRoleGroupIDs(ctx context.Context, unitID primitive.ObjectID, ids []string) ([]primitive.ObjectID, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	seen := make(map[primitive.ObjectID]struct{})
+	out := make([]primitive.ObjectID, 0, len(ids))
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id == "" {
+			return nil, errors.New("role_group_ids cannot contain empty values")
+		}
+		oid, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, fmt.Errorf("invalid role_group_id: %s", id)
+		}
+		if _, ok := seen[oid]; ok {
+			continue
+		}
+		seen[oid] = struct{}{}
+		out = append(out, oid)
+	}
+	existing, err := h.roleGroupRepo.FindExistingIDsInUnit(ctx, unitID, out)
+	if err != nil {
+		return nil, err
+	}
+	if len(existing) != len(out) {
+		return nil, errors.New("one or more role_group_ids do not exist in this unit")
+	}
+	return out, nil
 }

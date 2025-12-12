@@ -76,7 +76,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false\n}"
+              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_users",
@@ -136,7 +136,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false\n}"
+              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_users",
@@ -173,6 +173,210 @@
                 {
                   "key": "id",
                   "value": "{{unitUserId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unit Role Groups",
+      "item": [
+        {
+          "name": "List Unit Role Groups",
+          "request": {
+            "method": "GET",
+            "description": "[VI] Danh s\u00e1ch nh\u00f3m quy\u1ec1n c\u1ee7a \u0111\u01a1n v\u1ecb (admin).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?page=0&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Unit Role Groups (paged)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?page=1&limit=10&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Unit Role Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Full Access\",\n  \"description\": \"Tat ca quyen cho don vi\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('unitRoleGroupId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Unit Role Group",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?id={{unitRoleGroupId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitRoleGroupId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Unit Role Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{unitRoleGroupId}}\",\n  \"name\": \"Full Access Updated\",\n  \"description\": \"Cap nhat mo ta\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Unit Role Group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?id={{unitRoleGroupId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitRoleGroupId}}"
                 }
               ]
             }
@@ -2129,6 +2333,11 @@
     },
     {
       "key": "unitToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unitRoleGroupId",
       "value": "",
       "type": "string"
     },

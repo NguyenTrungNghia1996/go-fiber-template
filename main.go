@@ -92,6 +92,7 @@ func main() {
 
 	// Unit users repo (used by Units + UnitAuth)
 	unitUserRepo := repositories.NewUnitUserRepository(config.DB)
+	unitRoleGroupRepo := repositories.NewUnitRoleGroupRepository(config.DB)
 
 	// Cloudflare DNS for unit subdomains (skipped in dev environments)
 	var dnsClient *cloudflare.DNSClient
@@ -127,8 +128,12 @@ func main() {
 	routes.RegisterUnitAuthRoutes(app, unitAuthCtrl)
 
 	// Unit users management (requires unit user token; admin-only enforced in handlers)
-	unitUserCtrl := controllers.NewUnitUserController(unitUserRepo)
+	unitUserCtrl := controllers.NewUnitUserController(unitUserRepo, unitRoleGroupRepo)
 	routes.RegisterUnitUserRoutes(app, unitUserCtrl)
+
+	// Unit role groups (per-unit, admin-only)
+	unitRoleGroupCtrl := controllers.NewUnitRoleGroupController(unitRoleGroupRepo, unitUserRepo)
+	routes.RegisterUnitRoleGroupRoutes(app, unitRoleGroupCtrl)
 
 	// Unit self-management (unit admin can update their unit)
 	unitSelfCtrl := controllers.NewUnitSelfController(unitRepo)
