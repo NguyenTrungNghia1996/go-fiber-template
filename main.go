@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"go-fiber-api/config"
@@ -27,6 +28,13 @@ func main() {
 		} else {
 			log.Println("Loaded .env file")
 		}
+	}
+
+	appEnv := strings.ToLower(strings.TrimSpace(os.Getenv("APP_ENV")))
+	skipDNS := appEnv == "" || appEnv == "dev" || appEnv == "development"
+	envLabel := appEnv
+	if envLabel == "" {
+		envLabel = "development"
 	}
 
 	// Kết nối MongoDB một lần duy nhất
@@ -57,30 +65,44 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init superadmin repository: %v", err)
 	}
-	saCtrl := controllers.NewSuperAdminController(saRepo)
+	saMenuRepo, err := repositories.NewSuperAdminMenuRepository(config.DB)
+	if err != nil {
+		log.Fatalf("failed to init superadmin menu repository: %v", err)
+	}
+	saRoleGroupRepo, err := repositories.NewSuperAdminRoleGroupRepository(config.DB)
+	if err != nil {
+		log.Fatalf("failed to init superadmin role group repository: %v", err)
+	}
+	saCtrl := controllers.NewSuperAdminController(saRepo, saRoleGroupRepo)
+	saMenuCtrl := controllers.NewSuperAdminMenuController(saMenuRepo)
+	saRoleGroupCtrl := controllers.NewSuperAdminRoleGroupController(saRoleGroupRepo, saRepo)
 	routes.RegisterAuthRoutes(app, saCtrl)
 	routes.RegisterSuperAdminRoutes(app, saCtrl)
+	routes.RegisterSuperAdminMenuRoutes(app, saMenuCtrl)
+	routes.RegisterSuperAdminRoleGroupRoutes(app, saRoleGroupCtrl)
 
 	// UnitServicePackageRegistration feature (init before Units so it can be injected)
 	unitServicePackageRegistrationRepo, err := repositories.NewUnitServicePackageRegistrationRepository(config.DB)
 	if err != nil {
 		log.Fatalf("failed to init unit service package registration repository: %v", err)
 	}
-	unitServicePackageRegistrationCtrl := controllers.NewUnitServicePackageRegistrationController(unitServicePackageRegistrationRepo)
-	routes.RegisterUnitServicePackageRegistrationRoutes(app, unitServicePackageRegistrationCtrl)
 
 	// ServicePackage feature (repo needed by Units controller)
 	servicePackageRepo := repositories.NewServicePackageRepository(config.DB)
-	servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
-	routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
 
 	// Unit users repo (used by Units + UnitAuth)
 	unitUserRepo := repositories.NewUnitUserRepository(config.DB)
+	unitRoleGroupRepo := repositories.NewUnitRoleGroupRepository(config.DB)
 
-	// Cloudflare DNS for unit subdomains (optional but required for unit create/update)
-	dnsClient, err := cloudflare.NewDNSClientFromEnv()
-	if err != nil {
-		log.Printf("cloudflare dns not configured: %v", err)
+	// Cloudflare DNS for unit subdomains (skipped in dev environments)
+	var dnsClient *cloudflare.DNSClient
+	if skipDNS {
+		log.Printf("APP_ENV=%s -> skipping Cloudflare DNS provisioning for units", envLabel)
+	} else {
+		dnsClient, err = cloudflare.NewDNSClientFromEnv()
+		if err != nil {
+			log.Printf("cloudflare dns not configured: %v", err)
+		}
 	}
 
 	// Units feature
@@ -88,16 +110,30 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to init unit repository: %v", err)
 	}
-	unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo, unitUserRepo, dnsClient)
+	unitCtrl := controllers.NewUnitController(unitRepo, unitServicePackageRegistrationRepo, servicePackageRepo, unitUserRepo, dnsClient, skipDNS)
 	routes.RegisterUnitRoutes(app, unitCtrl)
+
+	// UnitServicePackageRegistration feature routes after unit repo is ready
+	unitServicePackageRegistrationCtrl := controllers.NewUnitServicePackageRegistrationController(unitServicePackageRegistrationRepo, unitRepo, servicePackageRepo)
+	routes.RegisterUnitServicePackageRegistrationRoutes(app, unitServicePackageRegistrationCtrl)
+
+	// ServicePackage routes
+	servicePackageCtrl := controllers.NewServicePackageController(servicePackageRepo)
+	routes.RegisterServicePackageRoutes(app, servicePackageCtrl)
+	servicePackageMenuCtrl := controllers.NewServicePackageMenuController(servicePackageRepo)
+	routes.RegisterServicePackageMenuRoutes(app, servicePackageMenuCtrl)
 
 	// Unit user auth (login with subdomain)
 	unitAuthCtrl := controllers.NewUnitAuthController(unitRepo, unitUserRepo)
 	routes.RegisterUnitAuthRoutes(app, unitAuthCtrl)
 
 	// Unit users management (requires unit user token; admin-only enforced in handlers)
-	unitUserCtrl := controllers.NewUnitUserController(unitUserRepo)
+	unitUserCtrl := controllers.NewUnitUserController(unitUserRepo, unitRoleGroupRepo)
 	routes.RegisterUnitUserRoutes(app, unitUserCtrl)
+
+	// Unit role groups (per-unit, admin-only)
+	unitRoleGroupCtrl := controllers.NewUnitRoleGroupController(unitRoleGroupRepo, unitUserRepo)
+	routes.RegisterUnitRoleGroupRoutes(app, unitRoleGroupCtrl)
 
 	// Unit self-management (unit admin can update their unit)
 	unitSelfCtrl := controllers.NewUnitSelfController(unitRepo)

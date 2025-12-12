@@ -1,23 +1,35 @@
-version: '3.8'
-
 services:
   backend:
-    # image: trungnghia1996/go-fiber-api:latest
-    build: .
-    container_name: go-fiber-api
+    image: trungnghia1996/go-fiber-template:latest
+    # build: .
+    container_name: go-fiber-template
     ports:
       - 4000:4000
     environment:
       MONGO_URL: mongodb://admin:cr969bp6x6@mongo:27017
-      MONGO_NAME: test
-      JWT_SECRET: test
+      MONGO_NAME: <MONGO_DATABASE_NAME>
+      # AUTH
+      JWT_SECRET: <JWT_SECRET>
+      JWT_SECRET_ADMIN: <JWT_SECRET_ADMIN>
       PORT: 4000
+      # MINIO / CLOUDFLARE R2
+      MINIO_ACCESS_KEY: <MINIO_ACCESS_KEY>
+      MINIO_SECRET_KEY: <MINIO_SECRET_KEY>
+      MINIO_ENDPOINT: <MINIO_ENDPOINT_URL> # VD: https://xxxx.r2.cloudflarestorage.com
+      MINIO_BUCKET: <MINIO_BUCKET_NAME>
+      MINIO_SSL: true
+      MINIO_PUBLIC_URL: <MINIO_PUBLIC_CDN_URL> # VD: https://cdn.domain.com
+      # CLOUDFLARE API
+      CLOUDFLARE_ZONE_ID: <CLOUDFLARE_ZONE_ID>
+      CLOUDFLARE_API_TOKEN: <CLOUDFLARE_API_TOKEN>
+      CLOUDFLARE_ROOT_DOMAIN: <ROOT_DOMAIN> # VD: nghia196.io.vn
+      CLOUDFLARE_CNAME_TARGET: <TARGET_CNAME> # VD: app.domain.com
+      CLOUDFLARE_PROXIED: true
+      CLOUDFLARE_TTL: 1
     restart: unless-stopped
-    networks:
-      - app-network
     depends_on:
       - mongo
-    
+
   mongo:
     image: mongo:6
     container_name: mongo
@@ -29,7 +41,3 @@ services:
     expose:
       - "27017"
     restart: unless-stopped
-
-networks:
-  app-network:
-    driver: bridge

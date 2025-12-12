@@ -23,10 +23,11 @@ type UnitController struct {
 	spRepo   *repositories.ServicePackageRepository
 	userRepo *repositories.UnitUserRepository
 	dns      *cloudflare.DNSClient
+	skipDNS  bool
 }
 
-func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository, userRepo *repositories.UnitUserRepository, dns *cloudflare.DNSClient) *UnitController {
-	return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo, userRepo: userRepo, dns: dns}
+func NewUnitController(repo *repositories.UnitRepository, regRepo *repositories.UnitServicePackageRegistrationRepository, spRepo *repositories.ServicePackageRepository, userRepo *repositories.UnitUserRepository, dns *cloudflare.DNSClient, skipDNS bool) *UnitController {
+	return &UnitController{repo: repo, regRepo: regRepo, spRepo: spRepo, userRepo: userRepo, dns: dns, skipDNS: skipDNS}
 }
 
 // List handles GET /units with optional ?id, ?q and pagination.
@@ -105,6 +106,9 @@ func (h *UnitController) List(c *fiber.Ctx) error {
 		Limit: limit,
 		Total: total,
 	}
+	if page == 0 {
+		data.Limit = total
+	}
 	return response.Success(c, data, "ok")
 }
 
@@ -122,7 +126,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 	if !regexp.MustCompile(`^[a-z0-9]([a-z0-9-]*[a-z0-9])?$`).MatchString(in.Subdomain) {
 		return response.Error(c, "invalid subdomain format", fiber.StatusBadRequest, nil)
 	}
-	if h.dns == nil {
+	if !h.skipDNS && h.dns == nil {
 		return response.Error(c, "cloudflare dns is not configured", fiber.StatusInternalServerError, nil)
 	}
 	existing, err := h.repo.FindBySubdomain(c.Context(), in.Subdomain)
@@ -195,12 +199,15 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 			})
 		}
 	}
-	_, createdDNS, err := h.dns.EnsureCNAME(c.Context(), in.Subdomain)
-	if err != nil {
-		return response.Error(c, "failed to provision subdomain", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+	var createdDNS bool
+	if !h.skipDNS {
+		_, createdDNS, err = h.dns.EnsureCNAME(c.Context(), in.Subdomain)
+		if err != nil {
+			return response.Error(c, "failed to provision subdomain", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+		}
 	}
 	if err := h.repo.Create(c.Context(), u, regs); err != nil {
-		if createdDNS {
+		if !h.skipDNS && createdDNS {
 			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
 		}
 		if strings.Contains(err.Error(), "E11000") {
@@ -209,43 +216,69 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "failed to create", fiber.StatusInternalServerError, nil)
 	}
 	// Create the first admin user for the unit
-	if h.userRepo != nil {
-		if in.AdminUser != nil {
-			au := *in.AdminUser
-			au.Username = strings.TrimSpace(au.Username)
-			au.Password = strings.TrimSpace(au.Password)
-			if au.Username == "" || au.Password == "" {
-				return response.Error(c, "admin_user.username and admin_user.password are required", fiber.StatusBadRequest, nil)
+	if h.userRepo == nil {
+		_, _ = h.repo.DeleteByID(c.Context(), u.ID.Hex())
+		_ = h.regRepo.DeleteByUnitID(c.Context(), u.ID)
+		if !h.skipDNS && createdDNS {
+			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
+		}
+		return response.Error(c, "user repository not configured", fiber.StatusInternalServerError, nil)
+	}
+
+	rollback := func() {
+		_, _ = h.repo.DeleteByID(c.Context(), u.ID.Hex())
+		_ = h.regRepo.DeleteByUnitID(c.Context(), u.ID)
+		if !h.skipDNS && createdDNS {
+			_ = h.dns.DeleteByName(c.Context(), in.Subdomain)
+		}
+	}
+
+	if in.AdminUser != nil {
+		au := *in.AdminUser
+		au.Username = strings.TrimSpace(au.Username)
+		au.Password = strings.TrimSpace(au.Password)
+		if au.Username == "" || au.Password == "" {
+			rollback()
+			return response.Error(c, "admin_user.username and admin_user.password are required", fiber.StatusBadRequest, nil)
+		}
+		hash, err := bcrypt.GenerateFromPassword([]byte(au.Password), bcrypt.DefaultCost)
+		if err != nil {
+			rollback()
+			return response.Error(c, "failed to hash admin password", fiber.StatusInternalServerError, nil)
+		}
+		if err := h.userRepo.Create(c.Context(), &models.UnitUser{
+			UnitID:       u.ID,
+			Username:     au.Username,
+			PasswordHash: string(hash),
+			IsAdmin:      true,
+			Name:         strings.TrimSpace(au.Name),
+			Email:        strings.TrimSpace(au.Email),
+		}); err != nil {
+			rollback()
+			if strings.Contains(err.Error(), "E11000") {
+				return response.Error(c, "admin username already exists for this unit", fiber.StatusConflict, nil)
 			}
-			hash, err := bcrypt.GenerateFromPassword([]byte(au.Password), bcrypt.DefaultCost)
-			if err == nil {
-				if err := h.userRepo.Create(c.Context(), &models.UnitUser{
-					UnitID:       u.ID,
-					Username:     au.Username,
-					PasswordHash: string(hash),
-					IsAdmin:      true,
-					Name:         strings.TrimSpace(au.Name),
-					Email:        strings.TrimSpace(au.Email),
-				}); err != nil {
-					// If creating custom admin failed (very unlikely for new unit), fall back to default admin
-					// Best-effort, do not fail unit creation
-					if !strings.Contains(err.Error(), "E11000") {
-						// log-like behavior isn't available here; simply ignore to keep API stable
-					}
-				}
+			return response.Error(c, "failed to create admin user", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
+		}
+	} else {
+		hash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost)
+		if err != nil {
+			rollback()
+			return response.Error(c, "failed to hash default admin password", fiber.StatusInternalServerError, nil)
+		}
+		if err := h.userRepo.Create(c.Context(), &models.UnitUser{
+			UnitID:       u.ID,
+			Username:     "admin",
+			PasswordHash: string(hash),
+			IsAdmin:      true,
+			Name:         "Unit Admin",
+			Email:        "",
+		}); err != nil {
+			rollback()
+			if strings.Contains(err.Error(), "E11000") {
+				return response.Error(c, "default admin username already exists", fiber.StatusConflict, nil)
 			}
-		} else {
-			// Fallback: create default admin/admin
-			if hash, err := bcrypt.GenerateFromPassword([]byte("admin"), bcrypt.DefaultCost); err == nil {
-				_ = h.userRepo.Create(c.Context(), &models.UnitUser{
-					UnitID:       u.ID,
-					Username:     "admin",
-					PasswordHash: string(hash),
-					IsAdmin:      true,
-					Name:         "Unit Admin",
-					Email:        "",
-				})
-			}
+			return response.Error(c, "failed to create default admin user", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
 		}
 	}
 	return response.Success(c, u, "created", fiber.StatusCreated)
@@ -321,7 +354,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	}
 
 	if subdomainChanged {
-		if h.dns == nil {
+		if !h.skipDNS && h.dns == nil {
 			return response.Error(c, "cloudflare dns is not configured", fiber.StatusInternalServerError, nil)
 		}
 		dup, err := h.repo.FindBySubdomain(c.Context(), newSubdomain)
@@ -334,7 +367,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	}
 
 	var dnsCreated bool
-	if subdomainChanged {
+	if subdomainChanged && !h.skipDNS {
 		_, dnsCreated, err = h.dns.EnsureCNAME(c.Context(), newSubdomain)
 		if err != nil {
 			return response.Error(c, "failed to provision subdomain", fiber.StatusInternalServerError, fiber.Map{"reason": err.Error()})
@@ -343,7 +376,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 
 	u, err := h.repo.UpdateByID(c.Context(), id, updates, servicePackageIDs)
 	if err != nil {
-		if subdomainChanged && dnsCreated {
+		if subdomainChanged && !h.skipDNS && dnsCreated {
 			_ = h.dns.DeleteByName(c.Context(), newSubdomain)
 		}
 		if strings.Contains(err.Error(), "E11000") {
@@ -352,12 +385,12 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
 	if u == nil {
-		if subdomainChanged && dnsCreated {
+		if subdomainChanged && !h.skipDNS && dnsCreated {
 			_ = h.dns.DeleteByName(c.Context(), newSubdomain)
 		}
 		return response.Error(c, "not found", fiber.StatusNotFound, nil)
 	}
-	if subdomainChanged {
+	if subdomainChanged && !h.skipDNS {
 		if err := h.dns.DeleteByName(c.Context(), oldSubdomain); err != nil {
 			log.Printf("failed to clean up old subdomain %s: %v", oldSubdomain, err)
 		}

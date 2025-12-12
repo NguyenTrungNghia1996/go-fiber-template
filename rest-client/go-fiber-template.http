@@ -3,14 +3,18 @@
 @adminPassword = sa123
 @adminToken = 
 @superAdminId =
+@superAdminMenuId =
+@superAdminRoleGroupId =
 @unitId =
 @servicePackageId =
+@servicePackageMenuId =
 @unitServicePackageRegistrationId =
 @fileKey =
 @unitSubdomain = sales
 @unitUsername = admin
 @unitPassword = admin
 @unitToken =
+@unitRoleGroupId =
 @unitUserId =
 
 ### Health
@@ -52,7 +56,8 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "password": "Member@123",
   "name": "Member One",
   "email": "member1@example.com",
-  "is_admin": false
+  "is_admin": false,
+  "role_group_ids": ["{{createUnitRoleGroup.response.body.$.data.id}}"]
 }
 
 ### Unit Users: Get Detail (admin-only)
@@ -68,11 +73,56 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "id": "{{createUnitUser.response.body.$.data.id}}",
   "name": "Member One Updated",
   "email": "member1_new@example.com",
-  "is_admin": false
+  "is_admin": false,
+  "role_group_ids": ["{{createUnitRoleGroup.response.body.$.data.id}}"]
 }
 
 ### Unit Users: Delete (admin-only)
 DELETE {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Role Groups: List (all, no pagination)
+GET {{baseUrl}}/unit_role_groups?page=0&q=
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Role Groups: Create
+# @name createUnitRoleGroup
+POST {{baseUrl}}/unit_role_groups
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "name": "Full Access",
+  "description": "Tat ca quyen cho don vi",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Unit Role Groups: Get Detail
+GET {{baseUrl}}/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Role Groups: Update
+PUT {{baseUrl}}/unit_role_groups
+Content-Type: application/json
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+{
+  "id": "{{createUnitRoleGroup.response.body.$.data.id}}",
+  "name": "Full Access Updated",
+  "description": "Cap nhat mo ta",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Unit Role Groups: Delete
+DELETE {{baseUrl}}/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Self: Get current unit (admin-only)
@@ -133,7 +183,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "username": "admin1",
   "password": "StrongP@ssw0rd",
   "name": "Admin One",
-  "email": "admin1@example.com"
+  "email": "admin1@example.com",
+  "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 
 ### SuperAdmins: Get Detail
@@ -149,11 +200,100 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "id": "{{createSuperAdmin.response.body.$.data.id}}",
   "name": "Admin One Updated",
   "email": "new@example.com",
-  "password": "NewP@ss123"
+  "password": "NewP@ss123",
+  "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 
 ### SuperAdmins: Delete
 DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Role Groups: List (all, no pagination)
+GET {{baseUrl}}/superadmin_role_groups?page=0&q=
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Role Groups: Create
+# @name createSuperAdminRoleGroup
+POST {{baseUrl}}/superadmin_role_groups
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "name": "Full Access",
+  "description": "Tat ca quyen cho super admin",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Super Admin Role Groups: Get Detail
+GET {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Role Groups: Update
+PUT {{baseUrl}}/superadmin_role_groups
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createSuperAdminRoleGroup.response.body.$.data.id}}",
+  "name": "Full Access Updated",
+  "description": "Cap nhat mo ta",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Super Admin Role Groups: Delete
+DELETE {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Menus: List (all, no pagination)
+GET {{baseUrl}}/superadmin_menus?page=0&q=
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Menus: Create
+# @name createSuperAdminMenu
+POST {{baseUrl}}/superadmin_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "title": "Dashboard",
+  "key": "admin-dashboard",
+  "url": "/admin/dashboard",
+  "icon": "mdi:view-dashboard",
+  "parent_id": 0,
+  "permission": 0,
+  "active": true
+}
+
+### Super Admin Menus: Get Detail
+GET {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Menus: Update
+PUT {{baseUrl}}/superadmin_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createSuperAdminMenu.response.body.$.data.id}}",
+  "title": "Dashboard Management",
+  "key": "admin-dashboard",
+  "url": "/admin/dashboard",
+  "icon": "mdi:view-dashboard-edit",
+  "parent_id": 0,
+  "permission": 1,
+  "active": true
+}
+
+### Super Admin Menus: Delete
+DELETE {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (all, no pagination)
@@ -178,8 +318,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "service_packages": [
     {
       "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
-      "start_at": "2024-01-01T00:00:00Z",
-      "end_at": "2025-01-01T00:00:00Z"
+      "start_at": "2025-01-01T00:00:00Z",
+      "end_at": "2030-01-01T00:00:00Z"
     }
   ],
   "admin_user": {
@@ -279,6 +419,52 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 DELETE {{baseUrl}}/service_packages?id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
+### Service Package Menus: List (all, no pagination)
+GET {{baseUrl}}/service_package_menus?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}&q=
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Package Menus: Create
+# @name createServicePackageMenu
+POST {{baseUrl}}/service_package_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+  "title": "Dashboard",
+  "key": "menu-dashboard",
+  "url": "/dashboard",
+  "icon": "mdi:view-dashboard",
+  "parent_id": 0,
+  "permission": 0,
+  "active": true
+}
+
+### Service Package Menus: Get Detail
+GET {{baseUrl}}/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Service Package Menus: Update
+PUT {{baseUrl}}/service_package_menus
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createServicePackageMenu.response.body.$.data.id}}",
+  "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+  "title": "Dashboard Updated",
+  "key": "menu-dashboard",
+  "url": "/dashboard",
+  "icon": "mdi:view-dashboard",
+  "parent_id": 0,
+  "permission": 1,
+  "active": true
+}
+
+### Service Package Menus: Delete
+DELETE {{baseUrl}}/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
 ### Unit-ServicePackage Registrations: List (all)
 GET {{baseUrl}}/unit_service_package_registrations?page=0
 Authorization: Bearer {{login.response.body.$.data.token}}
@@ -300,8 +486,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 {
   "unit_id": "{{createUnit.response.body.$.data.id}}",
   "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
-  "start_at": "2024-01-01T00:00:00Z",
-  "end_at": "2024-12-31T23:59:59Z"
+  "start_at": "2025-01-01T00:00:00Z",
+  "end_at": "2030-12-31T23:59:59Z"
 }
  
 
@@ -318,8 +504,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "id": "{{createRegistration.response.body.$.data.id}}",
   "unit_id": "{{createUnit.response.body.$.data.id}}",
   "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
-  "start_at": "2024-01-01T00:00:00Z",
-  "end_at": "2024-12-31T23:59:59Z"
+  "start_at": "2025-01-01T00:00:00Z",
+  "end_at": "2030-12-31T23:59:59Z"
 }
 
 ### Unit-ServicePackage Registrations: Delete

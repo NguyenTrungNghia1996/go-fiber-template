@@ -137,3 +137,53 @@ func (r *UnitServicePackageRegistrationRepository) DeleteByID(ctx context.Contex
 	}
 	return res.DeletedCount > 0, nil
 }
+
+// DeleteByUnitID removes all registrations linked to a unit.
+func (r *UnitServicePackageRegistrationRepository) DeleteByUnitID(ctx context.Context, unitID primitive.ObjectID) error {
+	_, err := r.coll.DeleteMany(ctx, bson.D{{Key: "unit_id", Value: unitID}})
+	return err
+}
+
+// FindActiveByUnit returns all registrations for a unit that are active at the given time.
+// Active means start_at is <= now (or missing/zero) and end_at is >= now (or missing/zero).
+func (r *UnitServicePackageRegistrationRepository) FindActiveByUnit(ctx context.Context, unitID string, now time.Time) ([]models.UnitServicePackageRegistration, error) {
+	oid, err := primitive.ObjectIDFromHex(unitID)
+	if err != nil {
+		return nil, err
+	}
+
+	filter := bson.D{
+		{Key: "unit_id", Value: oid},
+		{Key: "$and", Value: bson.A{
+			bson.D{{Key: "$or", Value: bson.A{
+				bson.D{{Key: "start_at", Value: bson.D{{Key: "$lte", Value: now}}}},
+				bson.D{{Key: "start_at", Value: time.Time{}}}, // zero value
+				bson.D{{Key: "start_at", Value: bson.D{{Key: "$exists", Value: false}}}},
+			}}},
+			bson.D{{Key: "$or", Value: bson.A{
+				bson.D{{Key: "end_at", Value: bson.D{{Key: "$gte", Value: now}}}},
+				bson.D{{Key: "end_at", Value: time.Time{}}}, // zero value
+				bson.D{{Key: "end_at", Value: bson.D{{Key: "$exists", Value: false}}}},
+			}}},
+		}},
+	}
+
+	cur, err := r.coll.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var items []models.UnitServicePackageRegistration
+	for cur.Next(ctx) {
+		var reg models.UnitServicePackageRegistration
+		if err := cur.Decode(&reg); err != nil {
+			return nil, err
+		}
+		items = append(items, reg)
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

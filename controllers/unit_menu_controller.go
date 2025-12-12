@@ -37,20 +37,14 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	q := strings.ToLower(strings.TrimSpace(c.Query("q")))
 
 	// Load all registrations for this unit (page=0 => all)
-	regs, _, err := h.regRepo.FindPaged(c.Context(), 0, 0, unitIDStr, "")
+	now := time.Now().UTC()
+	regs, err := h.regRepo.FindActiveByUnit(c.Context(), unitIDStr, now)
 	if err != nil {
 		return response.Error(c, "failed to load registrations", fiber.StatusInternalServerError, nil)
 	}
 
-	now := time.Now().UTC()
 	activeIDsSet := make(map[primitive.ObjectID]struct{})
 	for _, reg := range regs {
-		if !reg.StartAt.IsZero() && reg.StartAt.After(now) {
-			continue
-		}
-		if !reg.EndAt.IsZero() && reg.EndAt.Before(now) {
-			continue
-		}
 		activeIDsSet[reg.ServicePackageID] = struct{}{}
 	}
 
@@ -77,6 +71,9 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	menuKeySeen := make(map[string]struct{})
 	var menus []models.ServicePackageMenu
 	for _, sp := range sps {
+		if !sp.IsActive {
+			continue
+		}
 		for _, m := range sp.Menus {
 			// Simple case-insensitive search over title/key/url when q is provided
 			if q != "" {
@@ -141,4 +138,3 @@ func (h *UnitMenuController) List(c *fiber.Ctx) error {
 	}
 	return response.Success(c, data, "ok")
 }
-

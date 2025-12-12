@@ -36,11 +36,9 @@ func (h *ServicePackageController) Create(c *fiber.Ctx) error {
 
 	// Basic trimming for menu fields where applicable
 	for i := range in.Menus {
-		in.Menus[i].Title = strings.TrimSpace(in.Menus[i].Title)
-		in.Menus[i].Key = strings.TrimSpace(in.Menus[i].Key)
-		in.Menus[i].URL = strings.TrimSpace(in.Menus[i].URL)
-		in.Menus[i].Icon = strings.TrimSpace(in.Menus[i].Icon)
+		trimMenuFields(&in.Menus[i])
 	}
+	ensureMenuIDs(in.Menus)
 
 	sp := &models.ServicePackage{
 		Name:        in.Name,
@@ -69,6 +67,15 @@ func (h *ServicePackageController) List(c *fiber.Ctx) error {
 		if sp == nil {
 			return response.Error(c, "service package not found", fiber.StatusNotFound, nil)
 		}
+		if ensureMenuIDs(sp.Menus) {
+			updated, err := h.repo.UpdateByID(c.Context(), id, bson.D{{Key: "menus", Value: sp.Menus}})
+			if err != nil {
+				return response.Error(c, "failed to normalize service package menus", fiber.StatusInternalServerError, nil)
+			}
+			if updated != nil {
+				sp = updated
+			}
+		}
 		return response.Success(c, sp, "ok")
 	}
 
@@ -85,6 +92,9 @@ func (h *ServicePackageController) List(c *fiber.Ctx) error {
 		Page:  page,
 		Limit: limit,
 		Total: total,
+	}
+	if page == 0 {
+		data.Limit = total
 	}
 	return response.Success(c, data, "ok")
 }
@@ -132,11 +142,9 @@ func (h *ServicePackageController) Update(c *fiber.Ctx) error {
 		// trim string fields in menus before saving
 		menus := *in.Menus
 		for i := range menus {
-			menus[i].Title = strings.TrimSpace(menus[i].Title)
-			menus[i].Key = strings.TrimSpace(menus[i].Key)
-			menus[i].URL = strings.TrimSpace(menus[i].URL)
-			menus[i].Icon = strings.TrimSpace(menus[i].Icon)
+			trimMenuFields(&menus[i])
 		}
+		ensureMenuIDs(menus)
 		updates = append(updates, bson.E{Key: "menus", Value: menus})
 	}
 

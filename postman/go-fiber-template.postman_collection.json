@@ -30,15 +30,30 @@
           "name": "List Unit Users",
           "request": {
             "method": "GET",
-            "description": "[VI] Danh sách user của đơn vị (chỉ admin). Hỗ trợ phân trang và tìm kiếm theo `q`.",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "description": "[VI] Danh s\u00e1ch user c\u1ee7a \u0111\u01a1n v\u1ecb (ch\u1ec9 admin). H\u1ed7 tr\u1ee3 ph\u00e2n trang v\u00e0 t\u00ecm ki\u1ebfm theo `q`.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_users?page=0&q=",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_users"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_users"
+              ],
               "query": [
-                { "key": "page", "value": "0" },
-                { "key": "q", "value": "" }
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
               ]
             }
           },
@@ -48,19 +63,29 @@
           "name": "Create Unit User",
           "request": {
             "method": "POST",
-            "description": "[VI] Tạo user mới trong đơn vị (chỉ admin). `username` duy nhất trong phạm vi đơn vị.",
+            "description": "[VI] T\u1ea1o user m\u1edbi trong \u0111\u01a1n v\u1ecb (ch\u1ec9 admin). `username` duy nh\u1ea5t trong ph\u1ea1m vi \u0111\u01a1n v\u1ecb.",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false\n}"
+              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_users",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_users"
+              ]
             }
           },
           "response": []
@@ -69,13 +94,27 @@
           "name": "Get Unit User",
           "request": {
             "method": "GET",
-            "description": "[VI] Xem chi tiết user trong đơn vị (chỉ admin).",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "description": "[VI] Xem chi ti\u1ebft user trong \u0111\u01a1n v\u1ecb (ch\u1ec9 admin).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_users?id={{unitUserId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_users"],
-              "query": [ { "key": "id", "value": "{{unitUserId}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_users"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitUserId}}"
+                }
+              ]
             }
           },
           "response": []
@@ -84,19 +123,29 @@
           "name": "Update Unit User",
           "request": {
             "method": "PUT",
-            "description": "[VI] Cập nhật thông tin user trong đơn vị (chỉ admin). Không được hạ quyền hoặc xóa admin cuối cùng.",
+            "description": "[VI] C\u1eadp nh\u1eadt th\u00f4ng tin user trong \u0111\u01a1n v\u1ecb (ch\u1ec9 admin). Kh\u00f4ng \u0111\u01b0\u1ee3c h\u1ea1 quy\u1ec1n ho\u1eb7c x\u00f3a admin cu\u1ed1i c\u00f9ng.",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false\n}"
+              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_users",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_users"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_users"
+              ]
             }
           },
           "response": []
@@ -105,13 +154,410 @@
           "name": "Delete Unit User",
           "request": {
             "method": "DELETE",
-            "description": "[VI] Xóa user trong đơn vị (chỉ admin). Không được xóa admin cuối cùng.",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "description": "[VI] X\u00f3a user trong \u0111\u01a1n v\u1ecb (ch\u1ec9 admin). Kh\u00f4ng \u0111\u01b0\u1ee3c x\u00f3a admin cu\u1ed1i c\u00f9ng.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_users?id={{unitUserId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_users"],
-              "query": [ { "key": "id", "value": "{{unitUserId}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_users"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitUserId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Unit Role Groups",
+      "item": [
+        {
+          "name": "List Unit Role Groups",
+          "request": {
+            "method": "GET",
+            "description": "[VI] Danh s\u00e1ch nh\u00f3m quy\u1ec1n c\u1ee7a \u0111\u01a1n v\u1ecb (admin).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?page=0&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Unit Role Groups (paged)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?page=1&limit=10&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Unit Role Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Full Access\",\n  \"description\": \"Tat ca quyen cho don vi\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('unitRoleGroupId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Unit Role Group",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?id={{unitRoleGroupId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitRoleGroupId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Unit Role Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{unitRoleGroupId}}\",\n  \"name\": \"Full Access Updated\",\n  \"description\": \"Cap nhat mo ta\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Unit Role Group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit_role_groups?id={{unitRoleGroupId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitRoleGroupId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Service Package Menus",
+      "item": [
+        {
+          "name": "List Service Package Menus",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus?service_package_id={{servicePackageId}}&page=0&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_package_menus"
+              ],
+              "query": [
+                {
+                  "key": "service_package_id",
+                  "value": "{{servicePackageId}}"
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service Package Menu",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_package_menus"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('servicePackageMenuId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Service Package Menu",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_package_menus"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{servicePackageMenuId}}"
+                },
+                {
+                  "key": "service_package_id",
+                  "value": "{{servicePackageId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service Package Menu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{servicePackageMenuId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard Updated\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_package_menus"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Service Package Menu",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_package_menus"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{servicePackageMenuId}}"
+                },
+                {
+                  "key": "service_package_id",
+                  "value": "{{servicePackageId}}"
+                }
+              ]
             }
           },
           "response": []
@@ -125,12 +571,21 @@
           "name": "Get Unit (self)",
           "request": {
             "method": "GET",
-            "description": "[VI] Lấy thông tin đơn vị hiện tại theo token user (yêu cầu đăng nhập user đơn vị).",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "description": "[VI] L\u1ea5y th\u00f4ng tin \u0111\u01a1n v\u1ecb hi\u1ec7n t\u1ea1i theo token user (y\u00eau c\u1ea7u \u0111\u0103ng nh\u1eadp user \u0111\u01a1n v\u1ecb).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_self",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_self"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_self"
+              ]
             }
           },
           "response": []
@@ -139,10 +594,16 @@
           "name": "Update Unit (self)",
           "request": {
             "method": "PUT",
-            "description": "[VI] Admin đơn vị cập nhật thông tin đơn vị của mình (name/description/logo_url).",
+            "description": "[VI] Admin \u0111\u01a1n v\u1ecb c\u1eadp nh\u1eadt th\u00f4ng tin \u0111\u01a1n v\u1ecb c\u1ee7a m\u00ecnh (name/description/logo_url).",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -150,8 +611,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/unit_self",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_self"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_self"
+              ]
             }
           },
           "response": []
@@ -165,12 +630,21 @@
           "name": "Get My Profile",
           "request": {
             "method": "GET",
-            "description": "[VI] Lấy thông tin tài khoản của chính mình (user đơn vị).",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "description": "[VI] L\u1ea5y th\u00f4ng tin t\u00e0i kho\u1ea3n c\u1ee7a ch\u00ednh m\u00ecnh (user \u0111\u01a1n v\u1ecb).",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_me",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_me"
+              ]
             }
           },
           "response": []
@@ -179,10 +653,16 @@
           "name": "Update My Profile",
           "request": {
             "method": "PUT",
-            "description": "[VI] Cập nhật thông tin cá nhân (name/email/password). Không chỉnh sửa `username` hay quyền.",
+            "description": "[VI] C\u1eadp nh\u1eadt th\u00f4ng tin c\u00e1 nh\u00e2n (name/email/password). Kh\u00f4ng ch\u1ec9nh s\u1eeda `username` hay quy\u1ec1n.",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -190,8 +670,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/unit_me",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_me"
+              ]
             }
           },
           "response": []
@@ -206,7 +690,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -214,8 +701,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/admin",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "admin"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "admin"
+              ]
             }
           },
           "event": [
@@ -239,7 +731,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -247,8 +742,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/auth/unit",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "unit"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "unit"
+              ]
             }
           },
           "event": [
@@ -276,7 +776,12 @@
           "name": "List SuperAdmins",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/superadmins?page=0&q=admin",
               "host": [
@@ -286,8 +791,14 @@
                 "superadmins"
               ],
               "query": [
-                { "key": "page", "value": "0" },
-                { "key": "q", "value": "admin" }
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": "admin"
+                }
               ]
             }
           },
@@ -297,15 +808,33 @@
           "name": "List SuperAdmins (paged)",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/superadmins?page=1&limit=10&q=admin",
-              "host": ["{{baseUrl}}"],
-              "path": ["superadmins"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmins"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "q", "value": "admin" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": "admin"
+                }
               ]
             }
           },
@@ -316,12 +845,18 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"StrongP@ssw0rd\",\n  \"name\": \"Admin One\",\n  \"email\": \"admin1@example.com\"\n}"
+              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"StrongP@ssw0rd\",\n  \"name\": \"Admin One\",\n  \"email\": \"admin1@example.com\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmins",
@@ -339,7 +874,12 @@
           "name": "Get SuperAdmin",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/superadmins?id={{superAdminId}}",
               "host": [
@@ -363,12 +903,18 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"password\": \"NewP@ss123\"\n}"
+              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"password\": \"NewP@ss123\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmins",
@@ -386,7 +932,12 @@
           "name": "Delete SuperAdmin",
           "request": {
             "method": "DELETE",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/superadmins?id={{superAdminId}}",
               "host": [
@@ -408,20 +959,442 @@
       ]
     },
     {
+      "name": "Super Admin Role Groups",
+      "item": [
+        {
+          "name": "List Super Admin Role Groups",
+          "request": {
+            "method": "GET",
+            "description": "[VI] Danh s\u00e1ch nh\u00f3m quy\u1ec1n super admin. H\u1ed7 tr\u1ee3 ph\u00e2n trang v\u00e0 t\u00ecm ki\u1ebfm theo q.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_role_groups?page=0&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Super Admin Role Groups (paged)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_role_groups?page=1&limit=10&q=",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Super Admin Role Group",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Full Access\",\n  \"description\": \"T\u1ea5t c\u1ea3 quy\u1ec1n cho super admin\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_role_groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_role_groups"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('superAdminRoleGroupId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Super Admin Role Group",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_role_groups?id={{superAdminRoleGroupId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{superAdminRoleGroupId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Super Admin Role Group",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{superAdminRoleGroupId}}\",\n  \"name\": \"Full Access Updated\",\n  \"description\": \"C\u1eadp nh\u1eadt m\u00f4 t\u1ea3\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_role_groups",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_role_groups"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Super Admin Role Group",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_role_groups?id={{superAdminRoleGroupId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_role_groups"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{superAdminRoleGroupId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Super Admin Menus",
+      "item": [
+        {
+          "name": "List Super Admin Menus",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_menus"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": "dashboard"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Super Admin Menus (paged)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_menus"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": "dashboard"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Super Admin Menu",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_menus"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res && res.data && res.data.id) {",
+                  "  pm.collectionVariables.set('superAdminMenuId', res.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "Get Super Admin Menu",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?id={{superAdminMenuId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_menus"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{superAdminMenuId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Super Admin Menu",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_menus"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Super Admin Menu",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmin_menus?id={{superAdminMenuId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmin_menus"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{superAdminMenuId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
       "name": "Units",
       "item": [
         {
           "name": "List Units",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/units?page=0&q=sales",
-              "host": ["{{baseUrl}}"],
-              "path": ["units"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units"
+              ],
               "query": [
-                { "key": "page", "value": "0" },
-                { "key": "q", "value": "sales" }
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": "sales"
+                }
               ]
             }
           },
@@ -431,15 +1404,33 @@
           "name": "List Units (paged)",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/units?page=1&limit=10&q=sales",
-              "host": ["{{baseUrl}}"],
-              "path": ["units"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "q", "value": "sales" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": "sales"
+                }
               ]
             }
           },
@@ -450,17 +1441,27 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2024-01-01T00:00:00Z\",\n      \"end_at\": \"2025-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
+              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2025-01-01T00:00:00Z\",\n      \"end_at\": \"2030-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",
-              "host": ["{{baseUrl}}"],
-              "path": ["units"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units"
+              ]
             }
           },
           "response": []
@@ -469,12 +1470,26 @@
           "name": "Get Unit",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/units?id={{unitId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["units"],
-              "query": [ { "key": "id", "value": "{{unitId}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitId}}"
+                }
+              ]
             }
           },
           "response": []
@@ -484,8 +1499,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -493,8 +1514,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/units",
-              "host": ["{{baseUrl}}"],
-              "path": ["units"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units"
+              ]
             }
           },
           "response": []
@@ -503,12 +1528,26 @@
           "name": "Delete Unit",
           "request": {
             "method": "DELETE",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/units?id={{unitId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["units"],
-              "query": [ { "key": "id", "value": "{{unitId}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitId}}"
+                }
+              ]
             }
           },
           "response": []
@@ -522,14 +1561,29 @@
           "name": "List Service Packages",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/service_packages?page=0&q=basic",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "service_packages" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_packages"
+              ],
               "query": [
-                { "key": "page", "value": "0" },
-                { "key": "q", "value": "basic" }
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": "basic"
+                }
               ]
             }
           },
@@ -540,17 +1594,27 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true,\n  \"menus\": [\n    {\n      \"title\": \"Cấp Học\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
+              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_packages",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "service_packages" ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_packages"
+              ]
             }
           },
           "event": [
@@ -573,13 +1637,25 @@
           "name": "Get Service Package",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/service_packages?id={{servicePackageId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "service_packages" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_packages"
+              ],
               "query": [
-                { "key": "id", "value": "{{servicePackageId}}" }
+                {
+                  "key": "id",
+                  "value": "{{servicePackageId}}"
+                }
               ]
             }
           },
@@ -590,17 +1666,27 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false,\n  \"menus\": [\n    {\n      \"title\": \"Cấp Học\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
+              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_packages",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "service_packages" ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_packages"
+              ]
             }
           },
           "response": []
@@ -609,13 +1695,25 @@
           "name": "Delete Service Package",
           "request": {
             "method": "DELETE",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/service_packages?id={{servicePackageId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "service_packages" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "service_packages"
+              ],
               "query": [
-                { "key": "id", "value": "{{servicePackageId}}" }
+                {
+                  "key": "id",
+                  "value": "{{servicePackageId}}"
+                }
               ]
             }
           },
@@ -631,17 +1729,27 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2024-01-01T00:00:00Z\",\n  \"end_at\": \"2024-12-31T23:59:59Z\"\n}"
+              "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2025-01-01T00:00:00Z\",\n  \"end_at\": \"2030-12-31T23:59:59Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ]
             }
           },
           "event": [
@@ -664,13 +1772,25 @@
           "name": "List Registrations",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations?page=0",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ],
               "query": [
-                { "key": "page", "value": "0" }
+                {
+                  "key": "page",
+                  "value": "0"
+                }
               ]
             }
           },
@@ -680,13 +1800,25 @@
           "name": "List Registrations by Unit ID",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations?unit_id={{unitId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ],
               "query": [
-                { "key": "unit_id", "value": "{{unitId}}" }
+                {
+                  "key": "unit_id",
+                  "value": "{{unitId}}"
+                }
               ]
             }
           },
@@ -696,13 +1828,25 @@
           "name": "List Registrations by Service Package ID",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations?service_package_id={{servicePackageId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ],
               "query": [
-                { "key": "service_package_id", "value": "{{servicePackageId}}" }
+                {
+                  "key": "service_package_id",
+                  "value": "{{servicePackageId}}"
+                }
               ]
             }
           },
@@ -712,13 +1856,25 @@
           "name": "Get Registration",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ],
               "query": [
-                { "key": "id", "value": "{{unitServicePackageRegistrationId}}" }
+                {
+                  "key": "id",
+                  "value": "{{unitServicePackageRegistrationId}}"
+                }
               ]
             }
           },
@@ -729,17 +1885,27 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2024-01-01T00:00:00Z\",\n  \"end_at\": \"2024-12-31T23:59:59Z\"\n}"
+              "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2025-01-01T00:00:00Z\",\n  \"end_at\": \"2030-12-31T23:59:59Z\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ]
             }
           },
           "response": []
@@ -748,13 +1914,25 @@
           "name": "Delete Registration",
           "request": {
             "method": "DELETE",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_service_package_registrations" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_service_package_registrations"
+              ],
               "query": [
-                { "key": "id", "value": "{{unitServicePackageRegistrationId}}" }
+                {
+                  "key": "id",
+                  "value": "{{unitServicePackageRegistrationId}}"
+                }
               ]
             }
           },
@@ -769,14 +1947,29 @@
           "name": "List Unit Menus",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_menus?page=0&q=",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_menus" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_menus"
+              ],
               "query": [
-                { "key": "page", "value": "0" },
-                { "key": "q", "value": "" }
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
               ]
             }
           },
@@ -786,15 +1979,33 @@
           "name": "List Unit Menus (paged)",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_menus?page=1&limit=10&q=",
-              "host": [ "{{baseUrl}}" ],
-              "path": [ "unit_menus" ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_menus"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "q", "value": "" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
               ]
             }
           },
@@ -810,8 +2021,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -819,8 +2036,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/uploads/presigned_url",
-              "host": ["{{baseUrl}}"],
-              "path": ["uploads", "presigned_url"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "uploads",
+                "presigned_url"
+              ]
             }
           },
           "event": [
@@ -843,12 +2065,27 @@
           "name": "Delete File",
           "request": {
             "method": "DELETE",
-            "header": [ { "key": "Authorization", "value": "Bearer {{adminToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/uploads/file?id={{fileKey}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["uploads", "file"],
-              "query": [ { "key": "id", "value": "{{fileKey}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "uploads",
+                "file"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{fileKey}}"
+                }
+              ]
             }
           },
           "response": []
@@ -858,8 +2095,14 @@
           "request": {
             "method": "PUT",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{unitToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -867,8 +2110,13 @@
             },
             "url": {
               "raw": "{{baseUrl}}/unit_uploads/presigned_url",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_uploads", "presigned_url"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_uploads",
+                "presigned_url"
+              ]
             }
           },
           "event": [
@@ -891,15 +2139,33 @@
           "name": "Unit List Files (paged)",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_uploads?page=1&limit=10&q=",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_uploads"],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_uploads"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "q", "value": "" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "q",
+                  "value": ""
+                }
               ]
             }
           },
@@ -926,12 +2192,26 @@
           "name": "Unit Get File Detail",
           "request": {
             "method": "GET",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_uploads?id={{fileKey}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_uploads"],
-              "query": [ { "key": "id", "value": "{{fileKey}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_uploads"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{fileKey}}"
+                }
+              ]
             }
           },
           "response": []
@@ -940,12 +2220,27 @@
           "name": "Unit Delete File",
           "request": {
             "method": "DELETE",
-            "header": [ { "key": "Authorization", "value": "Bearer {{unitToken}}" } ],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/unit_uploads/file?id={{fileKey}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["unit_uploads", "file"],
-              "query": [ { "key": "id", "value": "{{fileKey}}" } ]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit_uploads",
+                "file"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{fileKey}}"
+                }
+              ]
             }
           },
           "response": []
@@ -983,6 +2278,16 @@
     },
     {
       "key": "superAdminId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "superAdminMenuId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "superAdminRoleGroupId",
       "value": "",
       "type": "string"
     },
@@ -1028,6 +2333,11 @@
     },
     {
       "key": "unitToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "unitRoleGroupId",
       "value": "",
       "type": "string"
     },
