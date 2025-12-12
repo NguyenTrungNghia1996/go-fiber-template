@@ -27,6 +27,9 @@ func RequireAdmin() fiber.Handler {
 		if sub, ok := claims["sub"].(string); ok && sub != "" {
 			c.Locals("admin_id", sub)
 		}
+		if ia, ok := claims["is_admin"].(bool); ok {
+			c.Locals("is_admin", ia)
+		}
 		return c.Next()
 	}
 }
