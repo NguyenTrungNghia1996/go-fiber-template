@@ -4,6 +4,7 @@
 @adminToken = 
 @superAdminId =
 @superAdminMenuId =
+@superAdminRoleGroupId =
 @unitId =
 @servicePackageId =
 @servicePackageMenuId =
@@ -135,7 +136,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "username": "admin1",
   "password": "StrongP@ssw0rd",
   "name": "Admin One",
-  "email": "admin1@example.com"
+  "email": "admin1@example.com",
+  "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 
 ### SuperAdmins: Get Detail
@@ -151,11 +153,56 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "id": "{{createSuperAdmin.response.body.$.data.id}}",
   "name": "Admin One Updated",
   "email": "new@example.com",
-  "password": "NewP@ss123"
+  "password": "NewP@ss123",
+  "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 
 ### SuperAdmins: Delete
 DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Role Groups: List (all, no pagination)
+GET {{baseUrl}}/superadmin_role_groups?page=0&q=
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Role Groups: Create
+# @name createSuperAdminRoleGroup
+POST {{baseUrl}}/superadmin_role_groups
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "name": "Full Access",
+  "description": "Tat ca quyen cho super admin",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Super Admin Role Groups: Get Detail
+GET {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### Super Admin Role Groups: Update
+PUT {{baseUrl}}/superadmin_role_groups
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "id": "{{createSuperAdminRoleGroup.response.body.$.data.id}}",
+  "name": "Full Access Updated",
+  "description": "Cap nhat mo ta",
+  "permissions": [
+    { "key": "menu", "permissionValue": 0 },
+    { "key": "menu-plvuxq63o0", "permissionValue": 0 },
+    { "key": "menu-c8u2jgnoto", "permissionValue": 0 }
+  ]
+}
+
+### Super Admin Role Groups: Delete
+DELETE {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Menus: List (all, no pagination)

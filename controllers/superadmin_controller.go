@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -13,15 +14,17 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type SuperAdminController struct {
-	repo *repositories.SuperAdminRepository
+	repo          *repositories.SuperAdminRepository
+	roleGroupRepo *repositories.SuperAdminRoleGroupRepository
 }
 
-func NewSuperAdminController(repo *repositories.SuperAdminRepository) *SuperAdminController {
-	return &SuperAdminController{repo: repo}
+func NewSuperAdminController(repo *repositories.SuperAdminRepository, roleGroupRepo *repositories.SuperAdminRoleGroupRepository) *SuperAdminController {
+	return &SuperAdminController{repo: repo, roleGroupRepo: roleGroupRepo}
 }
 
 func (h *SuperAdminController) Create(c *fiber.Ctx) error {
@@ -33,6 +36,10 @@ func (h *SuperAdminController) Create(c *fiber.Ctx) error {
 	in.Password = strings.TrimSpace(in.Password)
 	if in.Username == "" || in.Password == "" {
 		return response.Error(c, "username and password are required", fiber.StatusBadRequest, nil)
+	}
+	roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), in.RoleGroupIDs)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
 	// Check existing username
 	if exists, _ := h.repo.FindByUsername(c.Context(), in.Username); exists != nil {
@@ -48,6 +55,7 @@ func (h *SuperAdminController) Create(c *fiber.Ctx) error {
 		PasswordHash: string(hash),
 		Name:         strings.TrimSpace(in.Name),
 		Email:        strings.TrimSpace(in.Email),
+		RoleGroupIDs: roleGroupIDs,
 		CreatedAt:    time.Now().UTC(),
 		UpdatedAt:    time.Now().UTC(),
 	}
@@ -120,6 +128,13 @@ func (h *SuperAdminController) Update(c *fiber.Ctx) error {
 		}
 		updates = append(updates, bson.E{Key: "password_hash", Value: string(hash)})
 	}
+	if in.RoleGroupIDs != nil {
+		roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), *in.RoleGroupIDs)
+		if err != nil {
+			return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+		}
+		updates = append(updates, bson.E{Key: "role_group_ids", Value: roleGroupIDs})
+	}
 	if len(updates) == 0 {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
@@ -181,14 +196,46 @@ func (h *SuperAdminController) Login(c *fiber.Ctx) error {
 	}
 	// minimal user payload
 	user := fiber.Map{
-		"id":       sa.ID.Hex(),
-		"username": sa.Username,
-		"name":     sa.Name,
-		"email":    sa.Email,
+		"id":             sa.ID.Hex(),
+		"username":       sa.Username,
+		"name":           sa.Name,
+		"email":          sa.Email,
+		"role_group_ids": sa.RoleGroupIDs,
 	}
 	return response.Success(c, fiber.Map{
 		"token":      token,
 		"expires_at": exp.Format(time.RFC3339),
 		"user":       user,
 	}, "logged in")
+}
+
+func (h *SuperAdminController) parseRoleGroupIDs(ctx context.Context, ids []string) ([]primitive.ObjectID, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	seen := make(map[primitive.ObjectID]struct{})
+	out := make([]primitive.ObjectID, 0, len(ids))
+	for _, id := range ids {
+		id = strings.TrimSpace(id)
+		if id == "" {
+			return nil, errors.New("role_group_ids cannot contain empty values")
+		}
+		oid, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, fmt.Errorf("invalid role_group_id: %s", id)
+		}
+		if _, ok := seen[oid]; ok {
+			continue
+		}
+		seen[oid] = struct{}{}
+		out = append(out, oid)
+	}
+	existing, err := h.roleGroupRepo.FindExistingIDs(ctx, out)
+	if err != nil {
+		return nil, err
+	}
+	if len(existing) != len(out) {
+		return nil, errors.New("one or more role_group_ids do not exist")
+	}
+	return out, nil
 }
