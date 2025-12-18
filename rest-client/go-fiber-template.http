@@ -269,7 +269,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "key": "admin-dashboard",
   "url": "/admin/dashboard",
   "icon": "mdi:view-dashboard",
-  "parent_id": 0,
+  "parent_id": "",
   "permission": 0,
   "active": true
 }
@@ -289,7 +289,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "key": "admin-dashboard",
   "url": "/admin/dashboard",
   "icon": "mdi:view-dashboard-edit",
-  "parent_id": 0,
+  "parent_id": "",
   "permission": 1,
   "active": true
 }

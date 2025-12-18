@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"strings"
 
 	"go-fiber-api/models"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // SuperAdminMenuController exposes CRUD endpoints for super admin menus.
@@ -18,6 +20,18 @@ type SuperAdminMenuController struct {
 
 func NewSuperAdminMenuController(repo *repositories.SuperAdminMenuRepository) *SuperAdminMenuController {
 	return &SuperAdminMenuController{repo: repo}
+}
+
+func parseParentObjectID(raw string) (primitive.ObjectID, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return primitive.NilObjectID, nil
+	}
+	oid, err := primitive.ObjectIDFromHex(raw)
+	if err != nil {
+		return primitive.NilObjectID, errors.New("parent_id must be a valid ObjectID")
+	}
+	return oid, nil
 }
 
 // List handles GET /superadmin_menus with optional id/q pagination.
@@ -72,13 +86,17 @@ func (h *SuperAdminMenuController) Create(c *fiber.Ctx) error {
 	} else if existing != nil {
 		return response.Error(c, "menu key already exists", fiber.StatusBadRequest, nil)
 	}
+	parentID, err := parseParentObjectID(in.ParentID)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
 
 	menu := &models.SuperAdminMenu{
 		Title:      in.Title,
 		Key:        in.Key,
 		URL:        in.URL,
 		Icon:       in.Icon,
-		ParentID:   in.ParentID,
+		ParentID:   parentID,
 		Permission: in.Permission,
 		Active:     in.Active,
 	}
@@ -132,7 +150,11 @@ func (h *SuperAdminMenuController) Update(c *fiber.Ctx) error {
 		updates = append(updates, bson.E{Key: "icon", Value: strings.TrimSpace(*in.Icon)})
 	}
 	if in.ParentID != nil {
-		updates = append(updates, bson.E{Key: "parent_id", Value: *in.ParentID})
+		parentID, err := parseParentObjectID(*in.ParentID)
+		if err != nil {
+			return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+		}
+		updates = append(updates, bson.E{Key: "parent_id", Value: parentID})
 	}
 	if in.Permission != nil {
 		updates = append(updates, bson.E{Key: "permission", Value: *in.Permission})

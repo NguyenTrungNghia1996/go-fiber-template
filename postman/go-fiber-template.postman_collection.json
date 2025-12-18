@@ -1249,7 +1249,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+              "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 0,\n  \"active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmin_menus",
@@ -1321,7 +1321,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+              "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": \"\",\n  \"permission\": 1,\n  \"active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmin_menus",

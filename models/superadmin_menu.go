@@ -13,7 +13,7 @@ type SuperAdminMenu struct {
 	Key        string             `bson:"key" json:"key"`
 	URL        string             `bson:"url" json:"url"`
 	Icon       string             `bson:"icon" json:"icon"`
-	ParentID   int64              `bson:"parent_id" json:"parent_id"`
+	ParentID   primitive.ObjectID `bson:"parent_id,omitempty" json:"parent_id,omitempty"`
 	Permission int64              `bson:"permission" json:"permission"`
 	Active     bool               `bson:"active" json:"active"`
 	CreatedAt  time.Time          `bson:"created_at" json:"created_at"`
@@ -26,7 +26,7 @@ type CreateSuperAdminMenuInput struct {
 	Key        string `json:"key"`
 	URL        string `json:"url"`
 	Icon       string `json:"icon"`
-	ParentID   int64  `json:"parent_id"`
+	ParentID   string `json:"parent_id,omitempty"`
 	Permission int64  `json:"permission"`
 	Active     bool   `json:"active"`
 }
@@ -38,7 +38,7 @@ type UpdateSuperAdminMenuInput struct {
 	Key        *string `json:"key,omitempty"`
 	URL        *string `json:"url,omitempty"`
 	Icon       *string `json:"icon,omitempty"`
-	ParentID   *int64  `json:"parent_id,omitempty"`
+	ParentID   *string `json:"parent_id,omitempty"`
 	Permission *int64  `json:"permission,omitempty"`
 	Active     *bool   `json:"active,omitempty"`
 }
