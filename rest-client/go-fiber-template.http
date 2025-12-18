@@ -209,6 +209,10 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
+### SuperAdmins: Permissions (defaults to current admin when id is omitted)
+GET {{baseUrl}}/superadmins/permissions?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
 ### Super Admin Role Groups: List (all, no pagination)
 GET {{baseUrl}}/superadmin_role_groups?page=0&q=
 Authorization: Bearer {{login.response.body.$.data.token}}

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -245,4 +246,72 @@ func (h *SuperAdminController) parseRoleGroupIDs(ctx context.Context, ids []stri
 		return nil, errors.New("one or more role_group_ids do not exist")
 	}
 	return out, nil
+}
+
+// Permissions aggregates permissions from all role groups attached to the super admin.
+// GET /superadmins/permissions[?id=...]; defaults to current admin in token when id is omitted.
+func (h *SuperAdminController) Permissions(c *fiber.Ctx) error {
+	id := strings.TrimSpace(c.Query("id"))
+	if id == "" {
+		if adminID, _ := c.Locals("admin_id").(string); strings.TrimSpace(adminID) != "" {
+			id = strings.TrimSpace(adminID)
+		}
+	}
+	if id == "" {
+		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
+	}
+
+	sa, err := h.repo.FindByID(c.Context(), id)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
+	if sa == nil {
+		return response.Error(c, "super admin not found", fiber.StatusNotFound, nil)
+	}
+	if len(sa.RoleGroupIDs) == 0 {
+		data := response.ListData[models.SuperAdminMenuPermission]{
+			Items: []models.SuperAdminMenuPermission{},
+			Page:  0,
+			Limit: 0,
+			Total: 0,
+		}
+		return response.Success(c, data, "ok")
+	}
+
+	roleGroups, err := h.roleGroupRepo.FindByIDs(c.Context(), sa.RoleGroupIDs)
+	if err != nil {
+		return response.Error(c, "failed to load role groups", fiber.StatusInternalServerError, nil)
+	}
+
+	permMap := make(map[string]int64)
+	for _, g := range roleGroups {
+		for _, p := range g.Permissions {
+			key := strings.TrimSpace(p.Key)
+			if key == "" {
+				continue
+			}
+			permMap[key] |= p.PermissionValue
+		}
+	}
+
+	perms := make([]models.SuperAdminMenuPermission, 0, len(permMap))
+	for k, v := range permMap {
+		perms = append(perms, models.SuperAdminMenuPermission{
+			Key:             k,
+			PermissionValue: v,
+		})
+	}
+	sort.Slice(perms, func(i, j int) bool {
+		return perms[i].Key < perms[j].Key
+	})
+
+	total := int64(len(perms))
+	data := response.ListData[models.SuperAdminMenuPermission]{
+		Items: perms,
+		Page:  0,
+		Limit: total,
+		Total: total,
+	}
+
+	return response.Success(c, data, "ok")
 }

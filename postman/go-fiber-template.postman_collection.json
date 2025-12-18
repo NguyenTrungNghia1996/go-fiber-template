@@ -955,6 +955,36 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get SuperAdmin Permissions",
+          "request": {
+            "method": "GET",
+            "description": "[VI] L\u1ea5y danh s\u00e1ch quy\u1ec1n (g\u1ed9p nh\u00f3m quy\u1ec1n) c\u1ee7a super admin. B\u1ecf qua id \u0111\u1ec3 d\u00f9ng admin trong token.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmins/permissions?id={{superAdminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmins",
+                "permissions"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{superAdminId}}"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
