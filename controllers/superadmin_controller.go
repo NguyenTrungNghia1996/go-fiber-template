@@ -114,6 +114,9 @@ func (h *SuperAdminController) Update(c *fiber.Ctx) error {
 	if id == "" {
 		return response.Error(c, "id is required in body", fiber.StatusBadRequest, nil)
 	}
+	if in.Password != nil {
+		return response.Error(c, "password cannot be updated", fiber.StatusBadRequest, nil)
+	}
 	updates := bson.D{}
 	if in.Name != nil {
 		v := strings.TrimSpace(*in.Name)
@@ -122,16 +125,6 @@ func (h *SuperAdminController) Update(c *fiber.Ctx) error {
 	if in.Email != nil {
 		v := strings.TrimSpace(*in.Email)
 		updates = append(updates, bson.E{Key: "email", Value: v})
-	}
-	if in.Password != nil {
-		if strings.TrimSpace(*in.Password) == "" {
-			return response.Error(c, "password cannot be empty", fiber.StatusBadRequest, nil)
-		}
-		hash, err := bcrypt.GenerateFromPassword([]byte(*in.Password), bcrypt.DefaultCost)
-		if err != nil {
-			return response.Error(c, "failed to hash password", fiber.StatusInternalServerError, nil)
-		}
-		updates = append(updates, bson.E{Key: "password_hash", Value: string(hash)})
 	}
 	if in.RoleGroupIDs != nil {
 		roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), *in.RoleGroupIDs)

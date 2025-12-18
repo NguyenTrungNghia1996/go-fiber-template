@@ -202,7 +202,6 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "name": "Admin One Updated",
   "email": "new@example.com",
   "is_admin": true,
-  "password": "NewP@ss123",
   "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 

@@ -914,7 +914,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"is_admin\": true,\n  \"password\": \"NewP@ss123\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
+              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"is_admin\": true,\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmins",
