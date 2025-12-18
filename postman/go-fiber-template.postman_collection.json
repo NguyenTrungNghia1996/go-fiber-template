@@ -1176,7 +1176,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard",
+              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard&sort_order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1191,6 +1191,10 @@
                 {
                   "key": "q",
                   "value": "dashboard"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
                 }
               ]
             }
@@ -1208,7 +1212,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard",
+              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard&sort_order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1227,6 +1231,10 @@
                 {
                   "key": "q",
                   "value": "dashboard"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
                 }
               ]
             }

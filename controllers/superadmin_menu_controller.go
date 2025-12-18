@@ -34,6 +34,22 @@ func parseParentObjectID(raw string) (primitive.ObjectID, error) {
 	return oid, nil
 }
 
+func buildSuperAdminMenuSort(orderRaw string) (bson.D, error) {
+	order := strings.ToLower(strings.TrimSpace(orderRaw))
+	direction := int64(-1) // default: newest first
+	if order != "" {
+		switch order {
+		case "asc":
+			direction = 1
+		case "desc":
+			direction = -1
+		default:
+			return nil, errors.New("sort_order must be asc or desc")
+		}
+	}
+	return bson.D{{Key: "created_at", Value: direction}}, nil
+}
+
 // List handles GET /superadmin_menus with optional id/q pagination.
 func (h *SuperAdminMenuController) List(c *fiber.Ctx) error {
 	if id := strings.TrimSpace(c.Query("id")); id != "" {
@@ -49,7 +65,11 @@ func (h *SuperAdminMenuController) List(c *fiber.Ctx) error {
 
 	page, limit := response.ParsePageLimit(c)
 	q := strings.TrimSpace(c.Query("q"))
-	items, total, err := h.repo.FindPaged(c.Context(), page, limit, q)
+	sort, err := buildSuperAdminMenuSort(c.Query("sort_order"))
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
+	items, total, err := h.repo.FindPaged(c.Context(), page, limit, q, sort)
 	if err != nil {
 		return response.Error(c, "failed to list menus", fiber.StatusInternalServerError, nil)
 	}
