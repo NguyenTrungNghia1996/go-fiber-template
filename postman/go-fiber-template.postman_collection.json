@@ -914,7 +914,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"is_admin\": true,\n  \"password\": \"NewP@ss123\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
+              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"is_admin\": true,\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmins",
@@ -945,6 +945,36 @@
               ],
               "path": [
                 "superadmins"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{superAdminId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get SuperAdmin Permissions",
+          "request": {
+            "method": "GET",
+            "description": "[VI] L\u1ea5y danh s\u00e1ch quy\u1ec1n (g\u1ed9p nh\u00f3m quy\u1ec1n) c\u1ee7a super admin. B\u1ecf qua id \u0111\u1ec3 d\u00f9ng admin trong token.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/superadmins/permissions?id={{superAdminId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "superadmins",
+                "permissions"
               ],
               "query": [
                 {
@@ -1176,7 +1206,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard",
+              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard&sort_order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1191,6 +1221,10 @@
                 {
                   "key": "q",
                   "value": "dashboard"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
                 }
               ]
             }
@@ -1208,7 +1242,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard",
+              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard&sort_order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -1227,6 +1261,10 @@
                 {
                   "key": "q",
                   "value": "dashboard"
+                },
+                {
+                  "key": "sort_order",
+                  "value": "desc"
                 }
               ]
             }
@@ -1249,7 +1287,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+              "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 0,\n  \"active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmin_menus",
@@ -1321,7 +1359,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+              "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": \"\",\n  \"permission\": 1,\n  \"active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/superadmin_menus",

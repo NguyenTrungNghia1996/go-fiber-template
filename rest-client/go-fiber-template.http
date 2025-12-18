@@ -202,12 +202,15 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "name": "Admin One Updated",
   "email": "new@example.com",
   "is_admin": true,
-  "password": "NewP@ss123",
   "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 
 ### SuperAdmins: Delete
 DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### SuperAdmins: Permissions (defaults to current admin when id is omitted)
+GET {{baseUrl}}/superadmins/permissions?id={{createSuperAdmin.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Role Groups: List (all, no pagination)
@@ -255,7 +258,7 @@ DELETE {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.respons
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Menus: List (all, no pagination)
-GET {{baseUrl}}/superadmin_menus?page=0&q=
+GET {{baseUrl}}/superadmin_menus?page=0&q=&sort_order=desc
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Menus: Create
@@ -269,7 +272,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "key": "admin-dashboard",
   "url": "/admin/dashboard",
   "icon": "mdi:view-dashboard",
-  "parent_id": 0,
+  "parent_id": "",
   "permission": 0,
   "active": true
 }
@@ -289,7 +292,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "key": "admin-dashboard",
   "url": "/admin/dashboard",
   "icon": "mdi:view-dashboard-edit",
-  "parent_id": 0,
+  "parent_id": "",
   "permission": 1,
   "active": true
 }

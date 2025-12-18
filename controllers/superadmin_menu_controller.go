@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"errors"
 	"strings"
 
 	"go-fiber-api/models"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // SuperAdminMenuController exposes CRUD endpoints for super admin menus.
@@ -18,6 +20,34 @@ type SuperAdminMenuController struct {
 
 func NewSuperAdminMenuController(repo *repositories.SuperAdminMenuRepository) *SuperAdminMenuController {
 	return &SuperAdminMenuController{repo: repo}
+}
+
+func parseParentObjectID(raw string) (primitive.ObjectID, error) {
+	raw = strings.TrimSpace(raw)
+	if raw == "" {
+		return primitive.NilObjectID, nil
+	}
+	oid, err := primitive.ObjectIDFromHex(raw)
+	if err != nil {
+		return primitive.NilObjectID, errors.New("parent_id must be a valid ObjectID")
+	}
+	return oid, nil
+}
+
+func buildSuperAdminMenuSort(orderRaw string) (bson.D, error) {
+	order := strings.ToLower(strings.TrimSpace(orderRaw))
+	direction := int64(-1) // default: newest first
+	if order != "" {
+		switch order {
+		case "asc":
+			direction = 1
+		case "desc":
+			direction = -1
+		default:
+			return nil, errors.New("sort_order must be asc or desc")
+		}
+	}
+	return bson.D{{Key: "created_at", Value: direction}}, nil
 }
 
 // List handles GET /superadmin_menus with optional id/q pagination.
@@ -35,7 +65,11 @@ func (h *SuperAdminMenuController) List(c *fiber.Ctx) error {
 
 	page, limit := response.ParsePageLimit(c)
 	q := strings.TrimSpace(c.Query("q"))
-	items, total, err := h.repo.FindPaged(c.Context(), page, limit, q)
+	sort, err := buildSuperAdminMenuSort(c.Query("sort_order"))
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
+	items, total, err := h.repo.FindPaged(c.Context(), page, limit, q, sort)
 	if err != nil {
 		return response.Error(c, "failed to list menus", fiber.StatusInternalServerError, nil)
 	}
@@ -72,13 +106,17 @@ func (h *SuperAdminMenuController) Create(c *fiber.Ctx) error {
 	} else if existing != nil {
 		return response.Error(c, "menu key already exists", fiber.StatusBadRequest, nil)
 	}
+	parentID, err := parseParentObjectID(in.ParentID)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
 
 	menu := &models.SuperAdminMenu{
 		Title:      in.Title,
 		Key:        in.Key,
 		URL:        in.URL,
 		Icon:       in.Icon,
-		ParentID:   in.ParentID,
+		ParentID:   parentID,
 		Permission: in.Permission,
 		Active:     in.Active,
 	}
@@ -132,7 +170,11 @@ func (h *SuperAdminMenuController) Update(c *fiber.Ctx) error {
 		updates = append(updates, bson.E{Key: "icon", Value: strings.TrimSpace(*in.Icon)})
 	}
 	if in.ParentID != nil {
-		updates = append(updates, bson.E{Key: "parent_id", Value: *in.ParentID})
+		parentID, err := parseParentObjectID(*in.ParentID)
+		if err != nil {
+			return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+		}
+		updates = append(updates, bson.E{Key: "parent_id", Value: parentID})
 	}
 	if in.Permission != nil {
 		updates = append(updates, bson.E{Key: "permission", Value: *in.Permission})

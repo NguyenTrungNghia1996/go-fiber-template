@@ -156,3 +156,41 @@ func (r *SuperAdminRoleGroupRepository) FindExistingIDs(ctx context.Context, ids
 	}
 	return out, nil
 }
+
+// FindByIDs returns role groups matching the provided IDs (duplicates are ignored).
+func (r *SuperAdminRoleGroupRepository) FindByIDs(ctx context.Context, ids []primitive.ObjectID) ([]models.SuperAdminRoleGroup, error) {
+	seen := make(map[primitive.ObjectID]struct{})
+	unique := make([]primitive.ObjectID, 0, len(ids))
+	for _, id := range ids {
+		if id.IsZero() {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		unique = append(unique, id)
+	}
+	if len(unique) == 0 {
+		return []models.SuperAdminRoleGroup{}, nil
+	}
+
+	cur, err := r.coll.Find(ctx, bson.D{{Key: "_id", Value: bson.D{{Key: "$in", Value: unique}}}})
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var out []models.SuperAdminRoleGroup
+	for cur.Next(ctx) {
+		var g models.SuperAdminRoleGroup
+		if err := cur.Decode(&g); err != nil {
+			return nil, err
+		}
+		out = append(out, g)
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}

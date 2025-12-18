@@ -78,7 +78,7 @@ func (r *SuperAdminMenuRepository) FindByKey(ctx context.Context, key string) (*
 }
 
 // FindPaged returns menus with optional pagination and text search.
-func (r *SuperAdminMenuRepository) FindPaged(ctx context.Context, page, limit int64, q string) ([]models.SuperAdminMenu, int64, error) {
+func (r *SuperAdminMenuRepository) FindPaged(ctx context.Context, page, limit int64, q string, sort bson.D) ([]models.SuperAdminMenu, int64, error) {
 	filter := bson.D{}
 	if q != "" {
 		rx := primitive.Regex{Pattern: regexp.QuoteMeta(q), Options: "i"}
@@ -88,7 +88,10 @@ func (r *SuperAdminMenuRepository) FindPaged(ctx context.Context, page, limit in
 			bson.D{{Key: "url", Value: rx}},
 		}}}
 	}
-	findOpt := options.Find().SetSort(bson.D{{Key: "created_at", Value: -1}})
+	if len(sort) == 0 {
+		sort = bson.D{{Key: "created_at", Value: -1}}
+	}
+	findOpt := options.Find().SetSort(sort)
 	if page > 0 {
 		if limit < 1 {
 			limit = 10
