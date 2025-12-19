@@ -1548,7 +1548,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\",\n  \"service_package_ids\": [\"{{servicePackageId}}\"]\n}"
+              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2026-01-01T00:00:00Z\",\n      \"end_at\": \"2031-01-01T00:00:00Z\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",

@@ -333,24 +333,71 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 	if in.LogoURL != nil {
 		updates = append(updates, bson.E{Key: "logo_url", Value: strings.TrimSpace(*in.LogoURL)})
 	}
-	if len(updates) == 0 && in.ServicePackageIDs == nil {
+	if len(updates) == 0 && in.ServicePackageIDs == nil && in.ServicePackages == nil {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
-	// Validate service_package_ids if provided and
-	// convert pointer slice to plain slice to preserve semantics:
+	// Validate service package payload
+	// Only one of service_package_ids or service_packages may be provided.
+	if in.ServicePackageIDs != nil && in.ServicePackages != nil {
+		return response.Error(c, "provide either service_package_ids or service_packages, not both", fiber.StatusBadRequest, nil)
+	}
+	// servicePackageIDs preserves legacy semantics:
 	// - nil => not provided (no change)
 	// - empty slice => clear all registrations
 	var servicePackageIDs []string
-	if in.ServicePackageIDs != nil {
-		// validate
+	var servicePackageRegs []models.UnitServicePackageRegistration
+	if in.ServicePackages != nil {
+		seen := map[string]struct{}{}
+		for _, sp := range *in.ServicePackages {
+			spID := strings.TrimSpace(sp.ServicePackageID)
+			if spID == "" {
+				return response.Error(c, "service_packages.service_package_id is required", fiber.StatusBadRequest, nil)
+			}
+			if _, err := primitive.ObjectIDFromHex(spID); err != nil {
+				return response.Error(c, "invalid service_packages.service_package_id", fiber.StatusBadRequest, nil)
+			}
+			if _, dup := seen[spID]; dup {
+				return response.Error(c, "duplicate service_package_id", fiber.StatusBadRequest, nil)
+			}
+			seen[spID] = struct{}{}
+
+			var startAt, endAt time.Time
+			if s := strings.TrimSpace(sp.StartAt); s != "" {
+				t, err := time.Parse(time.RFC3339, s)
+				if err != nil {
+					return response.Error(c, "invalid service_packages.start_at (use RFC3339)", fiber.StatusBadRequest, nil)
+				}
+				startAt = t.UTC()
+			}
+			if s := strings.TrimSpace(sp.EndAt); s != "" {
+				t, err := time.Parse(time.RFC3339, s)
+				if err != nil {
+					return response.Error(c, "invalid service_packages.end_at (use RFC3339)", fiber.StatusBadRequest, nil)
+				}
+				endAt = t.UTC()
+			}
+			if !startAt.IsZero() && !endAt.IsZero() && endAt.Before(startAt) {
+				return response.Error(c, "end_at cannot be before start_at", fiber.StatusBadRequest, nil)
+			}
+			oid, _ := primitive.ObjectIDFromHex(spID)
+			servicePackageRegs = append(servicePackageRegs, models.UnitServicePackageRegistration{
+				ServicePackageID: oid,
+				StartAt:          startAt,
+				EndAt:            endAt,
+			})
+		}
+		servicePackageIDs = nil
+	} else if in.ServicePackageIDs != nil {
 		for _, id := range *in.ServicePackageIDs {
 			if _, err := primitive.ObjectIDFromHex(id); err != nil {
 				return response.Error(c, "invalid service_package_ids entry", fiber.StatusBadRequest, nil)
 			}
 		}
 		servicePackageIDs = *in.ServicePackageIDs
+		servicePackageRegs = nil
 	} else {
 		servicePackageIDs = nil
+		servicePackageRegs = nil
 	}
 
 	if subdomainChanged {
@@ -374,7 +421,7 @@ func (h *UnitController) Update(c *fiber.Ctx) error {
 		}
 	}
 
-	u, err := h.repo.UpdateByID(c.Context(), id, updates, servicePackageIDs)
+	u, err := h.repo.UpdateByID(c.Context(), id, updates, servicePackageIDs, servicePackageRegs)
 	if err != nil {
 		if subdomainChanged && !h.skipDNS && dnsCreated {
 			_ = h.dns.DeleteByName(c.Context(), newSubdomain)

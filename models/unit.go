@@ -37,12 +37,13 @@ type CreateUnitInput struct {
 }
 
 type UpdateUnitInput struct {
-	ID                string    `json:"id"`
-	Subdomain         *string   `json:"subdomain,omitempty"`
-	Name              *string   `json:"name,omitempty"`
-	Description       *string   `json:"description,omitempty"`
-	LogoURL           *string   `json:"logo_url,omitempty"`
-	ServicePackageIDs *[]string `json:"service_package_ids,omitempty"`
+	ID                string                           `json:"id"`
+	Subdomain         *string                          `json:"subdomain,omitempty"`
+	Name              *string                          `json:"name,omitempty"`
+	Description       *string                          `json:"description,omitempty"`
+	LogoURL           *string                          `json:"logo_url,omitempty"`
+	ServicePackageIDs *[]string                        `json:"service_package_ids,omitempty"`
+	ServicePackages   *[]CreateUnitServicePackageInput `json:"service_packages,omitempty"`
 }
 
 // CreateUnitAdminInput allows providing the first admin user of the new unit.
