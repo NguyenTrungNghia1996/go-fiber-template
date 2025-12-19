@@ -10,6 +10,7 @@ import (
 func RegisterUnitServicePackageRegistrationRoutes(app *fiber.App, ctrl *controllers.UnitServicePackageRegistrationController) {
 	g := app.Group("/unit_service_package_registrations")
 	g.Use(auth.RequireAdmin())
+	useGetCache(g)
 	g.Get("/", ctrl.List)
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)

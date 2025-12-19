@@ -10,6 +10,7 @@ import (
 	"go-fiber-api/config"
 	"go-fiber-api/controllers"
 	"go-fiber-api/pkg/cloudflare"
+	"go-fiber-api/pkg/httpcache"
 	"go-fiber-api/pkg/response"
 	"go-fiber-api/repositories"
 	"go-fiber-api/routes"
@@ -43,6 +44,13 @@ func main() {
 	// Khởi tạo Fiber server tối giản
 	app := fiber.New()
 	app.Use(cors.New())
+	cacheCfg := httpcache.GetConfig()
+	app.Use(httpcache.InvalidateOnWrite())
+	if cacheCfg.Enabled {
+		log.Printf("http cache enabled (ttl=%s, max_bytes=%d)", cacheCfg.Expiration, cacheCfg.MaxBytes)
+	} else {
+		log.Println("http cache disabled")
+	}
 
 	// Endpoint kiểm tra sức khỏe hệ thống và kết nối DB (chuẩn hóa response)
 	app.Get("/health", func(c *fiber.Ctx) error {

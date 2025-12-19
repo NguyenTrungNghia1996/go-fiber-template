@@ -10,6 +10,7 @@ import (
 func RegisterServicePackageRoutes(app *fiber.App, ctrl *controllers.ServicePackageController) {
 	g := app.Group("/service_packages")
 	g.Use(auth.RequireAdmin())
+	useGetCache(g)
 	g.Get("/", ctrl.List)
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)

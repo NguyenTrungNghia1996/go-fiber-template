@@ -18,6 +18,7 @@ func RegisterUploadRoutes(app *fiber.App, ctrl *controllers.UploadController) {
 	// Unit uploads (per-tenant, used by unit users)
 	unit := app.Group("/unit_uploads")
 	unit.Use(auth.RequireUser())
+	useGetCache(unit)
 	unit.Get("/", ctrl.ListUnitFiles)
 	unit.Put("/presigned_url", ctrl.PresignedURL)
 	unit.Delete("/file", ctrl.Delete)

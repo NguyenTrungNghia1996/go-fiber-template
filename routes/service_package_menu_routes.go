@@ -10,6 +10,7 @@ import (
 func RegisterServicePackageMenuRoutes(app *fiber.App, ctrl *controllers.ServicePackageMenuController) {
 	g := app.Group("/service_package_menus")
 	g.Use(auth.RequireAdmin())
+	useGetCache(g)
 	g.Get("/", ctrl.List)
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)

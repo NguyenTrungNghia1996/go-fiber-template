@@ -10,6 +10,7 @@ import (
 func RegisterUnitRoleGroupRoutes(app *fiber.App, ctrl *controllers.UnitRoleGroupController) {
 	g := app.Group("/unit_role_groups")
 	g.Use(auth.RequireUser())
+	useGetCache(g)
 	g.Get("/", ctrl.List)
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)
