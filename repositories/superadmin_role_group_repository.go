@@ -62,6 +62,20 @@ func (r *SuperAdminRoleGroupRepository) FindByID(ctx context.Context, id string)
 	return &out, nil
 }
 
+// FindByName performs a case-insensitive lookup by name.
+func (r *SuperAdminRoleGroupRepository) FindByName(ctx context.Context, name string) (*models.SuperAdminRoleGroup, error) {
+	filter := bson.D{{Key: "name", Value: primitive.Regex{Pattern: "^" + regexp.QuoteMeta(name) + "$", Options: "i"}}}
+	var out models.SuperAdminRoleGroup
+	err := r.coll.FindOne(ctx, filter).Decode(&out)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &out, nil
+}
+
 func (r *SuperAdminRoleGroupRepository) FindPaged(ctx context.Context, page, limit int64, q string) ([]models.SuperAdminRoleGroup, int64, error) {
 	filter := bson.D{}
 	if q != "" {
@@ -131,6 +145,38 @@ func (r *SuperAdminRoleGroupRepository) DeleteByID(ctx context.Context, id strin
 		return false, err
 	}
 	return res.DeletedCount > 0, nil
+}
+
+// UpsertWithFixedID inserts or updates a role group with a provided ID and timestamps.
+// This is intended for deterministic seed data.
+func (r *SuperAdminRoleGroupRepository) UpsertWithFixedID(ctx context.Context, g models.SuperAdminRoleGroup) error {
+	if g.ID.IsZero() {
+		return errors.New("role group id is required")
+	}
+	if g.CreatedAt.IsZero() {
+		g.CreatedAt = time.Now().UTC()
+	}
+	if g.UpdatedAt.IsZero() {
+		g.UpdatedAt = time.Now().UTC()
+	}
+
+	update := bson.D{
+		{
+			Key: "$set", Value: bson.D{
+				{Key: "name", Value: g.Name},
+				{Key: "description", Value: g.Description},
+				{Key: "permissions", Value: g.Permissions},
+				{Key: "updated_at", Value: g.UpdatedAt},
+			},
+		},
+		{
+			Key: "$setOnInsert", Value: bson.D{
+				{Key: "created_at", Value: g.CreatedAt},
+			},
+		},
+	}
+	_, err := r.coll.UpdateByID(ctx, g.ID, update, options.Update().SetUpsert(true))
+	return err
 }
 
 // FindExistingIDs returns a set of IDs that exist in the collection.
