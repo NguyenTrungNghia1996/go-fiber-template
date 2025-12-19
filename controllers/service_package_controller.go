@@ -34,11 +34,10 @@ func (h *ServicePackageController) Create(c *fiber.Ctx) error {
 		return response.Error(c, "name, duration, and a positive price are required", fiber.StatusBadRequest, nil)
 	}
 
-	// Basic trimming for menu fields where applicable
-	for i := range in.Menus {
-		trimMenuFields(&in.Menus[i])
+	menus, err := buildServicePackageMenus(in.Menus)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
-	ensureMenuIDs(in.Menus)
 
 	sp := &models.ServicePackage{
 		Name:        in.Name,
@@ -46,7 +45,7 @@ func (h *ServicePackageController) Create(c *fiber.Ctx) error {
 		Price:       in.Price,
 		Duration:    in.Duration,
 		IsActive:    in.IsActive,
-		Menus:       in.Menus,
+		Menus:       menus,
 	}
 
 	if err := h.repo.Create(c.Context(), sp); err != nil {
@@ -139,12 +138,10 @@ func (h *ServicePackageController) Update(c *fiber.Ctx) error {
 		updates = append(updates, bson.E{Key: "is_active", Value: *in.IsActive})
 	}
 	if in.Menus != nil {
-		// trim string fields in menus before saving
-		menus := *in.Menus
-		for i := range menus {
-			trimMenuFields(&menus[i])
+		menus, err := buildServicePackageMenus(*in.Menus)
+		if err != nil {
+			return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 		}
-		ensureMenuIDs(menus)
 		updates = append(updates, bson.E{Key: "menus", Value: menus})
 	}
 
