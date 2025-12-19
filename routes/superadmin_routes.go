@@ -10,6 +10,7 @@ import (
 func RegisterSuperAdminRoutes(app *fiber.App, ctrl *controllers.SuperAdminController) {
 	g := app.Group("/superadmins")
 	g.Use(auth.RequireAdmin())
+	useGetCache(g)
 	// GET: list or get by query ?id=...
 	g.Get("/", ctrl.List)
 	// GET: aggregate permissions of a super admin (default to current token)

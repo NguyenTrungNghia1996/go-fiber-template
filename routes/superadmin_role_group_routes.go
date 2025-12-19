@@ -10,6 +10,7 @@ import (
 func RegisterSuperAdminRoleGroupRoutes(app *fiber.App, ctrl *controllers.SuperAdminRoleGroupController) {
 	g := app.Group("/superadmin_role_groups")
 	g.Use(auth.RequireAdmin())
+	useGetCache(g)
 	g.Get("/", ctrl.List)
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)

@@ -19,6 +19,12 @@ Set `APP_ENV=production` in environments where you want Cloudflare DNS records
 to be created automatically. The default (`development`) skips Cloudflare
 provisioning for unit subdomains.
 
+## HTTP response cache
+
+- GET/HEAD responses are cached in memory (keyed by path, query and Authorization hash) to speed up reads.
+- Control it with env vars: `CACHE_ENABLED` (`true` by default), `CACHE_TTL_SECONDS` (default 30), `CACHE_MAX_BYTES` (optional cap for cached bodies).
+- Cache is cleared automatically after successful POST/PUT/DELETE calls so fresh data shows up immediately.
+
 ## Cloudflare DNS for unit subdomains
 
 When super admins create or update a unit, the API will provision a Cloudflare DNS record for that unit's subdomain. Configure these environment variables so DNS can be created:

@@ -11,6 +11,6 @@ import (
 func RegisterUnitMenuRoutes(app *fiber.App, ctrl *controllers.UnitMenuController) {
 	g := app.Group("/unit_menus")
 	g.Use(auth.RequireUser())
+	useGetCache(g)
 	g.Get("/", ctrl.List)
 }
-
