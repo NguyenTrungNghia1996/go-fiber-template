@@ -151,8 +151,17 @@ func main() {
 	uploadCtrl := controllers.NewUploadController()
 	routes.RegisterUploadRoutes(app, uploadCtrl)
 
-	// Seed default super admin account
-	if err := seed.SeedSuperAdmin(saRepo); err != nil {
+	// Seed default super admin menus
+	if err := seed.SeedSuperAdminMenus(saMenuRepo); err != nil {
+		log.Printf("seed error: %v", err)
+	}
+	// Seed default super admin role groups
+	defaultRoleGroupIDs, err := seed.SeedSuperAdminRoleGroups(saRoleGroupRepo)
+	if err != nil {
+		log.Printf("seed error: %v", err)
+	}
+	// Seed default super admin account with default role group
+	if err := seed.SeedSuperAdmin(saRepo, defaultRoleGroupIDs); err != nil {
 		log.Printf("seed error: %v", err)
 	}
 	// Seed default unit admin accounts for existing units (admin/admin)

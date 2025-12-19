@@ -47,6 +47,41 @@ func (r *SuperAdminMenuRepository) Create(ctx context.Context, menu *models.Supe
 	return nil
 }
 
+// UpsertWithFixedID inserts or updates a menu using the provided ID and timestamps.
+// This is primarily intended for deterministic seed data where IDs must be preserved.
+func (r *SuperAdminMenuRepository) UpsertWithFixedID(ctx context.Context, menu models.SuperAdminMenu) error {
+	if menu.ID.IsZero() {
+		return errors.New("menu id is required")
+	}
+	if menu.CreatedAt.IsZero() {
+		menu.CreatedAt = time.Now().UTC()
+	}
+	if menu.UpdatedAt.IsZero() {
+		menu.UpdatedAt = time.Now().UTC()
+	}
+	update := bson.D{
+		{
+			Key: "$set", Value: bson.D{
+				{Key: "title", Value: menu.Title},
+				{Key: "key", Value: menu.Key},
+				{Key: "url", Value: menu.URL},
+				{Key: "icon", Value: menu.Icon},
+				{Key: "parent_id", Value: menu.ParentID},
+				{Key: "permission", Value: menu.Permission},
+				{Key: "active", Value: menu.Active},
+				{Key: "updated_at", Value: menu.UpdatedAt},
+			},
+		},
+		{
+			Key: "$setOnInsert", Value: bson.D{
+				{Key: "created_at", Value: menu.CreatedAt},
+			},
+		},
+	}
+	_, err := r.coll.UpdateByID(ctx, menu.ID, update, options.Update().SetUpsert(true))
+	return err
+}
+
 func (r *SuperAdminMenuRepository) FindByID(ctx context.Context, id string) (*models.SuperAdminMenu, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
