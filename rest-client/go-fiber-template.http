@@ -302,10 +302,12 @@ DELETE {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.da
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (all, no pagination)
+# service_packages include start_at and end_at when provided.
 GET {{baseUrl}}/units?page=0&q=sales
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (paged)
+# service_packages include start_at and end_at when provided.
 GET {{baseUrl}}/units?page=1&limit=10&q=sales
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -337,6 +339,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
  
 
 ### Units: Get Detail
+# service_packages include start_at and end_at when provided.
 GET {{baseUrl}}/units?id={{createUnit.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 

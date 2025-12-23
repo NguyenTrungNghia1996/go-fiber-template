@@ -61,7 +61,12 @@ func (h *UnitController) List(c *fiber.Ctx) error {
 				name = sp.Name
 				spCache[spID] = name
 			}
-			sps = append(sps, models.ServicePackageBasic{ID: spID, Name: name})
+			sps = append(sps, models.ServicePackageBasic{
+				ID:      spID,
+				Name:    name,
+				StartAt: r.StartAt,
+				EndAt:   r.EndAt,
+			})
 		}
 		dto := models.UnitDTO{Unit: *u, ServicePackages: sps}
 		return response.Success(c, dto, "ok")
@@ -96,7 +101,12 @@ func (h *UnitController) List(c *fiber.Ctx) error {
 				name = sp.Name
 				spNameCache[spID] = name
 			}
-			sps = append(sps, models.ServicePackageBasic{ID: spID, Name: name})
+			sps = append(sps, models.ServicePackageBasic{
+				ID:      spID,
+				Name:    name,
+				StartAt: r.StartAt,
+				EndAt:   r.EndAt,
+			})
 		}
 		out = append(out, models.UnitDTO{Unit: u, ServicePackages: sps})
 	}
