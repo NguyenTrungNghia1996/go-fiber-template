@@ -80,6 +80,30 @@ func SeedSuperAdminMenus(repo *repositories.SuperAdminMenuRepository) error {
 			CreatedAt:  "2025-12-19T02:09:39.896Z",
 			UpdatedAt:  "2025-12-19T02:09:39.896Z",
 		},
+		{
+			ID:         "6944af45021fa7ea76a13c7b",
+			Title:      "Đơn Vị",
+			Key:        "menu-4wnjl5o2r4",
+			URL:        "/admin/unit",
+			Icon:       "ant-design:deployment-unit-outlined",
+			ParentID:   "6944b3896034bc07712c1fd6",
+			Permission: 8,
+			Active:     true,
+			CreatedAt:  "2025-12-23T08:13:57.764+00:00",
+			UpdatedAt:  "2025-12-23T08:13:57.764+00:00",
+		},
+		{
+			ID:         "694a5514ebebdcc3f1eb48e3",
+			Title:      "Gói Dịch Vụ",
+			Key:        "menu-int3qi8eld",
+			URL:        "/admin/service_packages",
+			Icon:       "ant-design:dropbox-outlined",
+			ParentID:   "6944b3896034bc07712c1fd6",
+			Permission: 10,
+			Active:     true,
+			CreatedAt:  "2025-12-23T08:38:44.391+00:00",
+			UpdatedAt:  "2025-12-23T08:38:44.391+00:00",
+		},
 	}
 
 	for _, m := range menus {

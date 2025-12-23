@@ -126,7 +126,7 @@ func (r *UnitRepository) FindPaged(ctx context.Context, page, limit int64, q str
 	return items, total, nil
 }
 
-func (r *UnitRepository) UpdateByID(ctx context.Context, id string, updates bson.D, servicePackageIDs []string) (*models.Unit, error) {
+func (r *UnitRepository) UpdateByID(ctx context.Context, id string, updates bson.D, servicePackageIDs []string, servicePackageRegs []models.UnitServicePackageRegistration) (*models.Unit, error) {
 	oid, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return nil, err
@@ -143,8 +143,48 @@ func (r *UnitRepository) UpdateByID(ctx context.Context, id string, updates bson
 	}
 
 	// Update service package registrations
-	if servicePackageIDs != nil {
-		// Get existing registrations for this unit
+	if servicePackageRegs != nil {
+		existingRegs, _, err := r.regRepo.FindPaged(ctx, 0, 0, id, "")
+		if err != nil {
+			return nil, err
+		}
+		existingBySP := make(map[string]models.UnitServicePackageRegistration)
+		for _, reg := range existingRegs {
+			existingBySP[reg.ServicePackageID.Hex()] = reg
+		}
+
+		for _, reg := range servicePackageRegs {
+			spID := reg.ServicePackageID.Hex()
+			if existing, ok := existingBySP[spID]; ok {
+				if !existing.StartAt.Equal(reg.StartAt) || !existing.EndAt.Equal(reg.EndAt) {
+					if _, err := r.regRepo.UpdateByID(ctx, existing.ID.Hex(), bson.D{
+						{Key: "start_at", Value: reg.StartAt},
+						{Key: "end_at", Value: reg.EndAt},
+					}); err != nil {
+						return nil, err
+					}
+				}
+				delete(existingBySP, spID)
+			} else {
+				regCopy := reg
+				regCopy.UnitID = out.ID
+				if err := r.regRepo.Create(ctx, &regCopy); err != nil {
+					return nil, err
+				}
+			}
+		}
+
+		for spID := range existingBySP {
+			spOID, err := primitive.ObjectIDFromHex(spID)
+			if err != nil {
+				return nil, err
+			}
+			filter := bson.D{{Key: "unit_id", Value: out.ID}, {Key: "service_package_id", Value: spOID}}
+			if _, err := r.regRepo.coll.DeleteMany(ctx, filter); err != nil {
+				return nil, err
+			}
+		}
+	} else if servicePackageIDs != nil {
 		existingRegs, _, err := r.regRepo.FindPaged(ctx, 0, 0, id, "") // page=0, limit=0 to get all
 		if err != nil {
 			return nil, err

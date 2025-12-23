@@ -440,7 +440,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 0,\n  \"active\": true\n}"
+              "raw": "{\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 0,\n  \"active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_package_menus",
@@ -516,7 +516,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{servicePackageMenuId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard Updated\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": 0,\n  \"permission\": 1,\n  \"active\": true\n}"
+              "raw": "{\n  \"id\": \"{{servicePackageMenuId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard Updated\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 1,\n  \"active\": true\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_package_menus",
@@ -1416,6 +1416,7 @@
                 "value": "Bearer {{adminToken}}"
               }
             ],
+            "description": "Returns units with service_packages including start_at and end_at when provided.",
             "url": {
               "raw": "{{baseUrl}}/units?page=0&q=sales",
               "host": [
@@ -1448,6 +1449,7 @@
                 "value": "Bearer {{adminToken}}"
               }
             ],
+            "description": "Returns units with service_packages including start_at and end_at when provided.",
             "url": {
               "raw": "{{baseUrl}}/units?page=1&limit=10&q=sales",
               "host": [
@@ -1514,6 +1516,7 @@
                 "value": "Bearer {{adminToken}}"
               }
             ],
+            "description": "Returns the unit plus service_packages including start_at and end_at when provided.",
             "url": {
               "raw": "{{baseUrl}}/units?id={{unitId}}",
               "host": [
@@ -1548,7 +1551,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\",\n  \"service_package_ids\": [\"{{servicePackageId}}\"]\n}"
+              "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2026-01-01T00:00:00Z\",\n      \"end_at\": \"2031-01-01T00:00:00Z\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/units",
@@ -1643,7 +1646,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
+              "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": \"\",\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_packages",
@@ -1715,7 +1718,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": 11,\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
+              "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": \"\",\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/service_packages",

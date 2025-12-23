@@ -38,7 +38,7 @@ func SeedSuperAdminRoleGroups(repo *repositories.SuperAdminRoleGroupRepository) 
 			Description: "Tất cả quyền cho super admin",
 			Permissions: []permSeed{
 				{Key: "menu", PermissionValue: 42},
-				{Key: "menu-wp59tm6h4h", PermissionValue: 42},
+				{Key: "menu-wp59tm6h4h", PermissionValue: 2730},
 			},
 			CreatedAt: "2025-12-18T08:44:49.58Z",
 			UpdatedAt: "2025-12-19T02:41:54.436Z",

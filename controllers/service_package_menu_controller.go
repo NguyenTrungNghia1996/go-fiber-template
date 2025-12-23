@@ -165,6 +165,10 @@ func (h *ServicePackageMenuController) Create(c *fiber.Ctx) error {
 			return response.Error(c, "menu key already exists in this service package", fiber.StatusBadRequest, nil)
 		}
 	}
+	parentID, err := parseServicePackageParentID(in.ParentID)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
 
 	menu := models.ServicePackageMenu{
 		ID:         primitive.NewObjectID(),
@@ -172,7 +176,7 @@ func (h *ServicePackageMenuController) Create(c *fiber.Ctx) error {
 		Key:        in.Key,
 		URL:        in.URL,
 		Icon:       in.Icon,
-		ParentID:   in.ParentID,
+		ParentID:   parentID,
 		Permission: in.Permission,
 		Active:     in.Active,
 	}
@@ -275,7 +279,11 @@ func (h *ServicePackageMenuController) Update(c *fiber.Ctx) error {
 		updatedAny = true
 	}
 	if in.ParentID != nil {
-		menu.ParentID = *in.ParentID
+		parentID, err := parseServicePackageParentID(*in.ParentID)
+		if err != nil {
+			return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+		}
+		menu.ParentID = parentID
 		updatedAny = true
 	}
 	if in.Permission != nil {

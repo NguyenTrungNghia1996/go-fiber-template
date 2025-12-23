@@ -302,10 +302,12 @@ DELETE {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.da
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (all, no pagination)
+# service_packages include start_at and end_at when provided.
 GET {{baseUrl}}/units?page=0&q=sales
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (paged)
+# service_packages include start_at and end_at when provided.
 GET {{baseUrl}}/units?page=1&limit=10&q=sales
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -337,6 +339,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
  
 
 ### Units: Get Detail
+# service_packages include start_at and end_at when provided.
 GET {{baseUrl}}/units?id={{createUnit.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -351,7 +354,13 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "name": "Sales & Marketing",
   "description": "Merged department",
   "logo_url": "https://example.com/newlogo.png",
-  "service_package_ids": ["{{createServicePackage.response.body.$.data.id}}"]
+  "service_packages": [
+    {
+      "service_package_id": "{{createServicePackage.response.body.$.data.id}}",
+      "start_at": "2026-01-01T00:00:00Z",
+      "end_at": "2031-01-01T00:00:00Z"
+    }
+  ]
 }
 
 ### Units: Delete
@@ -384,7 +393,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
       "key": "menu-b94je",
       "url": "/category_management/school_level",
       "icon": "ant-design:unordered-list-outlined",
-      "parent_id": 11,
+      "parent_id": "",
       "permission": 0,
       "active": true
     }
@@ -413,7 +422,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
       "key": "menu-b94je",
       "url": "/category_management/school_level",
       "icon": "ant-design:unordered-list-outlined",
-      "parent_id": 11,
+      "parent_id": "",
       "permission": 0,
       "active": true
     }
@@ -440,7 +449,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "key": "menu-dashboard",
   "url": "/dashboard",
   "icon": "mdi:view-dashboard",
-  "parent_id": 0,
+  "parent_id": "",
   "permission": 0,
   "active": true
 }
@@ -461,7 +470,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "key": "menu-dashboard",
   "url": "/dashboard",
   "icon": "mdi:view-dashboard",
-  "parent_id": 0,
+  "parent_id": "",
   "permission": 1,
   "active": true
 }

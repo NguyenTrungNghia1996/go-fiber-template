@@ -72,7 +72,7 @@ func (h *UnitSelfController) Update(c *fiber.Ctx) error {
 	if len(updates) == 0 {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
-	u, err := h.unitRepo.UpdateByID(c.Context(), unitID, updates, nil)
+	u, err := h.unitRepo.UpdateByID(c.Context(), unitID, updates, nil, nil)
 	if err != nil {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
