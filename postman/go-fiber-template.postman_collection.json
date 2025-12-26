@@ -38,11 +38,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_users?page=0&q=",
+              "raw": "{{baseUrl}}/unit/unit_users?page=0&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_users"
               ],
               "query": [
@@ -79,11 +80,12 @@
               "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_users",
+              "raw": "{{baseUrl}}/unit/unit_users",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_users"
               ]
             }
@@ -102,11 +104,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_users?id={{unitUserId}}",
+              "raw": "{{baseUrl}}/unit/unit_users?id={{unitUserId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_users"
               ],
               "query": [
@@ -139,11 +142,12 @@
               "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_users",
+              "raw": "{{baseUrl}}/unit/unit_users",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_users"
               ]
             }
@@ -162,12 +166,44 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_users?id={{unitUserId}}",
+              "raw": "{{baseUrl}}/unit/unit_users?id={{unitUserId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_users"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{unitUserId}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unit User Permissions",
+          "request": {
+            "method": "GET",
+            "description": "[VI] Tong hop quyen cua user trong don vi. Bo qua id de lay theo token hien tai; user thuong chi xem duoc quyen cua chinh ho.",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{unitToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/unit/unit_users/permissions?id={{unitUserId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "unit",
+                "unit_users",
+                "permissions"
               ],
               "query": [
                 {
@@ -196,11 +232,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_role_groups?page=0&q=",
+              "raw": "{{baseUrl}}/unit/unit_role_groups?page=0&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_role_groups"
               ],
               "query": [
@@ -228,11 +265,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_role_groups?page=1&limit=10&q=",
+              "raw": "{{baseUrl}}/unit/unit_role_groups?page=1&limit=10&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_role_groups"
               ],
               "query": [
@@ -272,11 +310,12 @@
               "raw": "{\n  \"name\": \"Full Access\",\n  \"description\": \"Tat ca quyen cho don vi\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_role_groups",
+              "raw": "{{baseUrl}}/unit/unit_role_groups",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_role_groups"
               ]
             }
@@ -308,11 +347,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_role_groups?id={{unitRoleGroupId}}",
+              "raw": "{{baseUrl}}/unit/unit_role_groups?id={{unitRoleGroupId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_role_groups"
               ],
               "query": [
@@ -344,11 +384,12 @@
               "raw": "{\n  \"id\": \"{{unitRoleGroupId}}\",\n  \"name\": \"Full Access Updated\",\n  \"description\": \"Cap nhat mo ta\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_role_groups",
+              "raw": "{{baseUrl}}/unit/unit_role_groups",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_role_groups"
               ]
             }
@@ -366,11 +407,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_role_groups?id={{unitRoleGroupId}}",
+              "raw": "{{baseUrl}}/unit/unit_role_groups?id={{unitRoleGroupId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_role_groups"
               ],
               "query": [
@@ -399,11 +441,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/service_package_menus?service_package_id={{servicePackageId}}&page=0&q=",
+              "raw": "{{baseUrl}}/admin/service_package_menus?service_package_id={{servicePackageId}}&page=0&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_package_menus"
               ],
               "query": [
@@ -443,11 +486,12 @@
               "raw": "{\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 0,\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/service_package_menus",
+              "raw": "{{baseUrl}}/admin/service_package_menus",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_package_menus"
               ]
             }
@@ -479,11 +523,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
+              "raw": "{{baseUrl}}/admin/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_package_menus"
               ],
               "query": [
@@ -519,11 +564,12 @@
               "raw": "{\n  \"id\": \"{{servicePackageMenuId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"title\": \"Dashboard Updated\",\n  \"key\": \"menu-dashboard\",\n  \"url\": \"/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 1,\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/service_package_menus",
+              "raw": "{{baseUrl}}/admin/service_package_menus",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_package_menus"
               ]
             }
@@ -541,11 +587,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
+              "raw": "{{baseUrl}}/admin/service_package_menus?id={{servicePackageMenuId}}&service_package_id={{servicePackageId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_package_menus"
               ],
               "query": [
@@ -579,11 +626,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_self",
+              "raw": "{{baseUrl}}/unit/unit_self",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_self"
               ]
             }
@@ -610,11 +658,12 @@
               "raw": "{\n  \"name\": \"Sales Department Updated\",\n  \"description\": \"Handles sales and partnerships\",\n  \"logo_url\": \"https://example.com/newlogo.png\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_self",
+              "raw": "{{baseUrl}}/unit/unit_self",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_self"
               ]
             }
@@ -638,11 +687,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_me",
+              "raw": "{{baseUrl}}/unit/unit_me",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_me"
               ]
             }
@@ -669,11 +719,12 @@
               "raw": "{\n  \"name\": \"My New Name\",\n  \"email\": \"my.new@example.com\",\n  \"password\": \"NewP@ssw0rd\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_me",
+              "raw": "{{baseUrl}}/unit/unit_me",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_me"
               ]
             }
@@ -783,11 +834,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmins?page=0&q=admin",
+              "raw": "{{baseUrl}}/admin/superadmins?page=0&q=admin",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins"
               ],
               "query": [
@@ -815,11 +867,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmins?page=1&limit=10&q=admin",
+              "raw": "{{baseUrl}}/admin/superadmins?page=1&limit=10&q=admin",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins"
               ],
               "query": [
@@ -859,11 +912,12 @@
               "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"StrongP@ssw0rd\",\n  \"is_admin\": true,\n  \"name\": \"Admin One\",\n  \"email\": \"admin1@example.com\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/superadmins",
+              "raw": "{{baseUrl}}/admin/superadmins",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins"
               ]
             }
@@ -881,11 +935,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmins?id={{superAdminId}}",
+              "raw": "{{baseUrl}}/admin/superadmins?id={{superAdminId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins"
               ],
               "query": [
@@ -917,11 +972,12 @@
               "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"is_admin\": true,\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/superadmins",
+              "raw": "{{baseUrl}}/admin/superadmins",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins"
               ]
             }
@@ -939,11 +995,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmins?id={{superAdminId}}",
+              "raw": "{{baseUrl}}/admin/superadmins?id={{superAdminId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins"
               ],
               "query": [
@@ -968,11 +1025,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmins/permissions?id={{superAdminId}}",
+              "raw": "{{baseUrl}}/admin/superadmins/permissions?id={{superAdminId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmins",
                 "permissions"
               ],
@@ -1003,11 +1061,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_role_groups?page=0&q=",
+              "raw": "{{baseUrl}}/admin/superadmin_role_groups?page=0&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_role_groups"
               ],
               "query": [
@@ -1035,11 +1094,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_role_groups?page=1&limit=10&q=",
+              "raw": "{{baseUrl}}/admin/superadmin_role_groups?page=1&limit=10&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_role_groups"
               ],
               "query": [
@@ -1079,11 +1139,12 @@
               "raw": "{\n  \"name\": \"Full Access\",\n  \"description\": \"T\u1ea5t c\u1ea3 quy\u1ec1n cho super admin\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/superadmin_role_groups",
+              "raw": "{{baseUrl}}/admin/superadmin_role_groups",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_role_groups"
               ]
             }
@@ -1115,11 +1176,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_role_groups?id={{superAdminRoleGroupId}}",
+              "raw": "{{baseUrl}}/admin/superadmin_role_groups?id={{superAdminRoleGroupId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_role_groups"
               ],
               "query": [
@@ -1151,11 +1213,12 @@
               "raw": "{\n  \"id\": \"{{superAdminRoleGroupId}}\",\n  \"name\": \"Full Access Updated\",\n  \"description\": \"C\u1eadp nh\u1eadt m\u00f4 t\u1ea3\",\n  \"permissions\": [\n    { \"key\": \"menu\", \"permissionValue\": 0 },\n    { \"key\": \"menu-plvuxq63o0\", \"permissionValue\": 0 },\n    { \"key\": \"menu-c8u2jgnoto\", \"permissionValue\": 0 }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/superadmin_role_groups",
+              "raw": "{{baseUrl}}/admin/superadmin_role_groups",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_role_groups"
               ]
             }
@@ -1173,11 +1236,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_role_groups?id={{superAdminRoleGroupId}}",
+              "raw": "{{baseUrl}}/admin/superadmin_role_groups?id={{superAdminRoleGroupId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_role_groups"
               ],
               "query": [
@@ -1206,11 +1270,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?page=0&q=dashboard&sort_order=desc",
+              "raw": "{{baseUrl}}/admin/superadmin_menus?page=0&q=dashboard&sort_order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_menus"
               ],
               "query": [
@@ -1242,11 +1307,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?page=1&limit=10&q=dashboard&sort_order=desc",
+              "raw": "{{baseUrl}}/admin/superadmin_menus?page=1&limit=10&q=dashboard&sort_order=desc",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_menus"
               ],
               "query": [
@@ -1290,11 +1356,12 @@
               "raw": "{\n  \"title\": \"Dashboard\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard\",\n  \"parent_id\": \"\",\n  \"permission\": 0,\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus",
+              "raw": "{{baseUrl}}/admin/superadmin_menus",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_menus"
               ]
             }
@@ -1326,11 +1393,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?id={{superAdminMenuId}}",
+              "raw": "{{baseUrl}}/admin/superadmin_menus?id={{superAdminMenuId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_menus"
               ],
               "query": [
@@ -1362,11 +1430,12 @@
               "raw": "{\n  \"id\": \"{{superAdminMenuId}}\",\n  \"title\": \"Dashboard Management\",\n  \"key\": \"admin-dashboard\",\n  \"url\": \"/admin/dashboard\",\n  \"icon\": \"mdi:view-dashboard-edit\",\n  \"parent_id\": \"\",\n  \"permission\": 1,\n  \"active\": true\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus",
+              "raw": "{{baseUrl}}/admin/superadmin_menus",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_menus"
               ]
             }
@@ -1384,11 +1453,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/superadmin_menus?id={{superAdminMenuId}}",
+              "raw": "{{baseUrl}}/admin/superadmin_menus?id={{superAdminMenuId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "superadmin_menus"
               ],
               "query": [
@@ -1418,11 +1488,12 @@
             ],
             "description": "Returns units with service_packages including start_at and end_at when provided.",
             "url": {
-              "raw": "{{baseUrl}}/units?page=0&q=sales",
+              "raw": "{{baseUrl}}/admin/units?page=0&q=sales",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "units"
               ],
               "query": [
@@ -1451,11 +1522,12 @@
             ],
             "description": "Returns units with service_packages including start_at and end_at when provided.",
             "url": {
-              "raw": "{{baseUrl}}/units?page=1&limit=10&q=sales",
+              "raw": "{{baseUrl}}/admin/units?page=1&limit=10&q=sales",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "units"
               ],
               "query": [
@@ -1495,11 +1567,12 @@
               "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2025-01-01T00:00:00Z\",\n      \"end_at\": \"2030-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/units",
+              "raw": "{{baseUrl}}/admin/units",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "units"
               ]
             }
@@ -1518,11 +1591,12 @@
             ],
             "description": "Returns the unit plus service_packages including start_at and end_at when provided.",
             "url": {
-              "raw": "{{baseUrl}}/units?id={{unitId}}",
+              "raw": "{{baseUrl}}/admin/units?id={{unitId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "units"
               ],
               "query": [
@@ -1554,11 +1628,12 @@
               "raw": "{\n  \"id\": \"{{unitId}}\",\n  \"subdomain\": \"sales-new\",\n  \"name\": \"Sales & Marketing\",\n  \"description\": \"Merged department\",\n  \"logo_url\": \"https://example.com/newlogo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2026-01-01T00:00:00Z\",\n      \"end_at\": \"2031-01-01T00:00:00Z\"\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/units",
+              "raw": "{{baseUrl}}/admin/units",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "units"
               ]
             }
@@ -1576,11 +1651,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/units?id={{unitId}}",
+              "raw": "{{baseUrl}}/admin/units?id={{unitId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "units"
               ],
               "query": [
@@ -1609,11 +1685,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/service_packages?page=0&q=basic",
+              "raw": "{{baseUrl}}/admin/service_packages?page=0&q=basic",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_packages"
               ],
               "query": [
@@ -1649,11 +1726,12 @@
               "raw": "{\n  \"name\": \"Basic Package\",\n  \"description\": \"A basic service package\",\n  \"price\": 9.99,\n  \"duration\": \"monthly\",\n  \"is_active\": true,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": \"\",\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/service_packages",
+              "raw": "{{baseUrl}}/admin/service_packages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_packages"
               ]
             }
@@ -1685,11 +1763,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/service_packages?id={{servicePackageId}}",
+              "raw": "{{baseUrl}}/admin/service_packages?id={{servicePackageId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_packages"
               ],
               "query": [
@@ -1721,11 +1800,12 @@
               "raw": "{\n  \"id\": \"{{servicePackageId}}\",\n  \"name\": \"Premium Package\",\n  \"description\": \"An updated premium service package\",\n  \"price\": 19.99,\n  \"duration\": \"yearly\",\n  \"is_active\": false,\n  \"menus\": [\n    {\n      \"title\": \"C\u1ea5p H\u1ecdc\",\n      \"key\": \"menu-b94je\",\n      \"url\": \"/category_management/school_level\",\n      \"icon\": \"ant-design:unordered-list-outlined\",\n      \"parent_id\": \"\",\n      \"permission\": 0,\n      \"active\": true\n    }\n  ]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/service_packages",
+              "raw": "{{baseUrl}}/admin/service_packages",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_packages"
               ]
             }
@@ -1743,11 +1823,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/service_packages?id={{servicePackageId}}",
+              "raw": "{{baseUrl}}/admin/service_packages?id={{servicePackageId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "service_packages"
               ],
               "query": [
@@ -1784,11 +1865,12 @@
               "raw": "{\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2025-01-01T00:00:00Z\",\n  \"end_at\": \"2030-12-31T23:59:59Z\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ]
             }
@@ -1820,11 +1902,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations?page=0",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations?page=0",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ],
               "query": [
@@ -1848,11 +1931,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations?unit_id={{unitId}}",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations?unit_id={{unitId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ],
               "query": [
@@ -1876,11 +1960,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations?service_package_id={{servicePackageId}}",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations?service_package_id={{servicePackageId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ],
               "query": [
@@ -1904,11 +1989,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ],
               "query": [
@@ -1940,11 +2026,12 @@
               "raw": "{\n  \"id\": \"{{unitServicePackageRegistrationId}}\",\n  \"unit_id\": \"{{unitId}}\",\n  \"service_package_id\": \"{{servicePackageId}}\",\n  \"start_at\": \"2025-01-01T00:00:00Z\",\n  \"end_at\": \"2030-12-31T23:59:59Z\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ]
             }
@@ -1962,11 +2049,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
+              "raw": "{{baseUrl}}/admin/unit_service_package_registrations?id={{unitServicePackageRegistrationId}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "unit_service_package_registrations"
               ],
               "query": [
@@ -1995,11 +2083,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_menus?page=0&q=",
+              "raw": "{{baseUrl}}/unit/unit_menus?page=0&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_menus"
               ],
               "query": [
@@ -2027,11 +2116,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_menus?page=1&limit=10&q=",
+              "raw": "{{baseUrl}}/unit/unit_menus?page=1&limit=10&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_menus"
               ],
               "query": [
@@ -2076,11 +2166,12 @@
               "raw": "{\n  \"filename\": \"example.jpg\",\n  \"filetype\": \"image/jpeg\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/uploads/presigned_url",
+              "raw": "{{baseUrl}}/admin/uploads/presigned_url",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "uploads",
                 "presigned_url"
               ]
@@ -2113,11 +2204,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/uploads/file?id={{fileKey}}",
+              "raw": "{{baseUrl}}/admin/uploads/file?id={{fileKey}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "admin",
                 "uploads",
                 "file"
               ],
@@ -2150,11 +2242,12 @@
               "raw": "{\n  \"filename\": \"unit-example.jpg\",\n  \"filetype\": \"image/jpeg\"\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/unit_uploads/presigned_url",
+              "raw": "{{baseUrl}}/unit/unit_uploads/presigned_url",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_uploads",
                 "presigned_url"
               ]
@@ -2187,11 +2280,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_uploads?page=1&limit=10&q=",
+              "raw": "{{baseUrl}}/unit/unit_uploads?page=1&limit=10&q=",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_uploads"
               ],
               "query": [
@@ -2240,11 +2334,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_uploads?id={{fileKey}}",
+              "raw": "{{baseUrl}}/unit/unit_uploads?id={{fileKey}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_uploads"
               ],
               "query": [
@@ -2268,11 +2363,12 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/unit_uploads/file?id={{fileKey}}",
+              "raw": "{{baseUrl}}/unit/unit_uploads/file?id={{fileKey}}",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
+                "unit",
                 "unit_uploads",
                 "file"
               ],

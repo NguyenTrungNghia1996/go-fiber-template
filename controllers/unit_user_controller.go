@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 
 	"go-fiber-api/models"
@@ -261,6 +262,80 @@ func (h *UnitUserController) Delete(c *fiber.Ctx) error {
 		return response.Error(c, "not found", fiber.StatusNotFound, nil)
 	}
 	return response.Success(c, true, "deleted")
+}
+
+// Permissions aggregates permissions of a unit user (defaults to current user when id is omitted).
+func (h *UnitUserController) Permissions(c *fiber.Ctx) error {
+	unitOID, err := unitIDFromLocals(c)
+	if err != nil {
+		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
+	}
+	targetID := strings.TrimSpace(c.Query("id"))
+	currentID, _ := c.Locals("user_id").(string)
+	currentID = strings.TrimSpace(currentID)
+	if targetID == "" {
+		targetID = currentID
+	}
+	if targetID == "" {
+		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
+	}
+	// Non-admins can only read their own permissions
+	if targetID != currentID && !isUnitAdmin(c) {
+		return response.Error(c, "forbidden", fiber.StatusForbidden, nil)
+	}
+
+	user, err := h.repo.FindByIDWithinUnit(c.Context(), targetID, unitOID)
+	if err != nil {
+		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
+	}
+	if user == nil {
+		return response.Error(c, "not found", fiber.StatusNotFound, nil)
+	}
+	if len(user.RoleGroupIDs) == 0 {
+		data := response.ListData[models.SuperAdminMenuPermission]{
+			Items: []models.SuperAdminMenuPermission{},
+			Page:  0,
+			Limit: 0,
+			Total: 0,
+		}
+		return response.Success(c, data, "ok")
+	}
+
+	roleGroups, err := h.roleGroupRepo.FindByIDsWithinUnit(c.Context(), unitOID, user.RoleGroupIDs)
+	if err != nil {
+		return response.Error(c, "failed to load role groups", fiber.StatusInternalServerError, nil)
+	}
+
+	permMap := make(map[string]int64)
+	for _, g := range roleGroups {
+		for _, p := range g.Permissions {
+			key := strings.TrimSpace(p.Key)
+			if key == "" {
+				continue
+			}
+			permMap[key] |= p.PermissionValue
+		}
+	}
+
+	perms := make([]models.SuperAdminMenuPermission, 0, len(permMap))
+	for k, v := range permMap {
+		perms = append(perms, models.SuperAdminMenuPermission{
+			Key:             k,
+			PermissionValue: v,
+		})
+	}
+	sort.Slice(perms, func(i, j int) bool {
+		return perms[i].Key < perms[j].Key
+	})
+
+	total := int64(len(perms))
+	data := response.ListData[models.SuperAdminMenuPermission]{
+		Items: perms,
+		Page:  0,
+		Limit: total,
+		Total: total,
+	}
+	return response.Success(c, data, "ok")
 }
 
 func (h *UnitUserController) parseRoleGroupIDs(ctx context.Context, unitID primitive.ObjectID, ids []string) ([]primitive.ObjectID, error) {

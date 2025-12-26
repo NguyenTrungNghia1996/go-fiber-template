@@ -10,13 +10,13 @@ import (
 // RegisterUploadRoutes registers S3/MinIO upload related endpoints.
 func RegisterUploadRoutes(app *fiber.App, ctrl *controllers.UploadController) {
 	// Admin uploads (global, managed by super admin)
-	admin := app.Group("/uploads")
+	admin := app.Group("/admin/uploads")
 	admin.Use(auth.RequireAdmin())
 	admin.Put("/presigned_url", ctrl.PresignedURL)
 	admin.Delete("/file", ctrl.Delete)
 
 	// Unit uploads (per-tenant, used by unit users)
-	unit := app.Group("/unit_uploads")
+	unit := app.Group("/unit/unit_uploads")
 	unit.Use(auth.RequireUser())
 	useGetCache(unit)
 	unit.Get("/", ctrl.ListUnitFiles)

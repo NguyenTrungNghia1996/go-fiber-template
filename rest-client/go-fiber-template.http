@@ -42,12 +42,12 @@ Content-Type: application/json
 }
 
 ### Unit Users: List (admin-only)
-GET {{baseUrl}}/unit_users?page=0&q=
+GET {{baseUrl}}/unit/unit_users?page=0&q=
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Users: Create (admin-only)
 # @name createUnitUser
-POST {{baseUrl}}/unit_users
+POST {{baseUrl}}/unit/unit_users
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -61,11 +61,11 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 }
 
 ### Unit Users: Get Detail (admin-only)
-GET {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
+GET {{baseUrl}}/unit/unit_users?id={{createUnitUser.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Users: Update (admin-only)
-PUT {{baseUrl}}/unit_users
+PUT {{baseUrl}}/unit/unit_users
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -78,16 +78,20 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 }
 
 ### Unit Users: Delete (admin-only)
-DELETE {{baseUrl}}/unit_users?id={{createUnitUser.response.body.$.data.id}}
+DELETE {{baseUrl}}/unit/unit_users?id={{createUnitUser.response.body.$.data.id}}
+Authorization: Bearer {{unitLogin.response.body.$.data.token}}
+
+### Unit Users: Permissions (defaults to current user when id is omitted)
+GET {{baseUrl}}/unit/unit_users/permissions?id={{createUnitUser.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Role Groups: List (all, no pagination)
-GET {{baseUrl}}/unit_role_groups?page=0&q=
+GET {{baseUrl}}/unit/unit_role_groups?page=0&q=
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Role Groups: Create
 # @name createUnitRoleGroup
-POST {{baseUrl}}/unit_role_groups
+POST {{baseUrl}}/unit/unit_role_groups
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -102,11 +106,11 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 }
 
 ### Unit Role Groups: Get Detail
-GET {{baseUrl}}/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
+GET {{baseUrl}}/unit/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Role Groups: Update
-PUT {{baseUrl}}/unit_role_groups
+PUT {{baseUrl}}/unit/unit_role_groups
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -122,15 +126,15 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 }
 
 ### Unit Role Groups: Delete
-DELETE {{baseUrl}}/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
+DELETE {{baseUrl}}/unit/unit_role_groups?id={{createUnitRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Self: Get current unit (admin-only)
-GET {{baseUrl}}/unit_self
+GET {{baseUrl}}/unit/unit_self
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Self: Update current unit (admin-only)
-PUT {{baseUrl}}/unit_self
+PUT {{baseUrl}}/unit/unit_self
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -141,11 +145,11 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 }
 
 ### Unit Me: Get my profile
-GET {{baseUrl}}/unit_me
+GET {{baseUrl}}/unit/unit_me
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Me: Update my profile
-PUT {{baseUrl}}/unit_me
+PUT {{baseUrl}}/unit/unit_me
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -166,16 +170,16 @@ Content-Type: application/json
 }
 
 ### SuperAdmins: List (all, no pagination)
-GET {{baseUrl}}/superadmins?page=0&q=admin
+GET {{baseUrl}}/admin/superadmins?page=0&q=admin
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### SuperAdmins: List (paged)
-GET {{baseUrl}}/superadmins?page=1&limit=10&q=admin
+GET {{baseUrl}}/admin/superadmins?page=1&limit=10&q=admin
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### SuperAdmins: Create
 # @name createSuperAdmin
-POST {{baseUrl}}/superadmins
+POST {{baseUrl}}/admin/superadmins
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -189,11 +193,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### SuperAdmins: Get Detail
-GET {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+GET {{baseUrl}}/admin/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### SuperAdmins: Update
-PUT {{baseUrl}}/superadmins
+PUT {{baseUrl}}/admin/superadmins
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -206,20 +210,20 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### SuperAdmins: Delete
-DELETE {{baseUrl}}/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/superadmins?id={{createSuperAdmin.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### SuperAdmins: Permissions (defaults to current admin when id is omitted)
-GET {{baseUrl}}/superadmins/permissions?id={{createSuperAdmin.response.body.$.data.id}}
+GET {{baseUrl}}/admin/superadmins/permissions?id={{createSuperAdmin.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Role Groups: List (all, no pagination)
-GET {{baseUrl}}/superadmin_role_groups?page=0&q=
+GET {{baseUrl}}/admin/superadmin_role_groups?page=0&q=
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Role Groups: Create
 # @name createSuperAdminRoleGroup
-POST {{baseUrl}}/superadmin_role_groups
+POST {{baseUrl}}/admin/superadmin_role_groups
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -234,11 +238,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Super Admin Role Groups: Get Detail
-GET {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
+GET {{baseUrl}}/admin/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Role Groups: Update
-PUT {{baseUrl}}/superadmin_role_groups
+PUT {{baseUrl}}/admin/superadmin_role_groups
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -254,16 +258,16 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Super Admin Role Groups: Delete
-DELETE {{baseUrl}}/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/superadmin_role_groups?id={{createSuperAdminRoleGroup.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Menus: List (all, no pagination)
-GET {{baseUrl}}/superadmin_menus?page=0&q=&sort_order=desc
+GET {{baseUrl}}/admin/superadmin_menus?page=0&q=&sort_order=desc
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Menus: Create
 # @name createSuperAdminMenu
-POST {{baseUrl}}/superadmin_menus
+POST {{baseUrl}}/admin/superadmin_menus
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -278,11 +282,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Super Admin Menus: Get Detail
-GET {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
+GET {{baseUrl}}/admin/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Super Admin Menus: Update
-PUT {{baseUrl}}/superadmin_menus
+PUT {{baseUrl}}/admin/superadmin_menus
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -298,22 +302,22 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Super Admin Menus: Delete
-DELETE {{baseUrl}}/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/superadmin_menus?id={{createSuperAdminMenu.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (all, no pagination)
 # service_packages include start_at and end_at when provided.
-GET {{baseUrl}}/units?page=0&q=sales
+GET {{baseUrl}}/admin/units?page=0&q=sales
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: List (paged)
 # service_packages include start_at and end_at when provided.
-GET {{baseUrl}}/units?page=1&limit=10&q=sales
+GET {{baseUrl}}/admin/units?page=1&limit=10&q=sales
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: Create
 # @name createUnit
-POST {{baseUrl}}/units
+POST {{baseUrl}}/admin/units
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -340,11 +344,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: Get Detail
 # service_packages include start_at and end_at when provided.
-GET {{baseUrl}}/units?id={{createUnit.response.body.$.data.id}}
+GET {{baseUrl}}/admin/units?id={{createUnit.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Units: Update
-PUT {{baseUrl}}/units
+PUT {{baseUrl}}/admin/units
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -364,20 +368,20 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Units: Delete
-DELETE {{baseUrl}}/units?id={{createUnit.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/units?id={{createUnit.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Packages: List (all, no pagination)
-GET {{baseUrl}}/service_packages?page=0&q=basic
+GET {{baseUrl}}/admin/service_packages?page=0&q=basic
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Packages: List (paged)
-GET {{baseUrl}}/service_packages?page=1&limit=10&q=basic
+GET {{baseUrl}}/admin/service_packages?page=1&limit=10&q=basic
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Packages: Create
 # @name createServicePackage
-POST {{baseUrl}}/service_packages
+POST {{baseUrl}}/admin/service_packages
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -401,11 +405,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Service Packages: Get Detail
-GET {{baseUrl}}/service_packages?id={{createServicePackage.response.body.$.data.id}}
+GET {{baseUrl}}/admin/service_packages?id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Packages: Update
-PUT {{baseUrl}}/service_packages
+PUT {{baseUrl}}/admin/service_packages
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -430,16 +434,16 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Service Packages: Delete
-DELETE {{baseUrl}}/service_packages?id={{createServicePackage.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/service_packages?id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Package Menus: List (all, no pagination)
-GET {{baseUrl}}/service_package_menus?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}&q=
+GET {{baseUrl}}/admin/service_package_menus?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}&q=
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Package Menus: Create
 # @name createServicePackageMenu
-POST {{baseUrl}}/service_package_menus
+POST {{baseUrl}}/admin/service_package_menus
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -455,11 +459,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Service Package Menus: Get Detail
-GET {{baseUrl}}/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
+GET {{baseUrl}}/admin/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Service Package Menus: Update
-PUT {{baseUrl}}/service_package_menus
+PUT {{baseUrl}}/admin/service_package_menus
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -476,24 +480,24 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Service Package Menus: Delete
-DELETE {{baseUrl}}/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/service_package_menus?id={{createServicePackageMenu.response.body.$.data.id}}&service_package_id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit-ServicePackage Registrations: List (all)
-GET {{baseUrl}}/unit_service_package_registrations?page=0
+GET {{baseUrl}}/admin/unit_service_package_registrations?page=0
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit-ServicePackage Registrations: Filter by unit_id
-GET {{baseUrl}}/unit_service_package_registrations?page=0&unit_id={{createUnit.response.body.$.data.id}}
+GET {{baseUrl}}/admin/unit_service_package_registrations?page=0&unit_id={{createUnit.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit-ServicePackage Registrations: Filter by service_package_id
-GET {{baseUrl}}/unit_service_package_registrations?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}
+GET {{baseUrl}}/admin/unit_service_package_registrations?page=0&service_package_id={{createServicePackage.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit-ServicePackage Registrations: Create
 # @name createRegistration
-POST {{baseUrl}}/unit_service_package_registrations
+POST {{baseUrl}}/admin/unit_service_package_registrations
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -506,11 +510,11 @@ Authorization: Bearer {{login.response.body.$.data.token}}
  
 
 ### Unit-ServicePackage Registrations: Get Detail
-GET {{baseUrl}}/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
+GET {{baseUrl}}/admin/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit-ServicePackage Registrations: Update
-PUT {{baseUrl}}/unit_service_package_registrations
+PUT {{baseUrl}}/admin/unit_service_package_registrations
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -523,20 +527,20 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Unit-ServicePackage Registrations: Delete
-DELETE {{baseUrl}}/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
+DELETE {{baseUrl}}/admin/unit_service_package_registrations?id={{createRegistration.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit Menus: List (all, no pagination)
-GET {{baseUrl}}/unit_menus?page=0&q=
+GET {{baseUrl}}/unit/unit_menus?page=0&q=
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Menus: List (paged)
-GET {{baseUrl}}/unit_menus?page=1&limit=10&q=
+GET {{baseUrl}}/unit/unit_menus?page=1&limit=10&q=
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Uploads: Get Presigned Upload URL
 # @name presign
-PUT {{baseUrl}}/uploads/presigned_url
+PUT {{baseUrl}}/admin/uploads/presigned_url
 Content-Type: application/json
 Authorization: Bearer {{login.response.body.$.data.token}}
 
@@ -546,12 +550,12 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 }
 
 ### Uploads: Delete File
-DELETE {{baseUrl}}/uploads/file?id={{presign.response.body.$.data.key}}
+DELETE {{baseUrl}}/admin/uploads/file?id={{presign.response.body.$.data.key}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
 ### Unit Uploads: Get Presigned Upload URL
 # @name unitPresign
-PUT {{baseUrl}}/unit_uploads/presigned_url
+PUT {{baseUrl}}/unit/unit_uploads/presigned_url
 Content-Type: application/json
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
@@ -562,13 +566,13 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Uploads: List Files (paged)
 # @name unitListFiles
-GET {{baseUrl}}/unit_uploads?page=1&limit=10&q=
+GET {{baseUrl}}/unit/unit_uploads?page=1&limit=10&q=
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Uploads: Get File Detail
-GET {{baseUrl}}/unit_uploads?id={{unitListFiles.response.body.$.data.items[0].key}}
+GET {{baseUrl}}/unit/unit_uploads?id={{unitListFiles.response.body.$.data.items[0].key}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 
 ### Unit Uploads: Delete File
-DELETE {{baseUrl}}/unit_uploads/file?id={{unitPresign.response.body.$.data.key}}
+DELETE {{baseUrl}}/unit/unit_uploads/file?id={{unitPresign.response.body.$.data.key}}
 Authorization: Bearer {{unitLogin.response.body.$.data.token}}

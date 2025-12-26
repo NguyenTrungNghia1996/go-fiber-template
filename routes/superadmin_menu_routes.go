@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterSuperAdminMenuRoutes(app *fiber.App, ctrl *controllers.SuperAdminMenuController) {
-	g := app.Group("/superadmin_menus")
+	g := app.Group("/admin/superadmin_menus")
 	g.Use(auth.RequireAdmin())
 	useGetCache(g)
 	g.Get("/", ctrl.List)

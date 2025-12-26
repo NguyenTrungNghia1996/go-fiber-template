@@ -9,7 +9,7 @@ import (
 
 // RegisterUnitMenuRoutes exposes GET for unit menus derived from active service packages.
 func RegisterUnitMenuRoutes(app *fiber.App, ctrl *controllers.UnitMenuController) {
-	g := app.Group("/unit_menus")
+	g := app.Group("/unit/unit_menus")
 	g.Use(auth.RequireUser())
 	useGetCache(g)
 	g.Get("/", ctrl.List)
