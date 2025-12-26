@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterSuperAdminRoutes(app *fiber.App, ctrl *controllers.SuperAdminController) {
-	g := app.Group("/superadmins")
+	g := app.Group("/admin/superadmins")
 	g.Use(auth.RequireAdmin())
 	useGetCache(g)
 	// GET: list or get by query ?id=...

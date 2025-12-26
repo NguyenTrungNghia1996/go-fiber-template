@@ -9,10 +9,11 @@ import (
 
 // RegisterUnitUserRoutes registers CRUD endpoints for unit users, protected by unit user auth.
 func RegisterUnitUserRoutes(app *fiber.App, ctrl *controllers.UnitUserController) {
-	g := app.Group("/unit_users")
+	g := app.Group("/unit/unit_users")
 	g.Use(auth.RequireUser())
 	useGetCache(g)
 	g.Get("/", ctrl.List)
+	g.Get("/permissions", ctrl.Permissions)
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)
 	g.Delete("/", ctrl.Delete)

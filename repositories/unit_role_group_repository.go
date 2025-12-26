@@ -154,3 +154,44 @@ func (r *UnitRoleGroupRepository) FindExistingIDsInUnit(ctx context.Context, uni
 	}
 	return out, nil
 }
+
+// FindByIDsWithinUnit returns role groups in the given unit that match the provided IDs (deduped).
+func (r *UnitRoleGroupRepository) FindByIDsWithinUnit(ctx context.Context, unitID primitive.ObjectID, ids []primitive.ObjectID) ([]models.UnitRoleGroup, error) {
+	seen := make(map[primitive.ObjectID]struct{})
+	unique := make([]primitive.ObjectID, 0, len(ids))
+	for _, id := range ids {
+		if id.IsZero() {
+			continue
+		}
+		if _, ok := seen[id]; ok {
+			continue
+		}
+		seen[id] = struct{}{}
+		unique = append(unique, id)
+	}
+	if len(unique) == 0 {
+		return []models.UnitRoleGroup{}, nil
+	}
+
+	cur, err := r.coll.Find(ctx, bson.D{
+		{Key: "unit_id", Value: unitID},
+		{Key: "_id", Value: bson.D{{Key: "$in", Value: unique}}},
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer cur.Close(ctx)
+
+	var out []models.UnitRoleGroup
+	for cur.Next(ctx) {
+		var g models.UnitRoleGroup
+		if err := cur.Decode(&g); err != nil {
+			return nil, err
+		}
+		out = append(out, g)
+	}
+	if err := cur.Err(); err != nil {
+		return nil, err
+	}
+	return out, nil
+}

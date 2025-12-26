@@ -9,7 +9,7 @@ import (
 
 // RegisterUnitMeRoutes exposes GET/PUT for a unit user to manage own profile.
 func RegisterUnitMeRoutes(app *fiber.App, ctrl *controllers.UnitMeController) {
-	g := app.Group("/unit_me")
+	g := app.Group("/unit/unit_me")
 	g.Use(auth.RequireUser())
 	useGetCache(g)
 	g.Get("/", ctrl.Get)

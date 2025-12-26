@@ -8,7 +8,7 @@ import (
 )
 
 func RegisterUnitRoutes(app *fiber.App, ctrl *controllers.UnitController) {
-	g := app.Group("/units")
+	g := app.Group("/admin/units")
 	g.Use(auth.RequireAdmin())
 	useGetCache(g)
 	g.Get("/", ctrl.List)
