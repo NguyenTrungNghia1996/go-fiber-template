@@ -53,3 +53,6 @@ Thumbs.db
 # Air config (nếu bạn có file riêng cho từng môi trường)
 .air.toml.local
 .air.toml.dev
+
+.gemini/
+gha-creds-*.json
