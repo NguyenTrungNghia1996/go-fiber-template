@@ -469,3 +469,25 @@ func (h *UnitController) Delete(c *fiber.Ctx) error {
 	}
 	return response.Success(c, true, "deleted")
 }
+
+// PublicInfo returns limited unit info by subdomain without requiring auth.
+func (h *UnitController) PublicInfo(c *fiber.Ctx) error {
+	subdomain := strings.ToLower(strings.TrimSpace(c.Query("subdomain")))
+	if subdomain == "" {
+		return response.Error(c, "subdomain query param is required", fiber.StatusBadRequest, nil)
+	}
+	u, err := h.repo.FindBySubdomain(c.Context(), subdomain)
+	if err != nil {
+		return response.Error(c, "failed to fetch unit", fiber.StatusInternalServerError, nil)
+	}
+	if u == nil {
+		return response.Error(c, "not found", fiber.StatusNotFound, nil)
+	}
+	info := fiber.Map{
+		"subdomain":   u.Subdomain,
+		"name":        u.Name,
+		"description": u.Description,
+		"logo_url":    u.LogoURL,
+	}
+	return response.Success(c, info, "ok")
+}
