@@ -3,54 +3,45 @@ package controllers
 import (
 	"strings"
 
-	// "go-fiber-api/models"
 	"go-fiber-api/pkg/response"
 	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 )
 
-// UnitMeController allows a unit user to view and update their own profile.
-type UnitMeController struct {
-	repo *repositories.UnitUserRepository
+// SuperAdminMeController lets a super admin view and update their own profile.
+type SuperAdminMeController struct {
+	repo *repositories.SuperAdminRepository
 }
 
-func NewUnitMeController(repo *repositories.UnitUserRepository) *UnitMeController {
-	return &UnitMeController{repo: repo}
+func NewSuperAdminMeController(repo *repositories.SuperAdminRepository) *SuperAdminMeController {
+	return &SuperAdminMeController{repo: repo}
 }
 
-func (h *UnitMeController) Get(c *fiber.Ctx) error {
-	unitIDStr, _ := c.Locals("unit_id").(string)
-	userIDStr, _ := c.Locals("user_id").(string)
-	if unitIDStr == "" || userIDStr == "" {
+// Get returns the current super admin info based on the token.
+func (h *SuperAdminMeController) Get(c *fiber.Ctx) error {
+	adminID, _ := c.Locals("admin_id").(string)
+	adminID = strings.TrimSpace(adminID)
+	if adminID == "" {
 		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
 	}
-	unitOID, err := primitive.ObjectIDFromHex(unitIDStr)
-	if err != nil {
-		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
-	}
-	u, err := h.repo.FindByIDWithinUnit(c.Context(), userIDStr, unitOID)
+	sa, err := h.repo.FindByID(c.Context(), adminID)
 	if err != nil {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
-	if u == nil {
+	if sa == nil {
 		return response.Error(c, "not found", fiber.StatusNotFound, nil)
 	}
-	return response.Success(c, u, "ok")
+	return response.Success(c, sa, "ok")
 }
 
-// Update allows the current user to update profile fields such as name, email, image_url, and password.
-func (h *UnitMeController) Update(c *fiber.Ctx) error {
-	unitIDStr, _ := c.Locals("unit_id").(string)
-	userIDStr, _ := c.Locals("user_id").(string)
-	if unitIDStr == "" || userIDStr == "" {
-		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
-	}
-	unitOID, err := primitive.ObjectIDFromHex(unitIDStr)
-	if err != nil {
+// Update lets the current super admin update profile fields.
+func (h *SuperAdminMeController) Update(c *fiber.Ctx) error {
+	adminID, _ := c.Locals("admin_id").(string)
+	adminID = strings.TrimSpace(adminID)
+	if adminID == "" {
 		return response.Error(c, "unauthorized", fiber.StatusUnauthorized, nil)
 	}
 	var in struct {
@@ -90,12 +81,12 @@ func (h *UnitMeController) Update(c *fiber.Ctx) error {
 	if len(updates) == 0 {
 		return response.Error(c, "no fields to update", fiber.StatusBadRequest, nil)
 	}
-	u, err := h.repo.UpdateByIDWithinUnit(c.Context(), userIDStr, unitOID, updates)
+	updated, err := h.repo.UpdateByID(c.Context(), adminID, updates)
 	if err != nil {
 		return response.Error(c, err.Error(), fiber.StatusBadRequest, nil)
 	}
-	if u == nil {
+	if updated == nil {
 		return response.Error(c, "not found", fiber.StatusNotFound, nil)
 	}
-	return response.Success(c, u, "updated")
+	return response.Success(c, updated, "updated")
 }

@@ -263,6 +263,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 			IsAdmin:      true,
 			Name:         strings.TrimSpace(au.Name),
 			Email:        strings.TrimSpace(au.Email),
+			ImageURL:     strings.TrimSpace(au.ImageURL),
 		}); err != nil {
 			rollback()
 			if strings.Contains(err.Error(), "E11000") {
@@ -283,6 +284,7 @@ func (h *UnitController) Create(c *fiber.Ctx) error {
 			IsAdmin:      true,
 			Name:         "Unit Admin",
 			Email:        "",
+			ImageURL:     "",
 		}); err != nil {
 			rollback()
 			if strings.Contains(err.Error(), "E11000") {

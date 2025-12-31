@@ -55,6 +55,7 @@ func SeedSuperAdmin(repo *repositories.SuperAdminRepository, roleGroupIDs []prim
 		IsAdmin:      true,
 		Name:         "Super Admin",
 		Email:        "sa@example.com",
+		ImageURL:     "",
 		RoleGroupIDs: mergeObjectIDs(nil, roleGroupIDs),
 	}
 	if err := repo.Create(ctx, sa); err != nil {

@@ -68,6 +68,7 @@ func (h *UnitAuthController) Login(c *fiber.Ctx) error {
 		"username":       user.Username,
 		"name":           user.Name,
 		"email":          user.Email,
+		"image_url":      user.ImageURL,
 		"unit_id":        unit.ID.Hex(),
 		"subdomain":      unit.Subdomain,
 		"is_admin":       user.IsAdmin,
