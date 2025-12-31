@@ -84,8 +84,10 @@ func main() {
 	saCtrl := controllers.NewSuperAdminController(saRepo, saRoleGroupRepo)
 	saMenuCtrl := controllers.NewSuperAdminMenuController(saMenuRepo)
 	saRoleGroupCtrl := controllers.NewSuperAdminRoleGroupController(saRoleGroupRepo, saRepo)
+	saMeCtrl := controllers.NewSuperAdminMeController(saRepo)
 	routes.RegisterAuthRoutes(app, saCtrl)
 	routes.RegisterSuperAdminRoutes(app, saCtrl)
+	routes.RegisterSuperAdminMeRoutes(app, saMeCtrl)
 	routes.RegisterSuperAdminMenuRoutes(app, saMenuCtrl)
 	routes.RegisterSuperAdminRoleGroupRoutes(app, saRoleGroupCtrl)
 

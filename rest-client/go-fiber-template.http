@@ -30,6 +30,22 @@ Content-Type: application/json
   "password": "{{adminPassword}}"
 }
 
+### SuperAdmin Me: Get my profile
+GET {{baseUrl}}/admin/superadmin_me
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+### SuperAdmin Me: Update my profile
+PUT {{baseUrl}}/admin/superadmin_me
+Content-Type: application/json
+Authorization: Bearer {{login.response.body.$.data.token}}
+
+{
+  "name": "Super Admin Updated",
+  "email": "sa-updated@example.com",
+  "image_url": "https://example.com/sa.png",
+  "password": "NewStrongP@ssw0rd"
+}
+
 ### Auth: Login Unit User (requires subdomain)
 # @name unitLogin
 POST {{baseUrl}}/auth/unit
