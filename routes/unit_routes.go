@@ -15,4 +15,8 @@ func RegisterUnitRoutes(app *fiber.App, ctrl *controllers.UnitController) {
 	g.Post("/", ctrl.Create)
 	g.Put("/", ctrl.Update)
 	g.Delete("/", ctrl.Delete)
+
+	public := app.Group("/units")
+	useGetCache(public)
+	public.Get("/public_info", ctrl.PublicInfo)
 }

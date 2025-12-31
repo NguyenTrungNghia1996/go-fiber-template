@@ -371,6 +371,9 @@ Authorization: Bearer {{login.response.body.$.data.token}}
 DELETE {{baseUrl}}/admin/units?id={{createUnit.response.body.$.data.id}}
 Authorization: Bearer {{login.response.body.$.data.token}}
 
+### Units: Public Info by Subdomain (no auth)
+GET {{baseUrl}}/units/public_info?subdomain={{unitSubdomain}}
+
 ### Service Packages: List (all, no pagination)
 GET {{baseUrl}}/admin/service_packages?page=0&q=basic
 Authorization: Bearer {{login.response.body.$.data.token}}

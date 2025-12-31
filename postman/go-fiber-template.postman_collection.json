@@ -1668,6 +1668,31 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Get Unit Public Info by Subdomain",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "description": "Public endpoint returning basic unit info by subdomain.",
+            "url": {
+              "raw": "{{baseUrl}}/units/public_info?subdomain=sales",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "units",
+                "public_info"
+              ],
+              "query": [
+                {
+                  "key": "subdomain",
+                  "value": "sales"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
