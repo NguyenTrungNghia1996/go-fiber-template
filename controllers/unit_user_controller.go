@@ -91,6 +91,7 @@ func (h *UnitUserController) Create(c *fiber.Ctx) error {
 		Password string   `json:"password"`
 		Name     string   `json:"name"`
 		Email    string   `json:"email"`
+		ImageURL string   `json:"image_url"`
 		IsAdmin  bool     `json:"is_admin"`
 		RoleIDs  []string `json:"role_group_ids"`
 	}
@@ -119,6 +120,7 @@ func (h *UnitUserController) Create(c *fiber.Ctx) error {
 		RoleGroupIDs: roleGroupIDs,
 		Name:         strings.TrimSpace(in.Name),
 		Email:        strings.TrimSpace(in.Email),
+		ImageURL:     strings.TrimSpace(in.ImageURL),
 	}
 	if err := h.repo.Create(c.Context(), u); err != nil {
 		if strings.Contains(err.Error(), "E11000") {
@@ -144,6 +146,7 @@ func (h *UnitUserController) Update(c *fiber.Ctx) error {
 		Password *string   `json:"password,omitempty"`
 		Name     *string   `json:"name,omitempty"`
 		Email    *string   `json:"email,omitempty"`
+		ImageURL *string   `json:"image_url,omitempty"`
 		IsAdmin  *bool     `json:"is_admin,omitempty"`
 		RoleIDs  *[]string `json:"role_group_ids,omitempty"`
 	}
@@ -178,6 +181,9 @@ func (h *UnitUserController) Update(c *fiber.Ctx) error {
 	}
 	if in.Email != nil {
 		updates = append(updates, bson.E{Key: "email", Value: strings.TrimSpace(*in.Email)})
+	}
+	if in.ImageURL != nil {
+		updates = append(updates, bson.E{Key: "image_url", Value: strings.TrimSpace(*in.ImageURL)})
 	}
 	if in.IsAdmin != nil {
 		// Prevent demoting the last admin of the unit

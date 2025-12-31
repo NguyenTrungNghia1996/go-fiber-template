@@ -61,6 +61,7 @@ func (h *SuperAdminController) Create(c *fiber.Ctx) error {
 		IsAdmin:      isAdmin,
 		Name:         strings.TrimSpace(in.Name),
 		Email:        strings.TrimSpace(in.Email),
+		ImageURL:     strings.TrimSpace(in.ImageURL),
 		RoleGroupIDs: roleGroupIDs,
 		CreatedAt:    time.Now().UTC(),
 		UpdatedAt:    time.Now().UTC(),
@@ -126,6 +127,10 @@ func (h *SuperAdminController) Update(c *fiber.Ctx) error {
 	if in.Email != nil {
 		v := strings.TrimSpace(*in.Email)
 		updates = append(updates, bson.E{Key: "email", Value: v})
+	}
+	if in.ImageURL != nil {
+		v := strings.TrimSpace(*in.ImageURL)
+		updates = append(updates, bson.E{Key: "image_url", Value: v})
 	}
 	if in.RoleGroupIDs != nil {
 		roleGroupIDs, err := h.parseRoleGroupIDs(c.Context(), *in.RoleGroupIDs)
@@ -208,6 +213,7 @@ func (h *SuperAdminController) Login(c *fiber.Ctx) error {
 		"is_admin":       isAdmin,
 		"name":           sa.Name,
 		"email":          sa.Email,
+		"image_url":      sa.ImageURL,
 		"role_group_ids": sa.RoleGroupIDs,
 	}
 	return response.Success(c, fiber.Map{

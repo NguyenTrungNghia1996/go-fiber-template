@@ -77,7 +77,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
+              "raw": "{\n  \"username\": \"member1\",\n  \"password\": \"Member@123\",\n  \"name\": \"Member One\",\n  \"email\": \"member1@example.com\",\n  \"image_url\": \"https://example.com/member1.png\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit/unit_users",
@@ -139,7 +139,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
+              "raw": "{\n  \"id\": \"{{unitUserId}}\",\n  \"name\": \"Member One Updated\",\n  \"email\": \"member1_new@example.com\",\n  \"image_url\": \"https://example.com/member1-updated.png\",\n  \"is_admin\": false,\n  \"role_group_ids\": [\"{{unitRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit/unit_users",
@@ -703,7 +703,7 @@
           "name": "Update My Profile",
           "request": {
             "method": "PUT",
-            "description": "[VI] C\u1eadp nh\u1eadt th\u00f4ng tin c\u00e1 nh\u00e2n (name/email/password). Kh\u00f4ng ch\u1ec9nh s\u1eeda `username` hay quy\u1ec1n.",
+            "description": "[VI] C\u1eadp nh\u1eadt th\u00f4ng tin c\u00e1 nh\u00e2n (name/email/image_url/password). Kh\u00f4ng ch\u1ec9nh s\u1eeda `username` hay quy\u1ec1n.",
             "header": [
               {
                 "key": "Content-Type",
@@ -716,7 +716,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"My New Name\",\n  \"email\": \"my.new@example.com\",\n  \"password\": \"NewP@ssw0rd\"\n}"
+              "raw": "{\n  \"name\": \"My New Name\",\n  \"email\": \"my.new@example.com\",\n  \"image_url\": \"https://example.com/me.png\",\n  \"password\": \"NewP@ssw0rd\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/unit/unit_me",
@@ -909,7 +909,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"StrongP@ssw0rd\",\n  \"is_admin\": true,\n  \"name\": \"Admin One\",\n  \"email\": \"admin1@example.com\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
+              "raw": "{\n  \"username\": \"admin1\",\n  \"password\": \"StrongP@ssw0rd\",\n  \"is_admin\": true,\n  \"name\": \"Admin One\",\n  \"email\": \"admin1@example.com\",\n  \"image_url\": \"https://example.com/admin1.png\",\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/superadmins",
@@ -969,7 +969,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"is_admin\": true,\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
+              "raw": "{\n  \"id\": \"{{superAdminId}}\",\n  \"name\": \"Admin One Updated\",\n  \"email\": \"new@example.com\",\n  \"image_url\": \"https://example.com/admin1-updated.png\",\n  \"is_admin\": true,\n  \"role_group_ids\": [\"{{superAdminRoleGroupId}}\"]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/superadmins",
@@ -1564,7 +1564,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2025-01-01T00:00:00Z\",\n      \"end_at\": \"2030-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\"\n  }\n}"
+              "raw": "{\n  \"subdomain\": \"sales\",\n  \"name\": \"Sales Department\",\n  \"description\": \"Handles sales operations\",\n  \"logo_url\": \"https://example.com/logo.png\",\n  \"service_packages\": [\n    {\n      \"service_package_id\": \"{{servicePackageId}}\",\n      \"start_at\": \"2025-01-01T00:00:00Z\",\n      \"end_at\": \"2030-01-01T00:00:00Z\"\n    }\n  ],\n  \"admin_user\": {\n    \"username\": \"admin\",\n    \"password\": \"admin\",\n    \"name\": \"Sales Admin\",\n    \"email\": \"sales.admin@example.com\",\n    \"image_url\": \"https://example.com/admin.png\"\n  }\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/admin/units",

@@ -56,6 +56,7 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "password": "Member@123",
   "name": "Member One",
   "email": "member1@example.com",
+  "image_url": "https://example.com/member1.png",
   "is_admin": false,
   "role_group_ids": ["{{createUnitRoleGroup.response.body.$.data.id}}"]
 }
@@ -73,6 +74,7 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
   "id": "{{createUnitUser.response.body.$.data.id}}",
   "name": "Member One Updated",
   "email": "member1_new@example.com",
+  "image_url": "https://example.com/member1-updated.png",
   "is_admin": false,
   "role_group_ids": ["{{createUnitRoleGroup.response.body.$.data.id}}"]
 }
@@ -156,6 +158,7 @@ Authorization: Bearer {{unitLogin.response.body.$.data.token}}
 {
   "name": "My New Name",
   "email": "my.new@example.com",
+  "image_url": "https://example.com/me.png",
   "password": "NewP@ssw0rd"
 }
 
@@ -189,6 +192,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "is_admin": true,
   "name": "Admin One",
   "email": "admin1@example.com",
+  "image_url": "https://example.com/admin1.png",
   "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
 
@@ -205,6 +209,7 @@ Authorization: Bearer {{login.response.body.$.data.token}}
   "id": "{{createSuperAdmin.response.body.$.data.id}}",
   "name": "Admin One Updated",
   "email": "new@example.com",
+  "image_url": "https://example.com/admin1-updated.png",
   "is_admin": true,
   "role_group_ids": ["{{createSuperAdminRoleGroup.response.body.$.data.id}}"]
 }
@@ -337,7 +342,8 @@ Authorization: Bearer {{login.response.body.$.data.token}}
     "username": "admin",
     "password": "admin",
     "name": "Sales Admin",
-    "email": "sales.admin@example.com"
+    "email": "sales.admin@example.com",
+    "image_url": "https://example.com/admin.png"
   }
 }
  

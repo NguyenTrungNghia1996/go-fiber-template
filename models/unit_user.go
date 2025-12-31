@@ -16,6 +16,7 @@ type UnitUser struct {
 	RoleGroupIDs []primitive.ObjectID `bson:"role_group_ids,omitempty" json:"role_group_ids,omitempty"`
 	Name         string               `bson:"name,omitempty" json:"name,omitempty"`
 	Email        string               `bson:"email,omitempty" json:"email,omitempty"`
+	ImageURL     string               `bson:"image_url,omitempty" json:"image_url,omitempty"`
 	CreatedAt    time.Time            `bson:"created_at" json:"created_at"`
 	UpdatedAt    time.Time            `bson:"updated_at" json:"updated_at"`
 }
