@@ -27,17 +27,3 @@ services:
       CLOUDFLARE_PROXIED: true
       CLOUDFLARE_TTL: 1
     restart: unless-stopped
-    depends_on:
-      - mongo
-
-  mongo:
-    image: mongo:6
-    container_name: mongo
-    networks:
-      - app-network
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: cr969bp6x6
-    expose:
-      - "27017"
-    restart: unless-stopped
